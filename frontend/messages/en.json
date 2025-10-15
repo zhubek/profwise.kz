@@ -1,0 +1,278 @@
+{
+  "common": {
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "viewAll": "View All",
+      "viewDetails": "View Details",
+      "startTest": "Start Test",
+      "retakeTest": "Retake Test",
+      "viewResults": "View Results",
+      "download": "Download",
+      "like": "Like",
+      "delete": "Delete",
+      "edit": "Edit",
+      "close": "Close"
+    },
+    "labels": {
+      "search": "Search",
+      "filter": "Filter",
+      "sortBy": "Sort by",
+      "showingResults": "Showing {count} results",
+      "loading": "Loading...",
+      "error": "Error",
+      "success": "Success",
+      "language": "Language"
+    },
+    "validation": {
+      "required": "This field is required",
+      "invalidEmail": "Please enter a valid email",
+      "minLength": "Minimum {min} characters required",
+      "maxLength": "Maximum {max} characters allowed"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "licenseCode": "License Code",
+    "enterLicenseCode": "Enter your license code",
+    "forgotPassword": "Forgot Password?",
+    "rememberMe": "Remember me",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "signUp": "Sign Up",
+    "signIn": "Sign In"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {name}",
+    "careerTests": "Career Tests",
+    "matchedProfessions": "Matched Professions",
+    "recentActivity": "Recent Activity",
+    "myProgress": "My Progress",
+    "completedTests": "{completed} of {total} completed",
+    "viewProfile": "View My Profile",
+    "testHistory": "Test History",
+    "noTests": "No tests available yet",
+    "noMatches": "Take a test to find profession matches"
+  },
+  "tests": {
+    "careerTest": "Career Test",
+    "riasecTest": "RIASEC Interest Test",
+    "valuesTest": "Work Values Test",
+    "skillsTest": "Skills Assessment",
+    "personalityTest": "Personality Test",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "notStarted": "Not Started",
+    "duration": "Duration: {minutes} minutes",
+    "questions": "{count} questions",
+    "section": "Section {current} of {total}",
+    "progress": "Progress: {percent}%",
+    "completeTest": "Complete Test",
+    "saveProgress": "Save Progress",
+    "instructions": "Instructions",
+    "answerAllQuestions": "Please answer all questions before proceeding",
+    "selectTest": "Select Test",
+    "availableTests": "Available Tests",
+    "comingSoon": "Coming Soon",
+    "locked": "Locked",
+    "aboutThisTest": "About This Test",
+    "howToTakeTest": "How to Take the Test",
+    "whatYouWillLearn": "What You Will Learn",
+    "testDetails": "Test Details",
+    "common": {
+      "buttons": {
+        "viewResults": "View Results",
+        "retakeTest": "Retake Test",
+        "startTest": "Start Test",
+        "continueTest": "Continue Test"
+      }
+    },
+    "holland": {
+      "title": "Holland Test (RIASEC)",
+      "subtitle": "Discover Your Career Interests",
+      "overview": "The Holland Test, also known as the RIASEC Interest Inventory, is a comprehensive career assessment tool developed by psychologist John L. Holland. This scientifically validated test helps you understand your vocational interests and identifies career paths that align with your natural preferences and personality.",
+      "whatItMeasures": {
+        "title": "What This Test Measures",
+        "description": "The Holland Test evaluates your interests across six personality types, known as the RIASEC model:",
+        "realistic": "Realistic (R): Practical, hands-on problem solvers who enjoy working with tools, machines, and physical tasks.",
+        "investigative": "Investigative (I): Analytical thinkers who love research, inquiry, and solving complex problems.",
+        "artistic": "Artistic (A): Creative individuals who express themselves through art, music, writing, or design.",
+        "social": "Social (S): People-oriented helpers who enjoy teaching, counseling, and supporting others.",
+        "enterprising": "Enterprising (E): Leaders and persuaders who thrive in business, sales, and entrepreneurial roles.",
+        "conventional": "Conventional (C): Organized detail-oriented individuals who excel at data management and structured tasks."
+      },
+      "howItWorks": {
+        "title": "How It Works",
+        "step1": "Answer 60 questions honestly about activities you enjoy or would like to do.",
+        "step2": "Rate your interest level in various work-related tasks and scenarios.",
+        "step3": "Receive your personalized RIASEC profile showing your top interest areas.",
+        "step4": "Explore career matches tailored to your unique interest profile."
+      },
+      "instructions": {
+        "title": "Instructions",
+        "intro": "To get the most accurate results:",
+        "point1": "Set aside 15-20 minutes in a quiet environment.",
+        "point2": "Answer honestly based on what you genuinely enjoy, not what others expect.",
+        "point3": "Don't overthink your answers—your first instinct is usually correct.",
+        "point4": "Complete all sections for comprehensive results.",
+        "point5": "You can save your progress and return later if needed."
+      },
+      "resultsInfo": {
+        "title": "What You'll Learn",
+        "point1": "Your top three Holland Code types (e.g., IAS, RIE)",
+        "point2": "Detailed breakdown of your interest scores across all six categories",
+        "point3": "Personalized career recommendations matched to your profile",
+        "point4": "Insights into work environments where you'll thrive",
+        "point5": "Understanding of your natural strengths and preferences"
+      }
+    }
+  },
+  "archetypes": {
+    "title": "My Archetypes Profile",
+    "interests": "Interests",
+    "skills": "Skills",
+    "personality": "Personality",
+    "values": "Values",
+    "abilities": "Abilities",
+    "all": "All Archetypes",
+    "topTraits": "Your top archetype traits in: {category}",
+    "realistic": "Realistic",
+    "investigative": "Investigative",
+    "artistic": "Artistic",
+    "social": "Social",
+    "enterprising": "Enterprising",
+    "conventional": "Conventional",
+    "viewAllMatches": "View All Profession Matches",
+    "updateProfile": "Update Profile",
+    "takeAssessment": "Take Assessment",
+    "notCompleted": "Test not completed? Take the assessment to see your results."
+  },
+  "professions": {
+    "title": "Career Matches",
+    "topMatches": "Top Career Matches",
+    "exploreDescription": "Explore professions tailored to your profile",
+    "filterBy": "Filter by",
+    "sortByMatch": "Match Score",
+    "sortByMatchScore": "Match Score",
+    "sortByAlphabetical": "Alphabetical",
+    "sortByPopularity": "Popularity",
+    "matchScore": "{percent}% Match",
+    "popular": "Popular",
+    "highMatch": "High Match (85%+)",
+    "viewSimilar": "View Similar Professions",
+    "matchBreakdown": "Match Breakdown",
+    "common": {
+      "labels": {
+        "showingResults": "Showing {count} results",
+        "sortBy": "Sort by"
+      },
+      "buttons": {
+        "viewDetails": "View Details",
+        "like": "Like",
+        "delete": "Delete"
+      }
+    },
+    "category": {
+      "all": "All",
+      "technology": "Technology",
+      "business": "Business",
+      "healthcare": "Healthcare",
+      "science": "Science",
+      "design": "Design",
+      "communication": "Communication",
+      "education": "Education",
+      "arts": "Arts"
+    },
+    "tabs": {
+      "general": "General",
+      "description": "Description",
+      "laborMarket": "Labor Market",
+      "education": "Education",
+      "archetypes": "Archetypes"
+    },
+    "details": {
+      "overview": "Overview",
+      "responsibilities": "Key Responsibilities",
+      "requiredSkills": "Required Skills",
+      "workEnvironment": "Work Environment",
+      "demandLevel": "Demand Level",
+      "jobGrowth": "Job Growth",
+      "openings": "Annual Openings",
+      "salary": "Salary Information",
+      "entryLevel": "Entry Level",
+      "midCareer": "Mid-Career",
+      "seniorLevel": "Senior Level",
+      "educationRequired": "Educational Requirements",
+      "minimumEducation": "Minimum Education",
+      "preferredFields": "Preferred Fields",
+      "certifications": "Certifications",
+      "learningPaths": "Learning Paths"
+    }
+  },
+  "activity": {
+    "testCompleted": "Completed {testName}",
+    "profileUpdated": "Updated profile",
+    "newMatch": "New profession match: {professionName}",
+    "achievement": "Earned achievement: {achievementName}",
+    "licenseActivated": "License code activated",
+    "classroomJoined": "Joined classroom: {classroomName}"
+  },
+  "organization": {
+    "title": "Organization Dashboard",
+    "students": "Students",
+    "classrooms": "Classrooms",
+    "licenseCodes": "License Codes",
+    "generateCodes": "Generate License Codes",
+    "viewStudents": "View Students",
+    "viewResults": "View Results",
+    "aggregatedResults": "Aggregated Results",
+    "createClassroom": "Create Classroom",
+    "studentsCount": "{count} students",
+    "activeStudents": "Active Students",
+    "completedTests": "Completed Tests",
+    "averageProgress": "Average Progress"
+  },
+  "profile": {
+    "title": "My Profile",
+    "personalInfo": "Personal Information",
+    "name": "Name",
+    "avatar": "Avatar",
+    "classroom": "Classroom",
+    "organization": "Organization",
+    "joinedDate": "Joined Date",
+    "lastActive": "Last Active",
+    "testsTaken": "Tests Taken",
+    "professionsExplored": "Professions Explored",
+    "accountSettings": "Account Settings",
+    "changePassword": "Change Password",
+    "notifications": "Notifications",
+    "privacy": "Privacy Settings"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "tests": "Tests",
+    "archetypes": "Archetypes",
+    "professions": "Professions",
+    "profile": "Profile",
+    "organization": "Organization",
+    "help": "Help",
+    "settings": "Settings"
+  },
+  "footer": {
+    "copyright": "© {year} ProfWise. All rights reserved.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "contact": "Contact Us",
+    "about": "About"
+  }
+}

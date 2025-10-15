@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run dev)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_wait_for",
+      "Bash(node -e \"JSON.parse(require(''fs'').readFileSync(''messages/en.json'', ''utf8''))\")",
+      "Bash(node -e \"JSON.parse(require(''fs'').readFileSync(''messages/ru.json'', ''utf8''))\")",
+      "Bash(node:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(npx @nestjs/cli new:*)",
+      "mcp__playwright__browser_press_key",
+      "Bash(npx prisma:*)",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_close",
+      "Bash(docker compose:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker exec:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(npx nest generate:*)",
+      "Bash(npx nest generate service:*)",
+      "Bash(npx nest g resource:*)",
+      "Bash(npm run build)",
+      "Bash(npm run test:e2e:*)",
+      "mcp__playwright__browser_snapshot",
+      "Bash(npm run seed:*)",
+      "Bash(curl:*)",
+      "mcp__playwright__browser_evaluate",
+      "Bash(PORT=3001 npm run dev:*)",
+      "Bash(fuser:*)",
+      "Bash(pkill:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
+}

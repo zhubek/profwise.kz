@@ -1,0 +1,406 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================================
+// USERS MODULE
+// ================================
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  surname   String
+  schoolId  String?
+  email     String   @unique
+  grade     String?
+  age       Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userLicenses            UserLicense[]
+  results                 Result[]
+  userQuestions           UserQuestion[]
+  userArchetypes          UserArchetype[]
+  userProfessions         UserProfession[]
+
+  @@map("users")
+}
+
+model Organization {
+  id       String           @id @default(uuid())
+  name     String
+  regionId String
+  type     OrganizationType
+
+  // Relations
+  region   Region    @relation(fields: [regionId], references: [id])
+  licenses License[]
+
+  @@map("organizations")
+}
+
+enum OrganizationType {
+  SCHOOL
+  UNIVERSITY
+  COLLEGE
+  OTHER
+}
+
+model Region {
+  id   String @id @default(uuid())
+  name Json
+
+  // Relations
+  organizations Organization[]
+
+  @@map("regions")
+}
+
+model License {
+  id             String   @id @default(uuid())
+  startDate      DateTime
+  expireDate     DateTime
+  licenseCode    String   @unique
+  name           String
+  licenseClassId String
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  // Relations
+  licenseClass LicenseClass  @relation(fields: [licenseClassId], references: [id])
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  userLicenses UserLicense[]
+
+  @@map("licenses")
+}
+
+model LicenseClass {
+  id   String @id @default(uuid())
+  name String
+
+  // Relations
+  licenses              License[]
+  licenseClassQuizzes   LicenseClassQuiz[]
+
+  @@map("license_classes")
+}
+
+model UserLicense {
+  id        String   @id @default(uuid())
+  userId    String
+  licenseId String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  license License @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, licenseId])
+  @@map("user_licenses")
+}
+
+model LicenseClassQuiz {
+  id             String @id @default(uuid())
+  licenseClassId String
+  quizId         String
+
+  // Relations
+  licenseClass LicenseClass @relation(fields: [licenseClassId], references: [id], onDelete: Cascade)
+  quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([licenseClassId, quizId])
+  @@map("license_class_quizzes")
+}
+
+// ================================
+// QUIZ MODULE
+// ================================
+
+model Quiz {
+  id          String   @id @default(uuid())
+  quizName    Json
+  quizType    QuizType
+  isFree      Boolean  @default(false)
+  description Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  questions           Question[]
+  results             Result[]
+  licenseClassQuizzes LicenseClassQuiz[]
+
+  @@map("quizzes")
+}
+
+enum QuizType {
+  PERSONALITY
+  APTITUDE
+  KNOWLEDGE
+  CAREER
+  OTHER
+}
+
+model Question {
+  id           String       @id @default(uuid())
+  quizId       String
+  questionText Json
+  answers      Json
+  parameters   Json?
+  questionType QuestionType
+  createdAt    DateTime     @default(now())
+
+  // Relations
+  quiz          Quiz           @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userQuestions UserQuestion[]
+
+  @@map("questions")
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SCALE
+  TEXT
+  OTHER
+}
+
+model Result {
+  id        String   @id @default(uuid())
+  userId    String
+  quizId    String
+  answers   Json
+  results   Json
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@map("results")
+}
+
+model UserQuestion {
+  id         String   @id @default(uuid())
+  userId     String
+  questionId String
+  answers    Json
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+  @@map("user_questions")
+}
+
+// ================================
+// PROFESSION MODULE
+// ================================
+
+model Profession {
+  id          String  @id @default(uuid())
+  name        Json
+  description Json?
+  code        String  @unique
+  categoryId  String
+  featured    Boolean @default(false)
+
+  // Relations
+  category              Category              @relation(fields: [categoryId], references: [id])
+  professionSpecs       ProfessionSpec[]
+  professionArchetypes  ProfessionArchetype[]
+  userProfessions       UserProfession[]
+
+  @@map("professions")
+}
+
+model Category {
+  id          String @id @default(uuid())
+  name        Json
+  description Json?
+
+  // Relations
+  professions Profession[]
+
+  @@map("categories")
+}
+
+model University {
+  id          String @id @default(uuid())
+  name        Json
+  description Json?
+  code        String @unique
+
+  // Relations
+  specUniversities SpecUniversity[]
+
+  @@map("universities")
+}
+
+model Spec {
+  id        String @id @default(uuid())
+  name      Json
+  code      String @unique
+  description Json?
+  subjects  Json?
+  groupName Json?
+
+  // Relations
+  specUniversities SpecUniversity[]
+  professionSpecs  ProfessionSpec[]
+
+  @@map("specs")
+}
+
+model SpecUniversity {
+  id         String  @id @default(uuid())
+  isEnglish  Boolean @default(false)
+  specId     String
+  universityId String
+
+  // Relations
+  spec        Spec         @relation(fields: [specId], references: [id], onDelete: Cascade)
+  university  University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  testScores  TestScore[]
+
+  @@unique([specId, universityId, isEnglish])
+  @@map("spec_universities")
+}
+
+model ProfessionSpec {
+  id           String @id @default(uuid())
+  professionId String
+  specId       String
+
+  // Relations
+  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  spec       Spec       @relation(fields: [specId], references: [id], onDelete: Cascade)
+
+  @@unique([professionId, specId])
+  @@map("profession_specs")
+}
+
+model TestScore {
+  id               String @id @default(uuid())
+  year             Int
+  specUniversityId String
+  minPoints        Int
+  maxPoints        Int?
+  grantCounts      Int?
+  typeId           String
+
+  // Relations
+  specUniversity SpecUniversity @relation(fields: [specUniversityId], references: [id], onDelete: Cascade)
+  type           TestScoreType  @relation(fields: [typeId], references: [id])
+
+  @@map("test_scores")
+}
+
+model TestScoreType {
+  id         String @id @default(uuid())
+  name       String
+  parameters Json?
+
+  // Relations
+  testScores TestScore[]
+
+  @@map("test_score_types")
+}
+
+// ================================
+// ARCHETYPE MODULE
+// ================================
+
+model Archetype {
+  id              String @id @default(uuid())
+  name            Json
+  archetypeTypeId String
+  description     Json?
+
+  // Relations
+  archetypeType        ArchetypeType         @relation(fields: [archetypeTypeId], references: [id])
+  professionArchetypes ProfessionArchetype[]
+  userArchetypes       UserArchetype[]
+
+  @@map("archetypes")
+}
+
+model ArchetypeType {
+  id          String @id @default(uuid())
+  name        Json
+  description Json?
+
+  // Relations
+  archetypes                     Archetype[]
+  userProfessionArchetypeTypes   UserProfessionArchetypeType[]
+
+  @@map("archetype_types")
+}
+
+model ProfessionArchetype {
+  id           String @id @default(uuid())
+  professionId String
+  archetypeId  String
+  score        Int
+
+  // Relations
+  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  archetype  Archetype  @relation(fields: [archetypeId], references: [id], onDelete: Cascade)
+
+  @@unique([professionId, archetypeId])
+  @@map("profession_archetypes")
+}
+
+model UserArchetype {
+  id          String @id @default(uuid())
+  userId      String
+  archetypeId String
+  score       Int
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  archetype Archetype @relation(fields: [archetypeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, archetypeId])
+  @@map("user_archetypes")
+}
+
+model UserProfession {
+  id           String   @id @default(uuid())
+  userId       String
+  professionId String
+  createdAt    DateTime @default(now())
+
+  // Relations
+  user                           User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profession                     Profession                    @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  userProfessionArchetypeTypes   UserProfessionArchetypeType[]
+
+  @@unique([userId, professionId])
+  @@map("user_professions")
+}
+
+model UserProfessionArchetypeType {
+  id                String @id @default(uuid())
+  userProfessionId  String
+  archetypeTypeId   String
+  score             Int
+
+  // Relations
+  userProfession  UserProfession @relation(fields: [userProfessionId], references: [id], onDelete: Cascade)
+  archetypeType   ArchetypeType  @relation(fields: [archetypeTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([userProfessionId, archetypeTypeId])
+  @@map("user_profession_archetype_types")
+}
