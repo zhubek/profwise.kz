@@ -15,15 +15,21 @@ datasource db {
 // ================================
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  surname   String
-  schoolId  String?
-  email     String   @unique
-  grade     String?
-  age       Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                       String    @id @default(uuid())
+  name                     String
+  surname                  String
+  schoolId                 String?
+  email                    String    @unique
+  password                 String
+  grade                    String?
+  age                      Int?
+  language                 Language  @default(RU)
+  emailVerified            Boolean   @default(false)
+  emailVerificationToken   String?   @unique
+  emailVerificationExpires DateTime?
+  onboardingCompleted      Boolean   @default(false)
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
 
   // Relations
   userLicenses            UserLicense[]
@@ -33,6 +39,12 @@ model User {
   userProfessions         UserProfession[]
 
   @@map("users")
+}
+
+enum Language {
+  EN
+  RU
+  KZ
 }
 
 model Organization {

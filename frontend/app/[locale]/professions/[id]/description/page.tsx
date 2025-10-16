@@ -3,6 +3,7 @@ import { getProfessionDetails } from '@/lib/api/mock/professions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Briefcase, Wrench } from 'lucide-react';
+import { getLocalizedText } from '@/lib/utils/i18n';
 
 interface DescriptionPageProps {
   params: Promise<{
@@ -12,7 +13,7 @@ interface DescriptionPageProps {
 }
 
 export default async function DescriptionPage({ params }: DescriptionPageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
 
   try {
     const profession = await getProfessionDetails(id);
@@ -26,7 +27,7 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground leading-relaxed">
-              {profession.overview || profession.description}
+              {getLocalizedText(profession.overview || profession.description, locale)}
             </p>
           </CardContent>
         </Card>
@@ -48,7 +49,7 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
                 {profession.keyResponsibilities.map((responsibility, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">{responsibility}</span>
+                    <span className="text-muted-foreground">{getLocalizedText(responsibility, locale)}</span>
                   </div>
                 ))}
               </div>
@@ -70,7 +71,7 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
                 {profession.typicalTasks.map((task, index) => (
                   <div key={index} className="flex items-start gap-2">
                     <span className="text-primary mt-1">→</span>
-                    <span className="text-sm text-muted-foreground">{task}</span>
+                    <span className="text-sm text-muted-foreground">{getLocalizedText(task, locale)}</span>
                   </div>
                 ))}
               </div>
@@ -94,7 +95,7 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
               <div className="flex flex-wrap gap-2">
                 {profession.toolsAndTechnologies.map((tool, index) => (
                   <Badge key={index} variant="secondary">
-                    {tool}
+                    {getLocalizedText(tool, locale)}
                   </Badge>
                 ))}
               </div>
@@ -112,7 +113,7 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
               <div className="flex flex-wrap gap-2">
                 {profession.requiredSkills.map((skill, index) => (
                   <Badge key={index} variant="outline">
-                    {skill}
+                    {getLocalizedText(skill, locale)}
                   </Badge>
                 ))}
               </div>
@@ -128,7 +129,7 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed">
-                {profession.workEnvironment}
+                {getLocalizedText(profession.workEnvironment, locale)}
               </p>
             </CardContent>
           </Card>

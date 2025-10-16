@@ -74,7 +74,7 @@ export default function TestSelector({ tests, selectedTestId, onTestSelect, lice
           <div className="flex items-start gap-2">
             <Shield className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">License Code</p>
+              <p className="text-sm font-medium">{t('licenseCode')}</p>
               <p className="text-sm text-muted-foreground font-mono">{licenseInfo.licenseCode}</p>
             </div>
           </div>
@@ -82,7 +82,7 @@ export default function TestSelector({ tests, selectedTestId, onTestSelect, lice
           <div className="flex items-start gap-2">
             <Calendar className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">Expires</p>
+              <p className="text-sm font-medium">{t('expires')}</p>
               <p className="text-sm text-muted-foreground">{expirationDate}</p>
             </div>
           </div>
@@ -90,7 +90,7 @@ export default function TestSelector({ tests, selectedTestId, onTestSelect, lice
           <div className="flex items-start gap-2">
             <Building2 className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">School</p>
+              <p className="text-sm font-medium">{t('school')}</p>
               <p className="text-sm text-muted-foreground">{licenseInfo.organizationName}</p>
             </div>
           </div>

@@ -1,3 +1,10 @@
+// Multilingual text type
+export interface MultilingualText {
+  en: string;
+  ru: string;
+  kk: string;
+}
+
 export type ProfessionCategory =
   | 'technology'
   | 'business'
@@ -21,8 +28,8 @@ export type DemandLevel = 'low' | 'medium' | 'high' | 'very_high';
 
 export interface Profession {
   id: string;
-  title: string;
-  description: string;
+  title: MultilingualText;
+  description: MultilingualText;
   category: ProfessionCategory;
   icon?: string;
   popular?: boolean;
@@ -31,12 +38,12 @@ export interface Profession {
 }
 
 export interface ProfessionDetails extends Profession {
-  overview: string;
-  keyResponsibilities: string[];
-  requiredSkills: string[];
-  workEnvironment: string;
-  typicalTasks: string[];
-  toolsAndTechnologies?: string[];
+  overview: MultilingualText;
+  keyResponsibilities: MultilingualText[];
+  requiredSkills: MultilingualText[];
+  workEnvironment: MultilingualText;
+  typicalTasks: MultilingualText[];
+  toolsAndTechnologies?: MultilingualText[];
 }
 
 export interface ProfessionMatch extends Profession {
@@ -55,8 +62,8 @@ export interface ProfessionLaborMarket {
   demandLevel: DemandLevel;
   jobGrowth: string; // e.g., "+15%"
   annualOpenings: number;
-  industrySectors: string[];
-  geographicHotspots: string[];
+  industrySectors: MultilingualText[];
+  geographicHotspots: MultilingualText[];
   updatedAt: string;
 }
 
@@ -81,21 +88,21 @@ export interface ProfessionSalary {
 export interface ProfessionEducation {
   professionId: string;
   minimumEducation: EducationLevel;
-  preferredFields: string[];
+  preferredFields: MultilingualText[];
   recommendedCourses: {
-    core: string[];
-    elective: string[];
+    core: MultilingualText[];
+    elective: MultilingualText[];
   };
-  certifications: string[];
+  certifications: MultilingualText[];
   learningPaths: LearningPath[];
 }
 
 export interface LearningPath {
   id: string;
-  title: string; // e.g., "Entry Level Path"
-  description: string;
+  title: MultilingualText; // e.g., "Entry Level Path"
+  description: MultilingualText;
   duration: string; // e.g., "2-4 years"
-  steps: string[];
+  steps: MultilingualText[];
 }
 
 export interface ProfessionArchetypes {

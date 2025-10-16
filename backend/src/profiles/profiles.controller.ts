@@ -1,27 +1,19 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
   Patch,
   Param,
   Delete,
   HttpCode,
   HttpStatus,
+  Body,
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
-
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.profilesService.create(createUserDto);
-  }
 
   @Get()
   findAll() {

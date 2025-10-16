@@ -1,12 +1,230 @@
 # Profwise API Documentation
 
-Base URL: `http://localhost:4000`
+Base URL: `http://172.26.195.243:4000` (or `http://localhost:4000` if running locally)
 
 ## Table of Contents
+- [Authentication Module](#authentication-module)
 - [Profiles (Users) Module](#profiles-users-module)
 - [Quizzes Module](#quizzes-module)
 - [Professions Module](#professions-module)
 - [Archetypes Module](#archetypes-module)
+
+---
+
+## Authentication Module
+
+Manages user authentication, registration, and email verification.
+
+### Register User
+**POST** `/auth/register`
+
+Registers a new user and sends verification email if email verification is enabled.
+
+**Request Body:**
+```json
+{
+  "name": "John",
+  "surname": "Doe",
+  "email": "john.doe@example.com",
+  "password": "SecurePassword123",
+  "schoolId": "school-uuid",  // optional
+  "grade": "10",              // optional
+  "age": 16,                  // optional
+  "language": "RU"            // optional: "EN", "RU", or "KZ" (defaults to "RU")
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "user": {
+    "id": "uuid",
+    "name": "John",
+    "surname": "Doe",
+    "email": "john.doe@example.com",
+    "schoolId": "school-uuid",
+    "grade": "10",
+    "age": 16,
+    "language": "RU",
+    "emailVerified": false,
+    "onboardingCompleted": false,
+    "createdAt": "2025-10-15T12:00:00.000Z",
+    "updatedAt": "2025-10-15T12:00:00.000Z"
+  },
+  "accessToken": "jwt-token-string",
+  "message": "Registration successful. Please check your email to verify your account."
+}
+```
+
+**Error Response:** `409 Conflict`
+```json
+{
+  "statusCode": 409,
+  "message": "User with this email already exists"
+}
+```
+
+### Login User
+**POST** `/auth/login`
+
+Authenticates a user and returns JWT token.
+
+**Request Body:**
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "SecurePassword123"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "user": {
+    "id": "uuid",
+    "name": "John",
+    "surname": "Doe",
+    "email": "john.doe@example.com",
+    "schoolId": "school-uuid",
+    "grade": "10",
+    "age": 16,
+    "language": "RU",
+    "emailVerified": true,
+    "onboardingCompleted": false,
+    "createdAt": "2025-10-15T12:00:00.000Z",
+    "updatedAt": "2025-10-15T12:00:00.000Z"
+  },
+  "accessToken": "jwt-token-string"
+}
+```
+
+**Error Response:** `401 Unauthorized`
+```json
+{
+  "statusCode": 401,
+  "message": "Invalid credentials"
+}
+```
+
+### Verify Email
+**GET** `/auth/verify-email?token={token}`
+
+Verifies user's email address using the token sent to their email.
+
+**Query Parameters:**
+- `token` (string, required): Email verification token
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Email verified successfully",
+  "user": {
+    "id": "uuid",
+    "name": "John",
+    "surname": "Doe",
+    "email": "john.doe@example.com",
+    "schoolId": null,
+    "grade": null,
+    "age": 16,
+    "language": "RU",
+    "emailVerified": true,
+    "onboardingCompleted": false,
+    "createdAt": "2025-10-15T12:00:00.000Z",
+    "updatedAt": "2025-10-15T12:00:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` - Invalid or expired token
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid verification token"
+}
+```
+
+`400 Bad Request` - Token expired
+```json
+{
+  "statusCode": 400,
+  "message": "Verification token has expired. Please request a new one."
+}
+```
+
+`400 Bad Request` - Already verified
+```json
+{
+  "statusCode": 400,
+  "message": "Email already verified"
+}
+```
+
+### Get Current User
+**GET** `/auth/me`
+
+Returns the currently authenticated user's profile.
+
+**Headers:**
+```
+Authorization: Bearer {jwt-token}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": "uuid",
+  "name": "John",
+  "surname": "Doe",
+  "email": "john.doe@example.com",
+  "schoolId": "school-uuid",
+  "grade": "10",
+  "age": 16,
+  "language": "RU",
+  "emailVerified": true,
+  "onboardingCompleted": false,
+  "createdAt": "2025-10-15T12:00:00.000Z",
+  "updatedAt": "2025-10-15T12:00:00.000Z"
+}
+```
+
+**Error Response:** `401 Unauthorized`
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+```
+
+### Send Test Email
+**POST** `/auth/send-test-email`
+
+Sends a test email to verify email configuration (development/testing only).
+
+**Request Body:**
+```json
+{
+  "email": "recipient@example.com",
+  "subject": "Test Email Subject",
+  "text": "Test email content"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Test email sent successfully"
+}
+```
+
+**Error Response:** `500 Internal Server Error`
+```json
+{
+  "statusCode": 500,
+  "message": "Failed to send test email"
+}
+```
 
 ---
 
@@ -478,3 +696,19 @@ Server error.
 - DELETE operations cascade to related entities
 - All endpoints use JSON for request/response bodies
 - Validation is enabled globally with whitelist and forbidNonWhitelisted
+- User language preference: Supports `EN` (English), `RU` (Russian), and `KZ` (Kazakh), defaults to `RU`
+
+### Authentication & Security
+- JWT tokens expire in 7 days
+- Passwords are hashed using bcrypt (10 rounds)
+- Email verification can be enabled/disabled via `ENABLE_EMAIL_VERIFICATION` environment variable
+- Email verification tokens expire in 24 hours
+- Protected endpoints require `Authorization: Bearer {token}` header
+
+### Email Configuration
+Email verification is powered by Brevo (formerly Sendinblue). Configure the following environment variables:
+- `BREVO_API_KEY`: Your Brevo API key
+- `ENABLE_EMAIL_VERIFICATION`: Set to `"true"` to enable email verification
+- `EMAIL_FROM`: Sender email address (e.g., "bex@profwise.kz")
+- `EMAIL_FROM_NAME`: Sender display name (e.g., "Profwise")
+- `FRONTEND_URL`: Frontend URL for email verification links

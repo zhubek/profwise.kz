@@ -12,6 +12,7 @@ import {
   Target,
   Lightbulb,
 } from 'lucide-react';
+import { getLocalizedText } from '@/lib/utils/i18n';
 
 interface MarketPageProps {
   params: Promise<{
@@ -37,7 +38,7 @@ const formatSalary = (amount: number, currency: string) => {
 };
 
 export default async function MarketPage({ params }: MarketPageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
 
   try {
     const [laborMarket, salary] = await Promise.all([
@@ -189,7 +190,7 @@ export default async function MarketPage({ params }: MarketPageProps) {
                     className="flex items-center gap-3 p-4 border rounded-lg hover:shadow-md transition-shadow bg-card"
                   >
                     <Building2 className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="font-medium">{sector}</span>
+                    <span className="font-medium">{getLocalizedText(sector, locale)}</span>
                   </div>
                 ))}
               </div>
@@ -220,7 +221,7 @@ export default async function MarketPage({ params }: MarketPageProps) {
                       <MapPin className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <div className="font-medium">{location}</div>
+                      <div className="font-medium">{getLocalizedText(location, locale)}</div>
                       <div className="text-xs text-muted-foreground">High job availability</div>
                     </div>
                   </div>

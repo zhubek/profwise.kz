@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Test, UserTest } from '@/types/test';
 import { hasHollandTestInProgress, getHollandTestProgress } from '@/lib/utils/testStorage';
 import { HOLLAND_TEST_ID } from '@/lib/api/mock/holland';
+import ResultsDrawer from './ResultsDrawer';
 
 interface TestDetailViewProps {
   test: Test;
@@ -82,12 +83,9 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
     if (userTest?.status === 'completed') {
       return (
         <div className="flex flex-col sm:flex-row gap-3">
-          <Link href={`/tests/${test.id}/results`} className="flex-1">
-            <Button variant="outline" className="w-full">
-              <FileText className="mr-2 h-4 w-4" />
-              {t('common.buttons.viewResults')}
-            </Button>
-          </Link>
+          <div className="flex-1">
+            <ResultsDrawer />
+          </div>
           <Link href={testUrl} className="flex-1">
             <Button className="w-full">
               <Play className="mr-2 h-4 w-4" />
@@ -145,7 +143,7 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
               <div className="flex items-center gap-2">
                 <Award className="h-5 w-5 text-muted-foreground" />
                 <span className="text-sm">
-                  Completed {new Date(userTest.completedAt).toLocaleDateString()}
+                  {t('completedOn', { date: new Date(userTest.completedAt).toLocaleDateString() })}
                 </span>
               </div>
             )}
@@ -157,7 +155,7 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">
                   {test.id === HOLLAND_TEST_ID && hasLocalTest
-                    ? 'Test in progress'
+                    ? t('testInProgress')
                     : t('section', { current: userTest?.currentSection || 1, total: test.totalSections })}
                 </span>
                 <span className="font-medium">

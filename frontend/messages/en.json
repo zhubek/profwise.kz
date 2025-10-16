@@ -42,6 +42,8 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
+    "name": "First Name",
+    "surname": "Last Name",
     "licenseCode": "License Code",
     "enterLicenseCode": "Enter your license code",
     "forgotPassword": "Forgot Password?",
@@ -49,7 +51,41 @@
     "noAccount": "Don't have an account?",
     "haveAccount": "Already have an account?",
     "signUp": "Sign Up",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "welcomeBack": "Welcome Back",
+    "createAccount": "Create Your Account",
+    "getStarted": "Get started with ProfWise",
+    "loginSubtitle": "Enter your credentials to access your account",
+    "registerSubtitle": "Create an account to start your career journey",
+    "loginError": "Invalid email or password",
+    "registerError": "Registration failed. Please try again.",
+    "emailPlaceholder": "name@example.com",
+    "passwordPlaceholder": "Enter your password",
+    "namePlaceholder": "Enter your first name",
+    "surnamePlaceholder": "Enter your last name",
+    "licenseCodePlaceholder": "Enter your license code",
+    "optional": "Optional",
+    "required": "Required",
+    "licenseCodeModal": {
+      "title": "Add License Code",
+      "subtitle": "Please enter your school license code to continue",
+      "description": "Your school or organization should have provided you with a license code. If you don't have one, please contact your administrator.",
+      "submit": "Activate License",
+      "skip": "Skip for Now",
+      "success": "License code activated successfully!",
+      "error": "Invalid license code. Please check and try again.",
+      "skipWarning": "You can add a license code later in your profile settings."
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "nameRequired": "First name is required",
+      "surnameRequired": "Last name is required",
+      "licenseCodeInvalid": "Invalid license code format"
+    }
   },
   "dashboard": {
     "title": "Dashboard",
@@ -66,13 +102,16 @@
   },
   "tests": {
     "careerTest": "Career Test",
+    "subtitle": "Discover your strengths, interests, and ideal career paths",
     "riasecTest": "RIASEC Interest Test",
     "valuesTest": "Work Values Test",
     "skillsTest": "Skills Assessment",
     "personalityTest": "Personality Test",
     "completed": "Completed",
+    "completedOn": "Completed {date}",
     "inProgress": "In Progress",
     "notStarted": "Not Started",
+    "testInProgress": "Test in progress",
     "duration": "Duration: {minutes} minutes",
     "questions": "{count} questions",
     "section": "Section {current} of {total}",
@@ -89,6 +128,9 @@
     "howToTakeTest": "How to Take the Test",
     "whatYouWillLearn": "What You Will Learn",
     "testDetails": "Test Details",
+    "licenseCode": "License Code",
+    "expires": "Expires",
+    "school": "School",
     "common": {
       "buttons": {
         "viewResults": "View Results",
@@ -139,6 +181,7 @@
   },
   "archetypes": {
     "title": "My Archetypes Profile",
+    "subtitle": "Discover your unique combination of traits and characteristics",
     "interests": "Interests",
     "skills": "Skills",
     "personality": "Personality",
@@ -171,6 +214,15 @@
     "highMatch": "High Match (85%+)",
     "viewSimilar": "View Similar Professions",
     "matchBreakdown": "Match Breakdown",
+    "liked": "Liked",
+    "unlike": "Unlike",
+    "like": "Like",
+    "interests": "Interests",
+    "skills": "Skills",
+    "personality": "Personality",
+    "values": "Values",
+    "noProfessionsFound": "No professions found matching your filters.",
+    "clearFilters": "Clear filters",
     "common": {
       "labels": {
         "showingResults": "Showing {count} results",
@@ -271,7 +323,8 @@
     "deleteAccountWarning": "Deleting your account will permanently remove all your information from Edunavigator and cannot be recovered.",
     "deleteAccountConfirm": "Are you sure you want to delete your account?",
     "deleteAccountSuccess": "Account successfully deleted",
-    "deleteAccountError": "Failed to delete account"
+    "deleteAccountError": "Failed to delete account",
+    "failedToLoadProfile": "Failed to load profile"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -288,6 +341,35 @@
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
     "contact": "Contact Us",
-    "about": "About"
+    "about": "About",
+    "madeWith": "Made with ❤️ in Kazakhstan"
+  },
+  "organization": {
+    "expires": "Expires",
+    "school": "School",
+    "licenseCode": "License Code"
+  },
+  "results": {
+    "viewPreviousResults": "View your previous test results and track your progress over time.",
+    "noResultsFound": "No test results found. Complete a test to see your results here.",
+    "viewDetailedResults": "View detailed results",
+    "primary": "Primary",
+    "testResult": "Test Result",
+    "completedOn": "Completed on {date}",
+    "yourResults": "Your Results",
+    "yourPersonalReport": "Your Personal Report",
+    "riasecInterestProfile": "RIASEC Interest Profile",
+    "backToTests": "Back to Tests",
+    "yourArchetype": "Your Archetype: {name}",
+    "yourStrongestTraitsAre": "Your strongest traits are",
+    "and": "and",
+    "keyCharacteristics": "Key Characteristics:",
+    "riasecProfile": "RIASEC Profile",
+    "topCareerMatches": "Top Career Matches",
+    "basedOnYourProfile": "Based on your RIASEC profile, here are {count} careers that match your interests",
+    "matchPercentage": "{percent}% Match",
+    "viewDetailedReport": "View Detailed Report",
+    "seeAllArchetypes": "See All Archetypes",
+    "retakeTest": "Retake Test"
   }
 }

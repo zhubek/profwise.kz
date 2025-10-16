@@ -18,7 +18,7 @@ export default async function ArchetypesPage() {
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl font-bold md:text-4xl">{t('title')}</h1>
           <p className="text-muted-foreground mt-1 md:mt-2">
-            Discover your unique combination of traits and characteristics
+            {t('subtitle')}
           </p>
         </div>
 

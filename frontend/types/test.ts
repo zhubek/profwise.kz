@@ -15,11 +15,17 @@ export interface Test {
   updatedAt: string;
 }
 
+export type LocalizedText = {
+  en: string;
+  ru: string;
+  kz: string;
+} | string;
+
 export interface TestSection {
   id: string;
   testId: string;
-  title: string;
-  description: string;
+  title: LocalizedText;
+  description: LocalizedText;
   order: number;
   questions: Question[];
 }
@@ -27,7 +33,7 @@ export interface TestSection {
 export interface Question {
   id: string;
   sectionId: string;
-  text: string;
+  text: LocalizedText;
   type: QuestionType;
   order: number;
   required: boolean;
@@ -38,7 +44,7 @@ export interface Question {
 
 export interface QuestionOption {
   id: string;
-  text: string;
+  text: LocalizedText;
   value: number | string;
   order: number;
 }
@@ -149,4 +155,15 @@ export interface RIASECResultDisplay {
   description: string;
   topProfessions: Array<import('@/types/profession').ProfessionMatch>;
   generatedAt: string;
+}
+
+// Test result list item for displaying user's test history
+export interface TestResultListItem {
+  id: string; // result ID
+  testId: string;
+  testName: string;
+  testType: TestType;
+  completedAt: string;
+  hollandCode?: string; // For RIASEC tests
+  primaryInterest?: string;
 }

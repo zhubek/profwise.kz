@@ -25,7 +25,6 @@ export default function Header() {
     { name: t('navigation.tests'), href: '/tests' },
     { name: t('navigation.archetypes'), href: '/archetypes' },
     { name: t('navigation.professions'), href: '/professions' },
-    { name: t('navigation.profile'), href: '/profile' },
   ];
 
   const isActive = (href: string) => pathname?.includes(href);
@@ -82,8 +81,8 @@ export default function Header() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* User Menu - Desktop */}
-          {user && (
+          {/* Auth buttons - Desktop */}
+          {user ? (
             <div className="hidden md:block">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -116,6 +115,15 @@ export default function Header() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+            </div>
+          ) : (
+            <div className="hidden md:flex md:items-center md:space-x-2">
+              <Link href="/login">
+                <Button variant="ghost">{t('auth.login')}</Button>
+              </Link>
+              <Link href="/register">
+                <Button>{t('auth.register')}</Button>
+              </Link>
             </div>
           )}
 
@@ -155,7 +163,7 @@ export default function Header() {
               </Link>
             ))}
 
-            {user && (
+            {user ? (
               <>
                 <div className="border-t pt-4 mt-4">
                   <div className="px-3 py-2">
@@ -189,6 +197,23 @@ export default function Header() {
                   {t('auth.logout')}
                 </button>
               </>
+            ) : (
+              <div className="border-t pt-4 mt-4 space-y-2">
+                <Link
+                  href="/login"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('auth.login')}
+                </Link>
+                <Link
+                  href="/register"
+                  className="block rounded-md px-3 py-2 text-base font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('auth.register')}
+                </Link>
+              </div>
             )}
           </div>
         </div>

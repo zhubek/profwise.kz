@@ -32,7 +32,7 @@ export default async function TestsPage() {
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl font-bold md:text-4xl">{t('careerTest')}</h1>
           <p className="text-muted-foreground mt-1 md:mt-2">
-            Discover your strengths, interests, and ideal career paths
+            {t('subtitle')}
           </p>
         </div>
 

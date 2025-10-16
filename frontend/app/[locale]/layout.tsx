@@ -3,11 +3,22 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales } from '@/config/i18n';
 import { AuthProvider } from '@/contexts/AuthContext';
+import AuthWrapper from '@/components/features/auth/AuthWrapper';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+
+  return {
+    other: {
+      'html-lang': locale,
+    },
+  };
 }
 
 export default async function LocaleLayout({
@@ -27,18 +38,16 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
-      <body className="antialiased">
-        <NextIntlClientProvider messages={messages}>
-          <AuthProvider>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
-          </AuthProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider messages={messages}>
+      <AuthProvider>
+        <AuthWrapper>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+        </AuthWrapper>
+      </AuthProvider>
+    </NextIntlClientProvider>
   );
 }

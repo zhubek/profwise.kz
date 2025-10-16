@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getProfession } from '@/lib/api/mock/professions';
 import ProfessionNav from './ProfessionNav';
+import { getLocalizedText } from '@/lib/utils/i18n';
 
 interface ProfessionLayoutProps {
   children: React.ReactNode;
@@ -14,7 +15,7 @@ export default async function ProfessionLayout({
   children,
   params,
 }: ProfessionLayoutProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
 
   try {
     // Fetch profession data server-side for the header
@@ -29,10 +30,10 @@ export default async function ProfessionLayout({
               <span className="text-4xl">{profession.icon}</span>
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-foreground md:text-3xl">
-                  {profession.title}
+                  {getLocalizedText(profession.title, locale)}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1 md:text-base">
-                  {profession.description}
+                  {getLocalizedText(profession.description, locale)}
                 </p>
               </div>
             </div>

@@ -20,7 +20,7 @@ export default async function ProfilePage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">{t('title')}</h1>
-        <p className="text-red-500">Failed to load profile</p>
+        <p className="text-red-500">{t('failedToLoadProfile')}</p>
       </div>
     );
   }

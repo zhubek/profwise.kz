@@ -60,7 +60,19 @@
       "Bash(npx shadcn@latest add:*)",
       "mcp__shadcn__view_items_in_registries",
       "WebFetch(domain:ui.shadcn.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash([ -f \"/mnt/c/Users/user/Documents/AI projects/profwise.kz/backend/.env.local\" ])",
+      "WebSearch",
+      "WebFetch(domain:developers.brevo.com)",
+      "Bash(npm uninstall:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(npx tsc:*)",
+      "Bash(cat:*)",
+      "Read(//tmp/**)",
+      "Bash([ -d .next ])",
+      "Bash(python3:*)",
+      "Bash(awk:*)",
+      "Bash(time ls:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -16,8 +16,9 @@ import {
   Eye,
   Heart,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { getArchetypeDescription, getRIASECTrait } from '@/lib/riasec-descriptions';
+import { getLocalizedText } from '@/lib/utils/i18n';
 
 interface ResultsPageContentProps {
   result: RIASECResultDisplay;
@@ -28,6 +29,8 @@ export default function ResultsPageContent({
 }: ResultsPageContentProps) {
   const router = useRouter();
   const t = useTranslations();
+  const tResults = useTranslations('results');
+  const locale = useLocale();
 
   const handleBackToTests = () => {
     router.push('/tests');
@@ -66,10 +69,10 @@ export default function ResultsPageContent({
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-foreground md:text-2xl">
-                Your Personal Report
+                {tResults('yourPersonalReport')}
               </h1>
               <p className="text-sm text-muted-foreground md:text-base">
-                RIASEC Interest Profile
+                {tResults('riasecInterestProfile')}
               </p>
             </div>
             <Button
@@ -79,7 +82,7 @@ export default function ResultsPageContent({
               className="hidden md:flex"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Tests
+              {tResults('backToTests')}
             </Button>
             <Button
               variant="outline"
@@ -103,14 +106,14 @@ export default function ResultsPageContent({
                 <Target className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold mb-2 md:text-3xl">
-                    Your Archetype: {archetypeDesc.name}
+                    {tResults('yourArchetype', { name: archetypeDesc.name })}
                   </h2>
                   <p className="text-base text-muted-foreground leading-relaxed mb-4 md:text-lg">
-                    Your strongest traits are{' '}
+                    {tResults('yourStrongestTraitsAre')}{' '}
                     <span className="font-semibold text-foreground">
                       {primaryTrait?.name}
                     </span>{' '}
-                    and{' '}
+                    {tResults('and')}{' '}
                     <span className="font-semibold text-foreground">
                       {secondaryTrait?.name}
                     </span>
@@ -139,7 +142,7 @@ export default function ResultsPageContent({
                 </p>
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Key Characteristics:
+                    {tResults('keyCharacteristics')}
                   </p>
                   <ul className="text-sm space-y-1">
                     {primaryTrait.characteristics.slice(0, 3).map((char, idx) => (
@@ -166,7 +169,7 @@ export default function ResultsPageContent({
                 </p>
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Key Characteristics:
+                    {tResults('keyCharacteristics')}
                   </p>
                   <ul className="text-sm space-y-1">
                     {secondaryTrait.characteristics.slice(0, 3).map((char, idx) => (
@@ -184,7 +187,7 @@ export default function ResultsPageContent({
           {/* RIASEC Scores as Percentages */}
           <div className="bg-card rounded-lg border p-6 md:p-8">
             <h2 className="text-xl font-semibold mb-6 md:text-2xl">
-              RIASEC Profile
+              {tResults('riasecProfile')}
             </h2>
             <div className="space-y-4">
               {Object.entries(result.scores).map(([code, score]) => {
@@ -220,10 +223,10 @@ export default function ResultsPageContent({
           <div className="bg-card rounded-lg border p-6 md:p-8">
             <div className="mb-6">
               <h2 className="text-xl font-semibold md:text-2xl">
-                Top Career Matches
+                {tResults('topCareerMatches')}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Based on your RIASEC profile, here are {result.topProfessions.length} careers that match your interests
+                {tResults('basedOnYourProfile', { count: result.topProfessions.length })}
               </p>
             </div>
 
@@ -239,7 +242,7 @@ export default function ResultsPageContent({
                             <span className="text-2xl">{profession.icon}</span>
                           )}
                           <CardTitle className="text-base md:text-lg">
-                            {profession.title}
+                            {getLocalizedText(profession.title, locale)}
                           </CardTitle>
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
@@ -247,7 +250,7 @@ export default function ResultsPageContent({
                             variant="secondary"
                             className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                           >
-                            {profession.matchScore}% Match
+                            {tResults('matchPercentage', { percent: profession.matchScore })}
                           </Badge>
                           <Badge
                             variant="outline"
@@ -263,7 +266,7 @@ export default function ResultsPageContent({
                   <CardContent className="space-y-4">
                     {/* Description */}
                     <CardDescription className="line-clamp-2 text-sm">
-                      {profession.description}
+                      {getLocalizedText(profession.description, locale)}
                     </CardDescription>
 
                     {/* View Details Button */}
@@ -290,7 +293,7 @@ export default function ResultsPageContent({
               className="w-full md:w-auto"
             >
               <FileText className="w-4 h-4 mr-2" />
-              View Detailed Report
+              {tResults('viewDetailedReport')}
             </Button>
             <Button
               variant="outline"
@@ -299,7 +302,7 @@ export default function ResultsPageContent({
               className="w-full md:w-auto"
             >
               <Layers className="w-4 h-4 mr-2" />
-              See All Archetypes
+              {tResults('seeAllArchetypes')}
             </Button>
             <Button
               variant="outline"
@@ -308,7 +311,7 @@ export default function ResultsPageContent({
               className="w-full md:w-auto"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
-              Retake Test
+              {tResults('retakeTest')}
             </Button>
           </div>
         </div>

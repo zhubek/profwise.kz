@@ -1,4 +1,5 @@
 export type UserRole = 'student' | 'organization_admin' | 'super_admin';
+export type UserLanguage = 'EN' | 'RU' | 'KZ';
 
 export interface User {
   id: string;
@@ -8,6 +9,9 @@ export interface User {
   schoolId?: string;
   grade?: string;
   age?: number;
+  language?: UserLanguage;
+  emailVerified?: boolean;
+  onboardingCompleted?: boolean;
   avatar?: string;
   role?: UserRole;
   createdAt: string;
@@ -27,8 +31,10 @@ export interface CreateUserDTO {
   password: string;
   name: string;
   surname: string;
-  licenseCode?: string;
+  language?: UserLanguage;
   schoolId?: string;
+  grade?: string;
+  age?: number;
 }
 
 export interface UpdateUserDTO {
@@ -56,8 +62,10 @@ export interface RegisterDTO extends CreateUserDTO {}
 
 export interface AuthResponse {
   user: User;
-  token: string;
+  accessToken: string;
+  token?: string;
   refreshToken?: string;
+  message?: string;
 }
 
 export interface LicenseCodeDTO {

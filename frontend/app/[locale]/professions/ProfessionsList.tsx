@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Heart, Eye, Flame } from 'lucide-react';
+import { getLocalizedText } from '@/lib/utils/i18n';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +29,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
   const [categoryFilter, setCategoryFilter] = useState<ProfessionCategory | 'all'>('all');
   const [likedFilter, setLikedFilter] = useState<LikedFilter>('all');
   const t = useTranslations('professions');
+  const locale = useLocale();
 
   const handleLike = async (professionId: string, isLiked: boolean) => {
     try {
@@ -61,14 +63,14 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
         case 'matchScore':
           return b.matchScore - a.matchScore;
         case 'title':
-          return a.title.localeCompare(b.title);
+          return getLocalizedText(a.title, locale).localeCompare(getLocalizedText(b.title, locale));
         case 'popularity':
           return (b.popular ? 1 : 0) - (a.popular ? 1 : 0);
         default:
           return 0;
       }
     });
-  }, [professions, categoryFilter, likedFilter, sortBy]);
+  }, [professions, categoryFilter, likedFilter, sortBy, locale]);
 
   return (
     <div className="space-y-6">
@@ -94,7 +96,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
               onClick={() => setLikedFilter('liked')}
             >
               <Heart className="mr-2 h-4 w-4" />
-              Liked
+              {t('liked')}
             </Button>
           </div>
 
@@ -167,7 +169,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-2">
                     {profession.icon && <span className="text-2xl">{profession.icon}</span>}
-                    <CardTitle className="text-lg">{profession.title}</CardTitle>
+                    <CardTitle className="text-lg">{getLocalizedText(profession.title, locale)}</CardTitle>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
@@ -195,7 +197,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
                       onClick={() => handleLike(profession.id, profession.isLiked || false)}
                     >
                       <Heart className="h-4 w-4 fill-red-500" />
-                      <span className="sr-only">Unlike</span>
+                      <span className="sr-only">{t('unlike')}</span>
                     </Button>
                   ) : (
                     <Button
@@ -205,7 +207,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
                       onClick={() => handleLike(profession.id, profession.isLiked || false)}
                     >
                       <Heart className="h-4 w-4" />
-                      <span className="sr-only">Like</span>
+                      <span className="sr-only">{t('like')}</span>
                     </Button>
                   )}
                 </div>
@@ -214,7 +216,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
 
             <CardContent className="space-y-4">
               {/* Description */}
-              <CardDescription className="line-clamp-2">{profession.description}</CardDescription>
+              <CardDescription className="line-clamp-2">{getLocalizedText(profession.description, locale)}</CardDescription>
 
               {/* Match Breakdown */}
               <div>
@@ -223,19 +225,19 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
                 </h4>
                 <div className="grid grid-cols-4 gap-2 text-center">
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">Interests</div>
+                    <div className="text-xs text-muted-foreground mb-1">{t('interests')}</div>
                     <div className="text-sm font-semibold">{profession.matchBreakdown.interests}%</div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">Skills</div>
+                    <div className="text-xs text-muted-foreground mb-1">{t('skills')}</div>
                     <div className="text-sm font-semibold">{profession.matchBreakdown.skills}%</div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">Personality</div>
+                    <div className="text-xs text-muted-foreground mb-1">{t('personality')}</div>
                     <div className="text-sm font-semibold">{profession.matchBreakdown.personality}%</div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground mb-1">Values</div>
+                    <div className="text-xs text-muted-foreground mb-1">{t('values')}</div>
                     <div className="text-sm font-semibold">{profession.matchBreakdown.values}%</div>
                   </div>
                 </div>
@@ -258,7 +260,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
       {/* Empty State */}
       {filteredProfessions.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">No professions found matching your filters.</p>
+          <p className="text-muted-foreground">{t('noProfessionsFound')}</p>
           <Button
             variant="link"
             onClick={() => {
@@ -267,7 +269,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
             }}
             className="mt-2"
           >
-            Clear filters
+            {t('clearFilters')}
           </Button>
         </div>
       )}

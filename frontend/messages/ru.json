@@ -49,7 +49,43 @@
     "noAccount": "Нет аккаунта?",
     "haveAccount": "Уже есть аккаунт?",
     "signUp": "Зарегистрироваться",
-    "signIn": "Войти"
+    "signIn": "Войти",
+    "name": "Имя",
+    "surname": "Фамилия",
+    "welcomeBack": "С возвращением",
+    "createAccount": "Создать аккаунт",
+    "getStarted": "Начните работу с ProfWise",
+    "loginSubtitle": "Введите свои учетные данные для доступа к аккаунту",
+    "registerSubtitle": "Создайте аккаунт, чтобы начать свой карьерный путь",
+    "loginError": "Неверный email или пароль",
+    "registerError": "Регистрация не удалась. Пожалуйста, попробуйте снова.",
+    "emailPlaceholder": "name@example.com",
+    "passwordPlaceholder": "Введите ваш пароль",
+    "namePlaceholder": "Введите ваше имя",
+    "surnamePlaceholder": "Введите вашу фамилию",
+    "licenseCodePlaceholder": "Введите ваш лицензионный код",
+    "optional": "Необязательно",
+    "required": "Обязательно",
+    "licenseCodeModal": {
+      "title": "Добавить лицензионный код",
+      "subtitle": "Пожалуйста, введите лицензионный код вашей школы, чтобы продолжить",
+      "description": "Ваша школа или организация должна была предоставить вам лицензионный код. Если у вас его нет, свяжитесь с администратором.",
+      "submit": "Активировать лицензию",
+      "skip": "Пропустить",
+      "success": "Лицензионный код успешно активирован!",
+      "error": "Неверный лицензионный код. Пожалуйста, проверьте и попробуйте снова.",
+      "skipWarning": "Вы можете добавить лицензионный код позже в настройках профиля."
+    },
+    "validation": {
+      "emailRequired": "Email обязателен",
+      "emailInvalid": "Пожалуйста, введите действительный email адрес",
+      "passwordRequired": "Пароль обязателен",
+      "passwordMinLength": "Пароль должен содержать не менее 8 символов",
+      "passwordMismatch": "Пароли не совпадают",
+      "nameRequired": "Имя обязательно",
+      "surnameRequired": "Фамилия обязательна",
+      "licenseCodeInvalid": "Неверный формат лицензионного кода"
+    }
   },
   "dashboard": {
     "title": "Панель управления",
@@ -66,13 +102,16 @@
   },
   "tests": {
     "careerTest": "Тест профориентации",
+    "subtitle": "Откройте свои сильные стороны, интересы и идеальные карьерные пути",
     "riasecTest": "Тест интересов RIASEC",
     "valuesTest": "Тест рабочих ценностей",
     "skillsTest": "Оценка навыков",
     "personalityTest": "Тест личности",
     "completed": "Завершен",
+    "completedOn": "Завершено {date}",
     "inProgress": "В процессе",
     "notStarted": "Не начат",
+    "testInProgress": "Тест в процессе",
     "duration": "Длительность: {minutes} минут",
     "questions": "{count} вопросов",
     "section": "Раздел {current} из {total}",
@@ -89,6 +128,9 @@
     "howToTakeTest": "Как пройти тест",
     "whatYouWillLearn": "Что вы узнаете",
     "testDetails": "Детали теста",
+    "licenseCode": "Лицензионный код",
+    "expires": "Истекает",
+    "school": "Школа",
     "common": {
       "buttons": {
         "viewResults": "Результаты",
@@ -139,6 +181,7 @@
   },
   "archetypes": {
     "title": "Мой профиль архетипов",
+    "subtitle": "Откройте вашу уникальную комбинацию черт и характеристик",
     "interests": "Интересы",
     "skills": "Навыки",
     "personality": "Личность",
@@ -171,6 +214,15 @@
     "highMatch": "Высокое совпадение (85%+)",
     "viewSimilar": "Похожие профессии",
     "matchBreakdown": "Детали совпадения",
+    "liked": "Понравившиеся",
+    "unlike": "Убрать из понравившихся",
+    "like": "Нравится",
+    "interests": "Интересы",
+    "skills": "Навыки",
+    "personality": "Личность",
+    "values": "Ценности",
+    "noProfessionsFound": "Профессии, соответствующие вашим фильтрам, не найдены.",
+    "clearFilters": "Очистить фильтры",
     "common": {
       "labels": {
         "showingResults": "Показано {count} результатов",
@@ -271,7 +323,8 @@
     "deleteAccountWarning": "Удаление вашей учетной записи приведет к безвозвратному удалению всей вашей информации из Edunavigator, и ее невозможно будет восстановить.",
     "deleteAccountConfirm": "Вы уверены, что хотите удалить свой аккаунт?",
     "deleteAccountSuccess": "Аккаунт успешно удален",
-    "deleteAccountError": "Ошибка при удалении аккаунта"
+    "deleteAccountError": "Ошибка при удалении аккаунта",
+    "failedToLoadProfile": "Не удалось загрузить профиль"
   },
   "navigation": {
     "dashboard": "Панель",
@@ -288,6 +341,35 @@
     "terms": "Условия использования",
     "privacy": "Политика конфиденциальности",
     "contact": "Связаться с нами",
-    "about": "О нас"
+    "about": "О нас",
+    "madeWith": "Сделано с ❤️ в Казахстане"
+  },
+  "organization": {
+    "expires": "Истекает",
+    "school": "Школа",
+    "licenseCode": "Лицензионный код"
+  },
+  "results": {
+    "viewPreviousResults": "Просмотрите результаты ваших предыдущих тестов и отслеживайте свой прогресс.",
+    "noResultsFound": "Результаты тестов не найдены. Пройдите тест, чтобы увидеть результаты здесь.",
+    "viewDetailedResults": "Подробные результаты",
+    "primary": "Основной",
+    "testResult": "Результат теста",
+    "completedOn": "Завершено {date}",
+    "yourResults": "Ваши результаты",
+    "yourPersonalReport": "Ваш личный отчет",
+    "riasecInterestProfile": "Профиль интересов RIASEC",
+    "backToTests": "Назад к тестам",
+    "yourArchetype": "Ваш архетип: {name}",
+    "yourStrongestTraitsAre": "Ваши самые сильные черты",
+    "and": "и",
+    "keyCharacteristics": "Ключевые характеристики:",
+    "riasecProfile": "Профиль RIASEC",
+    "topCareerMatches": "Лучшие совпадения профессий",
+    "basedOnYourProfile": "На основе вашего профиля RIASEC, вот {count} профессий, которые соответствуют вашим интересам",
+    "matchPercentage": "Совпадение {percent}%",
+    "viewDetailedReport": "Подробный отчет",
+    "seeAllArchetypes": "Все архетипы",
+    "retakeTest": "Пройти тест снова"
   }
 }

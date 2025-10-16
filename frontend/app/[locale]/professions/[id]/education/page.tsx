@@ -11,6 +11,7 @@ import {
   Lightbulb,
   Target,
 } from 'lucide-react';
+import { getLocalizedText } from '@/lib/utils/i18n';
 
 interface EducationPageProps {
   params: Promise<{
@@ -30,7 +31,7 @@ const educationLevelLabels: Record<string, string> = {
 };
 
 export default async function EducationPage({ params }: EducationPageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
 
   try {
     const education = await getProfessionEducation(id);
@@ -62,7 +63,7 @@ export default async function EducationPage({ params }: EducationPageProps) {
                 <div className="flex flex-wrap gap-2">
                   {education.preferredFields.map((field, index) => (
                     <Badge key={index} variant="secondary">
-                      {field}
+                      {getLocalizedText(field, locale)}
                     </Badge>
                   ))}
                 </div>
@@ -91,7 +92,7 @@ export default async function EducationPage({ params }: EducationPageProps) {
                     {education.recommendedCourses.core.map((course, index) => (
                       <div key={index} className="flex items-start gap-2 p-3 border rounded-lg">
                         <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">{course}</span>
+                        <span className="text-sm">{getLocalizedText(course, locale)}</span>
                       </div>
                     ))}
                   </div>
@@ -116,7 +117,7 @@ export default async function EducationPage({ params }: EducationPageProps) {
                     {education.recommendedCourses.elective.map((course, index) => (
                       <div key={index} className="flex items-start gap-2 p-3 border rounded-lg">
                         <ArrowRight className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">{course}</span>
+                        <span className="text-sm">{getLocalizedText(course, locale)}</span>
                       </div>
                     ))}
                   </div>
@@ -144,7 +145,7 @@ export default async function EducationPage({ params }: EducationPageProps) {
                   <div key={index} className="p-4 border rounded-lg bg-card">
                     <div className="flex items-start gap-2">
                       <Award className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
-                      <span className="text-sm font-medium">{cert}</span>
+                      <span className="text-sm font-medium">{getLocalizedText(cert, locale)}</span>
                     </div>
                   </div>
                 ))}
@@ -171,8 +172,8 @@ export default async function EducationPage({ params }: EducationPageProps) {
                   <div key={path.id} className="p-4 border rounded-lg bg-card">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-medium text-lg">{path.title}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">{path.description}</p>
+                        <h3 className="font-medium text-lg">{getLocalizedText(path.title, locale)}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">{getLocalizedText(path.description, locale)}</p>
                       </div>
                       <Badge variant="outline" className="ml-4 flex-shrink-0">
                         {path.duration}
@@ -187,7 +188,7 @@ export default async function EducationPage({ params }: EducationPageProps) {
                             <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium">
                               {index + 1}
                             </div>
-                            <span className="text-sm text-muted-foreground pt-0.5">{step}</span>
+                            <span className="text-sm text-muted-foreground pt-0.5">{getLocalizedText(step, locale)}</span>
                           </div>
                         ))}
                       </div>

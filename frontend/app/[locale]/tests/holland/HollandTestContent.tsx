@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
-import type { TestSection, Question, HollandTestState } from '@/types/test';
+import type { TestSection, Question, HollandTestState, LocalizedText } from '@/types/test';
 import {
   loadHollandTestState,
   saveHollandTestState,
@@ -21,8 +22,15 @@ interface HollandTestContentProps {
   sections: TestSection[];
 }
 
+// Helper function to get localized text
+function getLocalizedText(text: LocalizedText, locale: string): string {
+  if (typeof text === 'string') return text;
+  return text[locale as keyof typeof text] || text.en || '';
+}
+
 export default function HollandTestContent({ userId, sections }: HollandTestContentProps) {
   const router = useRouter();
+  const locale = useLocale();
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number | string | string[]>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -144,8 +152,8 @@ export default function HollandTestContent({ userId, sections }: HollandTestCont
         <div className="space-y-6">
           {/* Section Header */}
           <div>
-            <h2 className="text-xl font-bold md:text-2xl">{currentSection.title}</h2>
-            <p className="text-muted-foreground mt-2">{currentSection.description}</p>
+            <h2 className="text-xl font-bold md:text-2xl">{getLocalizedText(currentSection.title, locale)}</h2>
+            <p className="text-muted-foreground mt-2">{getLocalizedText(currentSection.description, locale)}</p>
           </div>
 
           {/* Questions */}
@@ -157,6 +165,7 @@ export default function HollandTestContent({ userId, sections }: HollandTestCont
                 questionNumber={index + 1}
                 answer={answers[question.id]}
                 onAnswerChange={handleAnswerChange}
+                locale={locale}
               />
             ))}
           </div>
@@ -211,14 +220,18 @@ interface QuestionItemProps {
   questionNumber: number;
   answer: number | string | string[] | undefined;
   onAnswerChange: (questionId: string, answer: number | string | string[]) => void;
+  locale: string;
 }
 
-function QuestionItem({ question, questionNumber, answer, onAnswerChange }: QuestionItemProps) {
+function QuestionItem({ question, questionNumber, answer, onAnswerChange, locale }: QuestionItemProps) {
   if (question.type === 'likert') {
+    const firstOption = question.options?.[0];
+    const lastOption = question.options?.[question.options.length - 1];
+
     return (
       <div className="space-y-4">
         <p className="font-medium">
-          {questionNumber}. {question.text}
+          {questionNumber}. {getLocalizedText(question.text, locale)}
           {question.required && <span className="text-destructive ml-1">*</span>}
         </p>
 
@@ -235,15 +248,15 @@ function QuestionItem({ question, questionNumber, answer, onAnswerChange }: Ques
                       ? 'border-primary bg-primary'
                       : 'border-border hover:border-primary/50'
                   }`}
-                  aria-label={option.text}
+                  aria-label={getLocalizedText(option.text, locale)}
                 />
               ))}
             </div>
 
             {/* Labels aligned with first and last circles */}
             <div className="flex items-center justify-between w-full max-w-[calc(5*3rem+4*0.75rem)] md:max-w-[calc(5*3rem+4*1rem)] text-xs text-muted-foreground">
-              <span>Not interesting</span>
-              <span>Very interesting</span>
+              <span>{firstOption && getLocalizedText(firstOption.text, locale)}</span>
+              <span>{lastOption && getLocalizedText(lastOption.text, locale)}</span>
             </div>
           </div>
         </div>
@@ -255,7 +268,7 @@ function QuestionItem({ question, questionNumber, answer, onAnswerChange }: Ques
     return (
       <div className="space-y-3">
         <p className="font-medium">
-          {questionNumber}. {question.text}
+          {questionNumber}. {getLocalizedText(question.text, locale)}
           {question.required && <span className="text-destructive ml-1">*</span>}
         </p>
         <p className="text-sm text-muted-foreground">Select all that apply</p>
@@ -291,7 +304,7 @@ function QuestionItem({ question, questionNumber, answer, onAnswerChange }: Ques
                     <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
                   )}
                 </div>
-                <span>{option.text}</span>
+                <span>{getLocalizedText(option.text, locale)}</span>
               </button>
             );
           })}
@@ -304,7 +317,7 @@ function QuestionItem({ question, questionNumber, answer, onAnswerChange }: Ques
     return (
       <div className="space-y-3">
         <p className="font-medium">
-          {questionNumber}. {question.text}
+          {questionNumber}. {getLocalizedText(question.text, locale)}
           {question.required && <span className="text-destructive ml-1">*</span>}
         </p>
         <p className="text-sm text-muted-foreground">Select one option</p>
@@ -331,7 +344,7 @@ function QuestionItem({ question, questionNumber, answer, onAnswerChange }: Ques
                   <div className="w-3 h-3 rounded-full bg-primary" />
                 )}
               </div>
-              <span>{option.text}</span>
+              <span>{getLocalizedText(option.text, locale)}</span>
             </button>
           ))}
         </div>

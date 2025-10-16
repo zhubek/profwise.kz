@@ -49,7 +49,43 @@
     "noAccount": "Аккаунт жоқ па?",
     "haveAccount": "Аккаунтыңыз бар ма?",
     "signUp": "Тіркелу",
-    "signIn": "Кіру"
+    "signIn": "Кіру",
+    "name": "Аты",
+    "surname": "Тегі",
+    "welcomeBack": "Қайта келуіңізбен",
+    "createAccount": "Тіркелгі жасау",
+    "getStarted": "ProfWise-пен бастаңыз",
+    "loginSubtitle": "Тіркелгіңізге кіру үшін деректеріңізді енгізіңіз",
+    "registerSubtitle": "Мансап сапарыңызды бастау үшін тіркелгі жасаңыз",
+    "loginError": "Қате email немесе құпия сөз",
+    "registerError": "Тіркелу сәтсіз аяқталды. Қайталап көріңіз.",
+    "emailPlaceholder": "name@example.com",
+    "passwordPlaceholder": "Құпия сөзіңізді енгізіңіз",
+    "namePlaceholder": "Атыңызды енгізіңіз",
+    "surnamePlaceholder": "Тегіңізді енгізіңіз",
+    "licenseCodePlaceholder": "Лицензиялық кодыңызды енгізіңіз",
+    "optional": "Міндетті емес",
+    "required": "Міндетті",
+    "licenseCodeModal": {
+      "title": "Лицензиялық код қосу",
+      "subtitle": "Жалғастыру үшін мектебіңіздің лицензиялық кодын енгізіңіз",
+      "description": "Мектебіңіз немесе ұйымыңыз сізге лицензиялық код берген болуы керек. Егер жоқ болса, әкімшімен хабарласыңыз.",
+      "submit": "Лицензияны белсендіру",
+      "skip": "Қазір өткізіп жіберу",
+      "success": "Лицензиялық код сәтті белсендірілді!",
+      "error": "Қате лицензиялық код. Тексеріп, қайталап көріңіз.",
+      "skipWarning": "Лицензиялық кодты кейінірек профиль баптауларында қоса аласыз."
+    },
+    "validation": {
+      "emailRequired": "Email міндетті",
+      "emailInvalid": "Жарамды email мекенжайын енгізіңіз",
+      "passwordRequired": "Құпия сөз міндетті",
+      "passwordMinLength": "Құпия сөз кемінде 8 таңбадан тұруы керек",
+      "passwordMismatch": "Құпия сөздер сәйкес келмейді",
+      "nameRequired": "Аты міндетті",
+      "surnameRequired": "Тегі міндетті",
+      "licenseCodeInvalid": "Лицензиялық коды форматы қате"
+    }
   },
   "dashboard": {
     "title": "Басқару тақтасы",
@@ -66,13 +102,16 @@
   },
   "tests": {
     "careerTest": "Мамандық таңдау тесті",
+    "subtitle": "Күшті жақтарыңызды, қызығушылықтарыңызды және мінсіз мансап жолдарыңызды ашыңыз",
     "riasecTest": "RIASEC қызығушылық тесті",
     "valuesTest": "Жұмыс құндылықтары тесті",
     "skillsTest": "Дағдыларды бағалау",
     "personalityTest": "Жеке тұлға тесті",
     "completed": "Аяқталды",
+    "completedOn": "{date} күні аяқталды",
     "inProgress": "Процесте",
     "notStarted": "Басталмаған",
+    "testInProgress": "Тест процесте",
     "duration": "Ұзақтығы: {minutes} минут",
     "questions": "{count} сұрақ",
     "section": "{total} ішінен {current} бөлім",
@@ -89,6 +128,9 @@
     "howToTakeTest": "Тестті қалай өту керек",
     "whatYouWillLearn": "Не білесіз",
     "testDetails": "Тест мәліметтері",
+    "licenseCode": "Лицензиялық код",
+    "expires": "Мерзімі бітеді",
+    "school": "Мектеп",
     "common": {
       "buttons": {
         "viewResults": "Нәтижелер",
@@ -139,6 +181,7 @@
   },
   "archetypes": {
     "title": "Менің архетиптер профилім",
+    "subtitle": "Қасиеттер мен сипаттамаларыңыздың бірегей комбинациясын ашыңыз",
     "interests": "Қызығушылықтар",
     "skills": "Дағдылар",
     "personality": "Тұлға",
@@ -171,6 +214,15 @@
     "highMatch": "Жоғары сәйкестік (85%+)",
     "viewSimilar": "Ұқсас мамандықтар",
     "matchBreakdown": "Сәйкестік егжей-тегжейі",
+    "liked": "Ұнаған",
+    "unlike": "Ұнағаннан алып тастау",
+    "like": "Ұнайды",
+    "interests": "Қызығушылықтар",
+    "skills": "Дағдылар",
+    "personality": "Тұлға",
+    "values": "Құндылықтар",
+    "noProfessionsFound": "Сіздің сүзгілеріңізге сәйкес мамандықтар табылмады.",
+    "clearFilters": "Сүзгілерді тазалау",
     "common": {
       "labels": {
         "showingResults": "{count} нәтиже көрсетілген",
@@ -271,7 +323,8 @@
     "deleteAccountWarning": "Аккаунтыңызды жою Edunavigator-дан барлық ақпаратыңызды мәңгілікке жояды және оны қалпына келтіру мүмкін болмайды.",
     "deleteAccountConfirm": "Аккаунтыңызды жойғыңыз келетініне сенімдісіз бе?",
     "deleteAccountSuccess": "Аккаунт сәтті жойылды",
-    "deleteAccountError": "Аккаунтты жою кезінде қате"
+    "deleteAccountError": "Аккаунтты жою кезінде қате",
+    "failedToLoadProfile": "Профильді жүктеу сәтсіз аяқталды"
   },
   "navigation": {
     "dashboard": "Тақта",
@@ -288,6 +341,35 @@
     "terms": "Пайдалану шарттары",
     "privacy": "Құпиялылық саясаты",
     "contact": "Байланысу",
-    "about": "Біз туралы"
+    "about": "Біз туралы",
+    "madeWith": "❤️-пен Қазақстанда жасалды"
+  },
+  "organization": {
+    "expires": "Мерзімі бітеді",
+    "school": "Мектеп",
+    "licenseCode": "Лицензиялық код"
+  },
+  "results": {
+    "viewPreviousResults": "Алдыңғы тест нәтижелеріңізді көріңіз және прогресіңізді бақылаңыз.",
+    "noResultsFound": "Тест нәтижелері табылмады. Нәтижелерді көру үшін тестті өтіңіз.",
+    "viewDetailedResults": "Егжей-тегжейлі нәтижелер",
+    "primary": "Негізгі",
+    "testResult": "Тест нәтижесі",
+    "completedOn": "{date} күні аяқталды",
+    "yourResults": "Сіздің нәтижелеріңіз",
+    "yourPersonalReport": "Сіздің жеке есебіңіз",
+    "riasecInterestProfile": "RIASEC қызығушылық профилі",
+    "backToTests": "Тесттерге оралу",
+    "yourArchetype": "Сіздің архетипіңіз: {name}",
+    "yourStrongestTraitsAre": "Сіздің ең күшті қасиеттеріңіз",
+    "and": "және",
+    "keyCharacteristics": "Негізгі сипаттамалары:",
+    "riasecProfile": "RIASEC профилі",
+    "topCareerMatches": "Ең жақсы мамандық сәйкестіктері",
+    "basedOnYourProfile": "RIASEC профиліңізге негізделіп, мұнда {count} мамандық сіздің қызығушылықтарыңызға сәйкес келеді",
+    "matchPercentage": "Сәйкестік {percent}%",
+    "viewDetailedReport": "Егжей-тегжейлі есеп",
+    "seeAllArchetypes": "Барлық архетиптер",
+    "retakeTest": "Тестті қайта өту"
   }
 }
