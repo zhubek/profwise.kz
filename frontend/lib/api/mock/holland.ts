@@ -1,9 +1,5 @@
 import type { TestSection, Question, RIASECCategory, TestResults } from '@/types/test';
 
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export const HOLLAND_TEST_ID = 'test-1'; // Holland Test (RIASEC)
 
 // Mock Holland Test Sections with questions
@@ -564,7 +560,6 @@ export const hollandTestSections: TestSection[] = [
 
 // API functions
 export async function getHollandTestSections(): Promise<TestSection[]> {
-  await delay(500);
   return hollandTestSections;
 }
 
@@ -573,7 +568,6 @@ export async function submitHollandTest(
   testId: string,
   answers: Record<string, number | string | string[]>
 ): Promise<TestResults> {
-  await delay(800);
 
   // Calculate RIASEC scores
   const riasecScores = {

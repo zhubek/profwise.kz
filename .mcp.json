@@ -6,6 +6,10 @@
         "env": {
           "PLAYWRIGHT_BROWSER": "chromium"
         }
+      },
+      "shadcn": {
+        "command": "npx",
+        "args": ["shadcn@latest", "mcp"]
       }
     }
   }

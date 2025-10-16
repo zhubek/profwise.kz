@@ -4,13 +4,14 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  surname: string;
+  schoolId?: string;
+  grade?: string;
+  age?: number;
   avatar?: string;
-  role: UserRole;
-  organizationId?: string;
-  classroomId?: string;
+  role?: UserRole;
   createdAt: string;
   updatedAt: string;
-  lastActiveAt?: string;
 }
 
 export interface UserProfile extends User {
@@ -25,14 +26,18 @@ export interface CreateUserDTO {
   email: string;
   password: string;
   name: string;
+  surname: string;
   licenseCode?: string;
-  classroomId?: string;
+  schoolId?: string;
 }
 
 export interface UpdateUserDTO {
   name?: string;
+  surname?: string;
+  schoolId?: string;
+  grade?: string;
+  age?: number;
   avatar?: string;
-  classroomId?: string;
 }
 
 export interface ChangePasswordDTO {

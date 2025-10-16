@@ -130,3 +130,23 @@ export interface TestStorageKey {
 }
 
 export type RIASECCategory = 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
+
+// Detailed results display types for results page
+export interface RIASECResultDisplay {
+  id: string;
+  userTestId: string;
+  scores: {
+    R: number; // Realistic (0-10)
+    I: number; // Investigative
+    A: number; // Artistic
+    S: number; // Social
+    E: number; // Enterprising
+    C: number; // Conventional
+  };
+  primaryInterest: string;
+  secondaryInterest: string;
+  hollandCode: string; // e.g., "IRS"
+  description: string;
+  topProfessions: Array<import('@/types/profession').ProfessionMatch>;
+  generatedAt: string;
+}

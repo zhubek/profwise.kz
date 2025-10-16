@@ -25,6 +25,7 @@ export default function Header() {
     { name: t('navigation.tests'), href: '/tests' },
     { name: t('navigation.archetypes'), href: '/archetypes' },
     { name: t('navigation.professions'), href: '/professions' },
+    { name: t('navigation.profile'), href: '/profile' },
   ];
 
   const isActive = (href: string) => pathname?.includes(href);

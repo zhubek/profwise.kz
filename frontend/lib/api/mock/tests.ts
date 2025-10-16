@@ -1,9 +1,5 @@
 import type { Test, UserTest, TestResults, TestStatus } from '@/types/test';
 
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export const mockTests: Test[] = [
   {
     id: 'test-1',
@@ -136,32 +132,26 @@ export const mockUserTests: UserTest[] = [
 ];
 
 export async function getTests(): Promise<Test[]> {
-  await delay(400);
   return mockTests;
 }
 
 export async function getTest(id: string): Promise<Test> {
-  await delay(500);
   const test = mockTests.find(t => t.id === id);
   if (!test) throw new Error('Test not found');
   return test;
 }
 
 export async function getUserTests(userId: string): Promise<UserTest[]> {
-  await delay(500);
   return mockUserTests.filter(ut => ut.userId === userId);
 }
 
 export async function getUserTest(id: string): Promise<UserTest> {
-  await delay(500);
   const userTest = mockUserTests.find(ut => ut.id === id);
   if (!userTest) throw new Error('User test not found');
   return userTest;
 }
 
 export async function startTest(testId: string, userId: string): Promise<UserTest> {
-  await delay(600);
-
   const test = mockTests.find(t => t.id === testId);
   if (!test) throw new Error('Test not found');
 
@@ -180,7 +170,6 @@ export async function startTest(testId: string, userId: string): Promise<UserTes
 }
 
 export async function getTestResults(userTestId: string): Promise<TestResults | null> {
-  await delay(500);
   const userTest = mockUserTests.find(ut => ut.id === userTestId);
   return userTest?.results || null;
 }

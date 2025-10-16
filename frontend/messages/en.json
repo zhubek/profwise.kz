@@ -245,7 +245,12 @@
   "profile": {
     "title": "My Profile",
     "personalInfo": "Personal Information",
-    "name": "Name",
+    "name": "First Name",
+    "surname": "Last Name",
+    "email": "Email",
+    "school": "School",
+    "grade": "Grade",
+    "age": "Age",
     "avatar": "Avatar",
     "classroom": "Classroom",
     "organization": "Organization",
@@ -256,7 +261,17 @@
     "accountSettings": "Account Settings",
     "changePassword": "Change Password",
     "notifications": "Notifications",
-    "privacy": "Privacy Settings"
+    "privacy": "Privacy Settings",
+    "editProfile": "Edit Profile",
+    "viewProfile": "View Profile",
+    "stats": "Statistics",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Failed to update profile",
+    "deleteAccount": "Delete Account",
+    "deleteAccountWarning": "Deleting your account will permanently remove all your information from Edunavigator and cannot be recovered.",
+    "deleteAccountConfirm": "Are you sure you want to delete your account?",
+    "deleteAccountSuccess": "Account successfully deleted",
+    "deleteAccountError": "Failed to delete account"
   },
   "navigation": {
     "dashboard": "Dashboard",

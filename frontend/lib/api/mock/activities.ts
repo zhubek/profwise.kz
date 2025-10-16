@@ -1,9 +1,5 @@
 import type { Activity, RecentActivity } from '@/types/activity';
 
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export const mockActivities: RecentActivity[] = [
   {
     id: 'act-1',
@@ -86,7 +82,6 @@ export const mockActivities: RecentActivity[] = [
 ];
 
 export async function getRecentActivities(userId: string, limit: number = 10): Promise<RecentActivity[]> {
-  await delay(500);
   return mockActivities.slice(0, limit);
 }
 
@@ -95,8 +90,6 @@ export async function getUserActivities(
   page: number = 1,
   limit: number = 20
 ): Promise<{ activities: Activity[]; total: number }> {
-  await delay(600);
-
   const start = (page - 1) * limit;
   const end = start + limit;
 

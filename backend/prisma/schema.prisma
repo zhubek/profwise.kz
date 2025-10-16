@@ -36,10 +36,11 @@ model User {
 }
 
 model Organization {
-  id       String           @id @default(uuid())
-  name     String
-  regionId String
-  type     OrganizationType
+  id        String           @id @default(uuid())
+  name      String
+  regionId  String
+  type      OrganizationType
+  createdAt DateTime         @default(now())
 
   // Relations
   region   Region    @relation(fields: [regionId], references: [id])
@@ -56,8 +57,9 @@ enum OrganizationType {
 }
 
 model Region {
-  id   String @id @default(uuid())
-  name Json
+  id        String   @id @default(uuid())
+  name      Json
+  createdAt DateTime @default(now())
 
   // Relations
   organizations Organization[]
@@ -84,8 +86,9 @@ model License {
 }
 
 model LicenseClass {
-  id   String @id @default(uuid())
-  name String
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
 
   // Relations
   licenses              License[]
@@ -109,9 +112,10 @@ model UserLicense {
 }
 
 model LicenseClassQuiz {
-  id             String @id @default(uuid())
+  id             String   @id @default(uuid())
   licenseClassId String
   quizId         String
+  createdAt      DateTime @default(now())
 
   // Relations
   licenseClass LicenseClass @relation(fields: [licenseClassId], references: [id], onDelete: Cascade)
@@ -147,6 +151,7 @@ enum QuizType {
   APTITUDE
   KNOWLEDGE
   CAREER
+  HOLAND
   OTHER
 }
 
@@ -168,8 +173,10 @@ model Question {
 
 enum QuestionType {
   MULTIPLE_CHOICE
+  SINGLE_CHOICE
   TRUE_FALSE
   SCALE
+  LIKERT
   TEXT
   OTHER
 }
@@ -209,26 +216,29 @@ model UserQuestion {
 // ================================
 
 model Profession {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   name        Json
   description Json?
-  code        String  @unique
+  code        String
   categoryId  String
-  featured    Boolean @default(false)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
   // Relations
-  category              Category              @relation(fields: [categoryId], references: [id])
-  professionSpecs       ProfessionSpec[]
-  professionArchetypes  ProfessionArchetype[]
-  userProfessions       UserProfession[]
+  category                    Category                    @relation(fields: [categoryId], references: [id])
+  professionSpecs             ProfessionSpec[]
+  professionArchetypes        ProfessionArchetype[]
+  userProfessions             UserProfession[]
+  professionArchetypeTypes    ProfessionArchetypeType[]
 
   @@map("professions")
 }
 
 model Category {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   name        Json
   description Json?
+  createdAt   DateTime @default(now())
 
   // Relations
   professions Profession[]
@@ -237,10 +247,11 @@ model Category {
 }
 
 model University {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   name        Json
   description Json?
-  code        String @unique
+  code        String   @unique
+  createdAt   DateTime @default(now())
 
   // Relations
   specUniversities SpecUniversity[]
@@ -249,12 +260,13 @@ model University {
 }
 
 model Spec {
-  id        String @id @default(uuid())
-  name      Json
-  code      String @unique
+  id          String   @id @default(uuid())
+  name        Json
+  code        String   @unique
   description Json?
-  subjects  Json?
-  groupName Json?
+  subjects    Json?
+  groupName   Json?
+  createdAt   DateTime @default(now())
 
   // Relations
   specUniversities SpecUniversity[]
@@ -264,10 +276,11 @@ model Spec {
 }
 
 model SpecUniversity {
-  id         String  @id @default(uuid())
-  isEnglish  Boolean @default(false)
-  specId     String
+  id           String   @id @default(uuid())
+  isEnglish    Boolean  @default(false)
+  specId       String
   universityId String
+  createdAt    DateTime @default(now())
 
   // Relations
   spec        Spec         @relation(fields: [specId], references: [id], onDelete: Cascade)
@@ -279,9 +292,10 @@ model SpecUniversity {
 }
 
 model ProfessionSpec {
-  id           String @id @default(uuid())
+  id           String   @id @default(uuid())
   professionId String
   specId       String
+  createdAt    DateTime @default(now())
 
   // Relations
   profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
@@ -292,13 +306,14 @@ model ProfessionSpec {
 }
 
 model TestScore {
-  id               String @id @default(uuid())
+  id               String   @id @default(uuid())
   year             Int
   specUniversityId String
   minPoints        Int
   maxPoints        Int?
   grantCounts      Int?
   typeId           String
+  createdAt        DateTime @default(now())
 
   // Relations
   specUniversity SpecUniversity @relation(fields: [specUniversityId], references: [id], onDelete: Cascade)
@@ -308,9 +323,10 @@ model TestScore {
 }
 
 model TestScoreType {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   name       String
   parameters Json?
+  createdAt  DateTime @default(now())
 
   // Relations
   testScores TestScore[]
@@ -323,10 +339,11 @@ model TestScoreType {
 // ================================
 
 model Archetype {
-  id              String @id @default(uuid())
+  id              String   @id @default(uuid())
   name            Json
   archetypeTypeId String
   description     Json?
+  createdAt       DateTime @default(now())
 
   // Relations
   archetypeType        ArchetypeType         @relation(fields: [archetypeTypeId], references: [id])
@@ -337,22 +354,40 @@ model Archetype {
 }
 
 model ArchetypeType {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   name        Json
   description Json?
+  createdAt   DateTime @default(now())
 
   // Relations
   archetypes                     Archetype[]
+  professionArchetypeTypes       ProfessionArchetypeType[]
   userProfessionArchetypeTypes   UserProfessionArchetypeType[]
 
   @@map("archetype_types")
 }
 
+model ProfessionArchetypeType {
+  id              String   @id @default(uuid())
+  professionId    String
+  archetypeTypeId String
+  description     Json?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  profession    Profession    @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  archetypeType ArchetypeType @relation(fields: [archetypeTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([professionId, archetypeTypeId])
+  @@map("profession_archetype_types")
+}
+
 model ProfessionArchetype {
-  id           String @id @default(uuid())
+  id           String   @id @default(uuid())
   professionId String
   archetypeId  String
   score        Int
+  createdAt    DateTime @default(now())
 
   // Relations
   profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
@@ -363,10 +398,11 @@ model ProfessionArchetype {
 }
 
 model UserArchetype {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   userId      String
   archetypeId String
   score       Int
+  createdAt   DateTime @default(now())
 
   // Relations
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -392,10 +428,11 @@ model UserProfession {
 }
 
 model UserProfessionArchetypeType {
-  id                String @id @default(uuid())
-  userProfessionId  String
-  archetypeTypeId   String
-  score             Int
+  id               String   @id @default(uuid())
+  userProfessionId String
+  archetypeTypeId  String
+  score            Int
+  createdAt        DateTime @default(now())
 
   // Relations
   userProfession  UserProfession @relation(fields: [userProfessionId], references: [id], onDelete: Cascade)

@@ -1,40 +1,33 @@
 import type { User, UserProfile, CreateUserDTO, UpdateUserDTO, AuthResponse, LoginDTO } from '@/types/user';
 import type { UserLicenseInfo } from '@/types/organization';
 
-// Helper function to simulate delay
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export const mockUsers: User[] = [
   {
     id: '1',
     email: 'student@profwise.kz',
-    name: 'Aidar Nurlan',
+    name: 'Aidar',
+    surname: 'Nurlan',
+    schoolId: 'school-157',
+    grade: '10A',
+    age: 16,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aidar',
     role: 'student',
-    organizationId: 'org-1',
-    classroomId: 'class-1',
     createdAt: '2024-01-15T10:00:00Z',
     updatedAt: '2024-10-15T10:00:00Z',
-    lastActiveAt: '2024-10-15T14:30:00Z',
   },
   {
     id: '2',
     email: 'admin@school.kz',
-    name: 'Assel Temirbek',
+    name: 'Assel',
+    surname: 'Temirbek',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Assel',
     role: 'organization_admin',
-    organizationId: 'org-1',
     createdAt: '2023-09-01T10:00:00Z',
     updatedAt: '2024-10-15T10:00:00Z',
-    lastActiveAt: '2024-10-15T15:00:00Z',
   },
 ];
 
 export async function login(credentials: LoginDTO): Promise<AuthResponse> {
-  await delay(800);
-
   const user = mockUsers.find(u => u.email === credentials.email);
 
   if (!user || credentials.password !== 'password123') {
@@ -49,8 +42,6 @@ export async function login(credentials: LoginDTO): Promise<AuthResponse> {
 }
 
 export async function register(data: CreateUserDTO): Promise<AuthResponse> {
-  await delay(800);
-
   const existingUser = mockUsers.find(u => u.email === data.email);
   if (existingUser) {
     throw new Error('User already exists');
@@ -60,9 +51,9 @@ export async function register(data: CreateUserDTO): Promise<AuthResponse> {
     id: `user-${Date.now()}`,
     email: data.email,
     name: data.name,
+    surname: data.surname,
+    schoolId: data.schoolId,
     role: 'student',
-    organizationId: data.licenseCode ? 'org-1' : undefined,
-    classroomId: data.classroomId,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -77,13 +68,10 @@ export async function register(data: CreateUserDTO): Promise<AuthResponse> {
 }
 
 export async function getCurrentUser(): Promise<User> {
-  await delay(300);
   return mockUsers[0];
 }
 
 export async function getUserProfile(id: string): Promise<UserProfile> {
-  await delay(500);
-
   const user = mockUsers.find(u => u.id === id);
   if (!user) throw new Error('User not found');
 
@@ -97,8 +85,6 @@ export async function getUserProfile(id: string): Promise<UserProfile> {
 }
 
 export async function updateUser(id: string, data: UpdateUserDTO): Promise<User> {
-  await delay(600);
-
   const user = mockUsers.find(u => u.id === id);
   if (!user) throw new Error('User not found');
 
@@ -115,8 +101,6 @@ export async function updateUser(id: string, data: UpdateUserDTO): Promise<User>
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  await delay(500);
-
   const index = mockUsers.findIndex(u => u.id === id);
   if (index === -1) throw new Error('User not found');
 
@@ -124,8 +108,6 @@ export async function deleteUser(id: string): Promise<void> {
 }
 
 export async function getUserLicenseInfo(userId: string): Promise<UserLicenseInfo> {
-  await delay(400);
-
   // Mock license data
   return {
     licenseCode: 'SCH-ALM-2024-A1B2',

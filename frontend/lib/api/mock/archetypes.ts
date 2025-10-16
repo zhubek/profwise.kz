@@ -1,9 +1,5 @@
 import type { Archetype, UserArchetypeProfile, UserArchetypeScore } from '@/types/archetype';
 
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export const mockArchetypes: Archetype[] = [
   {
     id: 'arch-r',
@@ -166,25 +162,20 @@ export const mockUserArchetypeProfile: UserArchetypeProfile = {
 };
 
 export async function getArchetypes(): Promise<Archetype[]> {
-  await delay(400);
   return mockArchetypes;
 }
 
 export async function getArchetype(id: string): Promise<Archetype> {
-  await delay(400);
   const archetype = mockArchetypes.find(a => a.id === id);
   if (!archetype) throw new Error('Archetype not found');
   return archetype;
 }
 
 export async function getUserArchetypeProfile(userId: string): Promise<UserArchetypeProfile> {
-  await delay(600);
   return mockUserArchetypeProfile;
 }
 
 export async function getArchetypesByCategory(category: string): Promise<UserArchetypeScore[]> {
-  await delay(500);
-
   switch (category) {
     case 'interests':
       return mockUserArchetypeProfile.interests;

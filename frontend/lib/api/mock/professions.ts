@@ -8,10 +8,6 @@ import type {
   ProfessionArchetypes,
 } from '@/types/profession';
 
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export const mockProfessions: Profession[] = [
   {
     id: 'prof-1',
@@ -244,19 +240,16 @@ export const mockProfessionDetails: Record<string, ProfessionDetails> = {
 };
 
 export async function getProfessions(): Promise<Profession[]> {
-  await delay(500);
   return mockProfessions;
 }
 
 export async function getProfession(id: string): Promise<Profession> {
-  await delay(500);
   const profession = mockProfessions.find(p => p.id === id);
   if (!profession) throw new Error('Profession not found');
   return profession;
 }
 
 export async function getProfessionDetails(id: string): Promise<ProfessionDetails> {
-  await delay(600);
   const details = mockProfessionDetails[id];
   if (!details) {
     // Return basic details if extended info not available
@@ -275,12 +268,10 @@ export async function getProfessionDetails(id: string): Promise<ProfessionDetail
 }
 
 export async function getMatchedProfessions(userId: string): Promise<ProfessionMatch[]> {
-  await delay(700);
   return mockProfessionMatches;
 }
 
 export async function getProfessionLaborMarket(professionId: string): Promise<ProfessionLaborMarket> {
-  await delay(500);
   return {
     professionId,
     demandLevel: 'high',
@@ -293,7 +284,6 @@ export async function getProfessionLaborMarket(professionId: string): Promise<Pr
 }
 
 export async function getProfessionSalary(professionId: string): Promise<ProfessionSalary> {
-  await delay(500);
   return {
     professionId,
     currency: 'KZT',
@@ -305,7 +295,6 @@ export async function getProfessionSalary(professionId: string): Promise<Profess
 }
 
 export async function getProfessionEducation(professionId: string): Promise<ProfessionEducation> {
-  await delay(500);
   return {
     professionId,
     minimumEducation: 'bachelor',
@@ -338,7 +327,6 @@ export async function getProfessionEducation(professionId: string): Promise<Prof
 }
 
 export async function getProfessionArchetypes(professionId: string): Promise<ProfessionArchetypes> {
-  await delay(500);
   return {
     professionId,
     riasecCodes: ['I', 'R', 'C'],
@@ -383,7 +371,6 @@ export async function getProfessionArchetypes(professionId: string): Promise<Pro
 }
 
 export async function likeProfession(professionId: string, isLiked: boolean): Promise<void> {
-  await delay(400);
   const match = mockProfessionMatches.find(p => p.id === professionId);
   if (match) {
     match.isLiked = isLiked;

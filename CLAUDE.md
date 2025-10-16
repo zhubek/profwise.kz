@@ -1,1 +1,2 @@
 - Refer to me as Bex
+- as we are using WSL seems like localhost is not available, services are accessible through http://172.26.195.243/
