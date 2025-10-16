@@ -72,11 +72,18 @@
       "Bash([ -d .next ])",
       "Bash(python3:*)",
       "Bash(awk:*)",
-      "Bash(time ls:*)"
+      "Bash(time ls:*)",
+      "Read(//home/bex/projects/profwise.kz/**)",
+      "Bash(rsync:*)",
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Bash(mkdir:*)",
+      "Bash(git add:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "playwright"
+    "playwright",
+    "shadcn"
   ]
 }

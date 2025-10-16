@@ -7,6 +7,11 @@ import { QuizzesModule } from './quizzes/quizzes.module';
 import { ProfessionsModule } from './professions/professions.module';
 import { ArchetypesModule } from './archetypes/archetypes.module';
 import { AuthModule } from './auth/auth.module';
+import { ResultsModule } from './results/results.module';
+import { QuestionsModule } from './questions/questions.module';
+import { CategoriesModule } from './categories/categories.module';
+import { UniversitiesModule } from './universities/universities.module';
+import { SpecsModule } from './specs/specs.module';
 
 @Module({
   imports: [
@@ -14,8 +19,13 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     ProfilesModule,
     QuizzesModule,
+    QuestionsModule,
+    CategoriesModule,
+    UniversitiesModule,
+    SpecsModule,
     ProfessionsModule,
     ArchetypesModule,
+    ResultsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

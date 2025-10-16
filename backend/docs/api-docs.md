@@ -6,7 +6,12 @@ Base URL: `http://172.26.195.243:4000` (or `http://localhost:4000` if running lo
 - [Authentication Module](#authentication-module)
 - [Profiles (Users) Module](#profiles-users-module)
 - [Quizzes Module](#quizzes-module)
+- [Questions Module](#questions-module)
+- [Results Module](#results-module)
 - [Professions Module](#professions-module)
+- [Categories Module](#categories-module)
+- [Universities Module](#universities-module)
+- [Specs Module](#specs-module)
 - [Archetypes Module](#archetypes-module)
 
 ---
@@ -441,6 +446,185 @@ Deletes a quiz and all related questions and results (cascade).
 
 ---
 
+## Questions Module
+
+Manages quiz questions.
+
+### Create Question
+**POST** `/questions`
+
+Creates a new question for a quiz.
+
+**Request Body:**
+```json
+{
+  "quizId": "quiz-uuid",
+  "questionText": {
+    "en": "What is your favorite color?",
+    "ru": "Какой ваш любимый цвет?",
+    "kk": "Сіздің сүйікті түсіңіз қандай?"
+  },
+  "answers": {
+    "options": [
+      { "en": "Red", "ru": "Красный", "kk": "Қызыл" },
+      { "en": "Blue", "ru": "Синий", "kk": "Көк" }
+    ]
+  },
+  "parameters": {
+    "archetype": "R",
+    "weight": 1
+  },
+  "questionType": "SINGLE_CHOICE"
+}
+```
+
+**Question Types:**
+- `MULTIPLE_CHOICE`
+- `SINGLE_CHOICE`
+- `TRUE_FALSE`
+- `SCALE`
+- `LIKERT`
+- `TEXT`
+- `OTHER`
+
+**Response:** `201 Created`
+
+### Get All Questions
+**GET** `/questions`
+
+Retrieves all questions. Can be filtered by quizId.
+
+**Query Parameters:**
+- `quizId` (string, optional): Filter questions by quiz ID
+
+**Response:** `200 OK`
+
+### Get Question by ID
+**GET** `/questions/:id`
+
+Retrieves a specific question with quiz details and user responses.
+
+**Response:** `200 OK`
+
+### Update Question
+**PATCH** `/questions/:id`
+
+Updates question information.
+
+**Request Body:** (all fields optional)
+```json
+{
+  "questionText": {...},
+  "answers": {...},
+  "parameters": {...}
+}
+```
+
+**Response:** `200 OK`
+
+### Delete Question
+**DELETE** `/questions/:id`
+
+Deletes a question and all related user responses (cascade).
+
+**Response:** `204 No Content`
+
+---
+
+## Results Module
+
+Manages quiz results and submissions.
+
+### Submit Quiz Result
+**POST** `/results`
+
+Submits a user's quiz result.
+
+**Request Body:**
+```json
+{
+  "userId": "user-uuid",
+  "quizId": "quiz-uuid",
+  "answers": {
+    "question-uuid-1": ["answer1"],
+    "question-uuid-2": [3]
+  },
+  "results": {
+    "R": 15,
+    "I": 12,
+    "A": 8,
+    "S": 10,
+    "E": 14,
+    "C": 11
+  }
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "id": "uuid",
+  "userId": "user-uuid",
+  "quizId": "quiz-uuid",
+  "answers": {...},
+  "results": {...},
+  "createdAt": "2025-10-16T12:00:00.000Z",
+  "user": {
+    "id": "uuid",
+    "name": "John",
+    "surname": "Doe",
+    "email": "john@example.com"
+  },
+  "quiz": {
+    "id": "uuid",
+    "quizName": {...},
+    "quizType": "PERSONALITY"
+  }
+}
+```
+
+### Get All Results
+**GET** `/results`
+
+Retrieves all quiz results. Can be filtered by userId or quizId.
+
+**Query Parameters:**
+- `userId` (string, optional): Filter results by user ID
+- `quizId` (string, optional): Filter results by quiz ID
+
+**Response:** `200 OK`
+
+### Get Result by ID
+**GET** `/results/:id`
+
+Retrieves a specific result with full details including quiz questions.
+
+**Response:** `200 OK`
+
+### Update Result
+**PATCH** `/results/:id`
+
+Updates result information.
+
+**Request Body:** (all fields optional)
+```json
+{
+  "answers": {...},
+  "results": {...}
+}
+```
+
+**Response:** `200 OK`
+
+### Delete Result
+**DELETE** `/results/:id`
+
+Deletes a result.
+
+**Response:** `204 No Content`
+
+---
+
 ## Professions Module
 
 Manages professions, categories, universities, and specializations.
@@ -543,6 +727,284 @@ Updates profession information.
 **DELETE** `/professions/:id`
 
 Deletes a profession and all related data (cascade).
+
+**Response:** `204 No Content`
+
+---
+
+## Categories Module
+
+Manages profession categories.
+
+### Create Category
+**POST** `/categories`
+
+Creates a new profession category.
+
+**Request Body:**
+```json
+{
+  "name": {
+    "en": "Healthcare",
+    "ru": "Здравоохранение",
+    "kk": "Денсаулық сақтау"
+  },
+  "description": {
+    "en": "Medical and healthcare professions",
+    "ru": "Медицинские профессии и здравоохранение",
+    "kk": "Медициналық мамандықтар және денсаулық сақтау"
+  }
+}
+```
+
+**Response:** `201 Created`
+
+### Get All Categories
+**GET** `/categories`
+
+Retrieves all categories with profession counts.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "uuid",
+    "name": {...},
+    "description": {...},
+    "createdAt": "2025-10-16T12:00:00.000Z",
+    "_count": {
+      "professions": 15
+    }
+  }
+]
+```
+
+### Get Category by ID
+**GET** `/categories/:id`
+
+Retrieves a specific category with all professions in that category.
+
+**Response:** `200 OK`
+
+### Update Category
+**PATCH** `/categories/:id`
+
+Updates category information.
+
+**Request Body:** (all fields optional)
+```json
+{
+  "name": {...},
+  "description": {...}
+}
+```
+
+**Response:** `200 OK`
+
+### Delete Category
+**DELETE** `/categories/:id`
+
+Deletes a category.
+
+**Response:** `204 No Content`
+
+---
+
+## Universities Module
+
+Manages universities and educational institutions.
+
+### Create University
+**POST** `/universities`
+
+Creates a new university.
+
+**Request Body:**
+```json
+{
+  "name": {
+    "en": "Nazarbayev University",
+    "ru": "Университет Назарбаева",
+    "kk": "Назарбаев Университеті"
+  },
+  "code": "NU-001",
+  "description": {
+    "en": "Research university in Astana",
+    "ru": "Исследовательский университет в Астане",
+    "kk": "Астанадағы зерттеу университеті"
+  }
+}
+```
+
+**Response:** `201 Created`
+
+**Error Response:** `409 Conflict` (if code already exists)
+
+### Get All Universities
+**GET** `/universities`
+
+Retrieves all universities with specialization counts.
+
+**Response:** `200 OK`
+
+### Get University by ID
+**GET** `/universities/:id`
+
+Retrieves a specific university with all specializations and test scores.
+
+**Response:** `200 OK`
+```json
+{
+  "id": "uuid",
+  "name": {...},
+  "code": "NU-001",
+  "description": {...},
+  "createdAt": "2025-10-16T12:00:00.000Z",
+  "specUniversities": [
+    {
+      "id": "uuid",
+      "isEnglish": true,
+      "spec": {
+        "id": "uuid",
+        "name": {...},
+        "code": "CS-001"
+      },
+      "testScores": [...]
+    }
+  ]
+}
+```
+
+### Update University
+**PATCH** `/universities/:id`
+
+Updates university information.
+
+**Request Body:** (all fields optional)
+```json
+{
+  "name": {...},
+  "description": {...}
+}
+```
+
+**Response:** `200 OK`
+
+### Delete University
+**DELETE** `/universities/:id`
+
+Deletes a university and all related data (cascade).
+
+**Response:** `204 No Content`
+
+---
+
+## Specs Module
+
+Manages academic specializations (degree programs).
+
+### Create Spec
+**POST** `/specs`
+
+Creates a new specialization.
+
+**Request Body:**
+```json
+{
+  "name": {
+    "en": "Computer Science",
+    "ru": "Компьютерные науки",
+    "kk": "Компьютерлік ғылымдар"
+  },
+  "code": "CS-001",
+  "description": {
+    "en": "Study of computation and algorithms",
+    "ru": "Изучение вычислений и алгоритмов",
+    "kk": "Есептеулер мен алгоритмдерді зерттеу"
+  },
+  "subjects": {
+    "en": ["Math", "Physics", "Computer Science"],
+    "ru": ["Математика", "Физика", "Информатика"],
+    "kk": ["Математика", "Физика", "Информатика"]
+  },
+  "groupName": {
+    "en": "Information Technology",
+    "ru": "Информационные технологии",
+    "kk": "Ақпараттық технологиялар"
+  }
+}
+```
+
+**Response:** `201 Created`
+
+**Error Response:** `409 Conflict` (if code already exists)
+
+### Get All Specs
+**GET** `/specs`
+
+Retrieves all specializations with university and profession counts.
+
+**Response:** `200 OK`
+
+### Get Spec by ID
+**GET** `/specs/:id`
+
+Retrieves a specific spec with universities offering it and related professions.
+
+**Response:** `200 OK`
+```json
+{
+  "id": "uuid",
+  "name": {...},
+  "code": "CS-001",
+  "description": {...},
+  "subjects": {...},
+  "groupName": {...},
+  "createdAt": "2025-10-16T12:00:00.000Z",
+  "specUniversities": [
+    {
+      "id": "uuid",
+      "isEnglish": true,
+      "university": {
+        "id": "uuid",
+        "name": {...},
+        "code": "NU-001"
+      },
+      "testScores": [...]
+    }
+  ],
+  "professionSpecs": [
+    {
+      "profession": {
+        "id": "uuid",
+        "name": {...},
+        "code": "SE-001"
+      }
+    }
+  ]
+}
+```
+
+### Update Spec
+**PATCH** `/specs/:id`
+
+Updates spec information.
+
+**Request Body:** (all fields optional)
+```json
+{
+  "name": {...},
+  "description": {...},
+  "subjects": {...}
+}
+```
+
+**Response:** `200 OK`
+
+### Delete Spec
+**DELETE** `/specs/:id`
+
+Deletes a spec and all related data (cascade).
 
 **Response:** `204 No Content`
 
