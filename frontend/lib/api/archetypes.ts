@@ -1,8 +1,8 @@
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 import * as mockAPI from './mock/archetypes';
 import api from './client';
-import type { Archetype, UserArchetypeProfile, UserArchetypeScore } from '@/types/archetype';
+import type { Archetype, ArchetypeType, UserArchetypeProfile, UserArchetypeScore } from '@/types/archetype';
 import type { APIResponse } from '@/types/api';
 
 export async function getArchetypes(): Promise<Archetype[]> {
@@ -25,8 +25,8 @@ export async function getUserArchetypeProfile(userId: string): Promise<UserArche
   if (USE_MOCK) {
     return mockAPI.getUserArchetypeProfile(userId);
   }
-  const response = await api.get<APIResponse<UserArchetypeProfile>>(`/users/${userId}/archetype-profile`);
-  return response.data;
+  const response = await api.get<UserArchetypeProfile>(`/users/${userId}/archetype-profile`);
+  return response;
 }
 
 export async function getArchetypesByCategory(category: string): Promise<UserArchetypeScore[]> {
@@ -35,4 +35,9 @@ export async function getArchetypesByCategory(category: string): Promise<UserArc
   }
   const response = await api.get<APIResponse<UserArchetypeScore[]>>(`/archetypes/category/${category}`);
   return response.data;
+}
+
+export async function getArchetypeTypes(): Promise<ArchetypeType[]> {
+  const response = await api.get<ArchetypeType[]>('/archetypes/types/all');
+  return response;
 }

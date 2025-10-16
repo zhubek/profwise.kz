@@ -35,4 +35,9 @@ export class ProfilesController {
   remove(@Param('id') id: string) {
     return this.profilesService.remove(id);
   }
+
+  @Get(':id/archetype-profile')
+  getArchetypeProfile(@Param('id') id: string) {
+    return this.profilesService.getArchetypeProfile(id);
+  }
 }

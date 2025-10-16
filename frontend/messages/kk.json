@@ -42,6 +42,7 @@
     "email": "Email",
     "password": "Құпия сөз",
     "confirmPassword": "Құпия сөзді растау",
+    "language": "Тіл",
     "licenseCode": "Лицензиялық код",
     "enterLicenseCode": "Лицензиялық кодыңызды енгізіңіз",
     "forgotPassword": "Құпия сөзді ұмыттыңыз ба?",
@@ -177,7 +178,10 @@
         "point4": "Сіз гүлденетін жұмыс орталары туралы түсінік",
         "point5": "Табиғи күшті жақтарыңыз бен қалауларыңыз туралы түсінік"
       }
-    }
+    },
+    "noLicenseRequired": "Тестті лицензиясыз тапсыруға болады",
+    "availableFrom": "{date} бастап қол жетімді",
+    "soon": "Жақында"
   },
   "archetypes": {
     "title": "Менің архетиптер профилім",
@@ -188,6 +192,27 @@
     "values": "Құндылықтар",
     "abilities": "Қабілеттер",
     "all": "Барлық архетиптер",
+    "topTraits": "Сіздің басты қасиеттеріңіз: {category}",
+    "realistic": "Реалистік",
+    "investigative": "Зерттеушілік",
+    "artistic": "Артистік",
+    "social": "Әлеуметтік",
+    "enterprising": "Кәсіпкерлік",
+    "conventional": "Конвенционалды",
+    "viewAllMatches": "Барлық сәйкес мамандықтар",
+    "updateProfile": "Профильді жаңарту",
+    "takeAssessment": "Бағалауды өту",
+    "notCompleted": "Тест өтілмеген бе? Нәтижелерді көру үшін бағалауды өтіңіз."
+  },
+  "characteristics": {
+    "title": "Менің сипаттамалар профилім",
+    "subtitle": "Қасиеттер мен сипаттамаларыңыздың бірегей комбинациясын ашыңыз",
+    "interests": "Қызығушылықтар",
+    "skills": "Дағдылар",
+    "personality": "Тұлға",
+    "values": "Құндылықтар",
+    "abilities": "Қабілеттер",
+    "all": "Барлық сипаттамалар",
     "topTraits": "Сіздің басты қасиеттеріңіз: {category}",
     "realistic": "Реалистік",
     "investigative": "Зерттеушілік",
@@ -269,6 +294,17 @@
       "preferredFields": "Ұсынылған мамандықтар",
       "certifications": "Сертификаттар",
       "learningPaths": "Оқу жолдары"
+    },
+    "allProfessions": {
+      "title": "Барлық мамандықтар",
+      "subtitle": "Мамандықтарды санаттар бойынша қарау",
+      "selectCategory": "Мамандықтарды көру үшін санатты таңдаңыз",
+      "backToCategories": "Санаттарға оралу",
+      "professionsInCategory": "{count} мамандық",
+      "noProfessionsInCategory": "Бұл санатта мамандықтар табылмады",
+      "browseByCategory": "Санаттар бойынша қарау",
+      "loadingCategories": "Санаттар жүктелуде...",
+      "loadingProfessions": "Мамандықтар жүктелуде..."
     }
   },
   "activity": {
@@ -280,19 +316,9 @@
     "classroomJoined": "Сыныпқа қосылдыңыз: {classroomName}"
   },
   "organization": {
-    "title": "Ұйым тақтасы",
-    "students": "Студенттер",
-    "classrooms": "Сыныптар",
-    "licenseCodes": "Лицензиялық кодтар",
-    "generateCodes": "Кодтарды генерациялау",
-    "viewStudents": "Студенттерді көру",
-    "viewResults": "Нәтижелерді көру",
-    "aggregatedResults": "Жиынтық нәтижелер",
-    "createClassroom": "Сынып жасау",
-    "studentsCount": "{count} студент",
-    "activeStudents": "Белсенді студенттер",
-    "completedTests": "Аяқталған тесттер",
-    "averageProgress": "Орташа прогресс"
+    "expires": "Мерзімі бітеді",
+    "school": "Мектеп",
+    "licenseCode": "Лицензиялық код"
   },
   "profile": {
     "title": "Менің профилім",
@@ -303,6 +329,7 @@
     "school": "Мектеп",
     "grade": "Сынып",
     "age": "Жасы",
+    "language": "Тіл",
     "avatar": "Аватар",
     "classroom": "Сынып",
     "organization": "Ұйым",
@@ -324,13 +351,41 @@
     "deleteAccountConfirm": "Аккаунтыңызды жойғыңыз келетініне сенімдісіз бе?",
     "deleteAccountSuccess": "Аккаунт сәтті жойылды",
     "deleteAccountError": "Аккаунтты жою кезінде қате",
-    "failedToLoadProfile": "Профильді жүктеу сәтсіз аяқталды"
+    "failedToLoadProfile": "Профильді жүктеу сәтсіз аяқталды",
+    "licenses": {
+      "title": "Лицензияларды басқару",
+      "description": "Премиум функциялар мен тесттерге қол жеткізу үшін лицензиялық кодтарды белсендіріңіз",
+      "licenseCode": "Лицензиялық код",
+      "activate": "Белсендіру",
+      "myLicenses": "Менің лицензияларым",
+      "codeHint": "Мектебіңіз немесе ұйымыңыз берген лицензиялық кодты енгізіңіз",
+      "activationSuccess": "Лицензия сәтті белсендірілді!",
+      "activationError": "Лицензияны белсендіру мүмкін болмады. Кодты тексеріп, қайталап көріңіз.",
+      "licensesDescription": "Белсенді және мерзімі өткен лицензияларды көру және басқару",
+      "noLicenses": "Сізде әлі лицензиялар жоқ",
+      "active": "Белсенді",
+      "expired": "Мерзімі өтті",
+      "organization": "Ұйым",
+      "availableQuizzes": "Қолжетімді тесттер",
+      "activatedOn": "Белсендірілді",
+      "errors": {
+        "notFound": "{code} кодымен лицензия табылмады",
+        "alreadyActivated": "Бұл лицензия әлдеқашан белсендірілген",
+        "alreadyActivatedByAnotherUser": "Бұл лицензия басқа пайдаланушымен әлдеқашан белсендірілген",
+        "expired": "Бұл лицензияның мерзімі өтті",
+        "invalidCode": "Лицензиялық коды форматы қате",
+        "serverError": "Сервер қатесі. Кейінірек қайталап көріңіз"
+      }
+    }
   },
   "navigation": {
     "dashboard": "Тақта",
     "tests": "Тесттер",
     "archetypes": "Архетиптер",
+    "characteristics": "Сипаттамалар",
     "professions": "Мамандықтар",
+    "myProfessions": "Менің Мамандықтарым",
+    "allProfessions": "Барлық Мамандықтар",
     "profile": "Профиль",
     "organization": "Ұйым",
     "help": "Көмек",
@@ -342,12 +397,8 @@
     "privacy": "Құпиялылық саясаты",
     "contact": "Байланысу",
     "about": "Біз туралы",
+    "legal": "Құқықтық",
     "madeWith": "❤️-пен Қазақстанда жасалды"
-  },
-  "organization": {
-    "expires": "Мерзімі бітеді",
-    "school": "Мектеп",
-    "licenseCode": "Лицензиялық код"
   },
   "results": {
     "viewPreviousResults": "Алдыңғы тест нәтижелеріңізді көріңіз және прогресіңізді бақылаңыз.",

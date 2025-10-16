@@ -12,6 +12,7 @@ import { QuestionsModule } from './questions/questions.module';
 import { CategoriesModule } from './categories/categories.module';
 import { UniversitiesModule } from './universities/universities.module';
 import { SpecsModule } from './specs/specs.module';
+import { LicensesModule } from './licenses/licenses.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { SpecsModule } from './specs/specs.module';
     CategoriesModule,
     UniversitiesModule,
     SpecsModule,
+    LicensesModule,
     ProfessionsModule,
     ArchetypesModule,
     ResultsModule,

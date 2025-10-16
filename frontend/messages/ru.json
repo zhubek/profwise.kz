@@ -42,6 +42,7 @@
     "email": "Email",
     "password": "Пароль",
     "confirmPassword": "Подтвердите пароль",
+    "language": "Язык",
     "licenseCode": "Лицензионный код",
     "enterLicenseCode": "Введите ваш лицензионный код",
     "forgotPassword": "Забыли пароль?",
@@ -177,7 +178,10 @@
         "point4": "Понимание рабочих сред, в которых вы будете процветать",
         "point5": "Понимание ваших естественных сильных сторон и предпочтений"
       }
-    }
+    },
+    "noLicenseRequired": "Тест можно пройти без лицензии",
+    "availableFrom": "Доступен с {date}",
+    "soon": "Скоро"
   },
   "archetypes": {
     "title": "Мой профиль архетипов",
@@ -188,6 +192,27 @@
     "values": "Ценности",
     "abilities": "Способности",
     "all": "Все архетипы",
+    "topTraits": "Ваши главные черты в: {category}",
+    "realistic": "Реалистичный",
+    "investigative": "Исследовательский",
+    "artistic": "Артистичный",
+    "social": "Социальный",
+    "enterprising": "Предпринимательский",
+    "conventional": "Конвенциональный",
+    "viewAllMatches": "Все подходящие профессии",
+    "updateProfile": "Обновить профиль",
+    "takeAssessment": "Пройти оценку",
+    "notCompleted": "Тест не пройден? Пройдите оценку, чтобы увидеть результаты."
+  },
+  "characteristics": {
+    "title": "Мой профиль характеристик",
+    "subtitle": "Откройте вашу уникальную комбинацию черт и характеристик",
+    "interests": "Интересы",
+    "skills": "Навыки",
+    "personality": "Личность",
+    "values": "Ценности",
+    "abilities": "Способности",
+    "all": "Все характеристики",
     "topTraits": "Ваши главные черты в: {category}",
     "realistic": "Реалистичный",
     "investigative": "Исследовательский",
@@ -269,6 +294,17 @@
       "preferredFields": "Предпочтительные специальности",
       "certifications": "Сертификаты",
       "learningPaths": "Пути обучения"
+    },
+    "allProfessions": {
+      "title": "Все профессии",
+      "subtitle": "Просмотр профессий по категориям",
+      "selectCategory": "Выберите категорию для просмотра профессий",
+      "backToCategories": "Назад к категориям",
+      "professionsInCategory": "{count} профессий",
+      "noProfessionsInCategory": "Профессии в этой категории не найдены",
+      "browseByCategory": "Просмотр по категориям",
+      "loadingCategories": "Загрузка категорий...",
+      "loadingProfessions": "Загрузка профессий..."
     }
   },
   "activity": {
@@ -280,19 +316,9 @@
     "classroomJoined": "Присоединились к классу: {classroomName}"
   },
   "organization": {
-    "title": "Панель организации",
-    "students": "Студенты",
-    "classrooms": "Классы",
-    "licenseCodes": "Лицензионные коды",
-    "generateCodes": "Генерировать коды",
-    "viewStudents": "Просмотр студентов",
-    "viewResults": "Просмотр результатов",
-    "aggregatedResults": "Сводные результаты",
-    "createClassroom": "Создать класс",
-    "studentsCount": "{count} студентов",
-    "activeStudents": "Активные студенты",
-    "completedTests": "Завершенные тесты",
-    "averageProgress": "Средний прогресс"
+    "expires": "Истекает",
+    "school": "Школа",
+    "licenseCode": "Лицензионный код"
   },
   "profile": {
     "title": "Мой профиль",
@@ -303,6 +329,7 @@
     "school": "Школа",
     "grade": "Класс",
     "age": "Возраст",
+    "language": "Язык",
     "avatar": "Аватар",
     "classroom": "Класс",
     "organization": "Организация",
@@ -324,13 +351,41 @@
     "deleteAccountConfirm": "Вы уверены, что хотите удалить свой аккаунт?",
     "deleteAccountSuccess": "Аккаунт успешно удален",
     "deleteAccountError": "Ошибка при удалении аккаунта",
-    "failedToLoadProfile": "Не удалось загрузить профиль"
+    "failedToLoadProfile": "Не удалось загрузить профиль",
+    "licenses": {
+      "title": "Управление лицензиями",
+      "description": "Активируйте лицензионные коды для доступа к премиум функциям и тестам",
+      "licenseCode": "Лицензионный код",
+      "activate": "Активировать",
+      "myLicenses": "Мои лицензии",
+      "codeHint": "Введите лицензионный код, предоставленный вашей школой или организацией",
+      "activationSuccess": "Лицензия успешно активирована!",
+      "activationError": "Не удалось активировать лицензию. Проверьте код и попробуйте снова.",
+      "licensesDescription": "Просмотр и управление активными и истекшими лицензиями",
+      "noLicenses": "У вас пока нет лицензий",
+      "active": "Активна",
+      "expired": "Истекла",
+      "organization": "Организация",
+      "availableQuizzes": "Доступные тесты",
+      "activatedOn": "Активирована",
+      "errors": {
+        "notFound": "Лицензия с кодом {code} не найдена",
+        "alreadyActivated": "Эта лицензия уже активирована",
+        "alreadyActivatedByAnotherUser": "Эта лицензия уже активирована другим пользователем",
+        "expired": "Срок действия этой лицензии истек",
+        "invalidCode": "Неверный формат лицензионного кода",
+        "serverError": "Ошибка сервера. Пожалуйста, попробуйте позже"
+      }
+    }
   },
   "navigation": {
     "dashboard": "Панель",
     "tests": "Тесты",
     "archetypes": "Архетипы",
+    "characteristics": "Характеристики",
     "professions": "Профессии",
+    "myProfessions": "Мои Профессии",
+    "allProfessions": "Все Профессии",
     "profile": "Профиль",
     "organization": "Организация",
     "help": "Помощь",
@@ -342,12 +397,8 @@
     "privacy": "Политика конфиденциальности",
     "contact": "Связаться с нами",
     "about": "О нас",
+    "legal": "Юридическое",
     "madeWith": "Сделано с ❤️ в Казахстане"
-  },
-  "organization": {
-    "expires": "Истекает",
-    "school": "Школа",
-    "licenseCode": "Лицензионный код"
   },
   "results": {
     "viewPreviousResults": "Просмотрите результаты ваших предыдущих тестов и отслеживайте свой прогресс.",

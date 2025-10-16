@@ -8,6 +8,7 @@ Base URL: `http://172.26.195.243:4000` (or `http://localhost:4000` if running lo
 - [Quizzes Module](#quizzes-module)
 - [Questions Module](#questions-module)
 - [Results Module](#results-module)
+- [Licenses Module](#licenses-module)
 - [Professions Module](#professions-module)
 - [Categories Module](#categories-module)
 - [Universities Module](#universities-module)
@@ -343,6 +344,67 @@ Deletes a user and all related data (cascade).
 
 **Response:** `204 No Content`
 
+### Get User Archetype Profile
+**GET** `/users/:id/archetype-profile`
+
+Retrieves a user's complete archetype profile with scores grouped by archetype type IDs.
+
+**Parameters:**
+- `id` (string, required): User ID
+
+**Response:** `200 OK`
+```json
+{
+  "userId": "uuid",
+  "groupedArchetypes": {
+    "interest": [
+      {
+        "archetypeId": "archetype-uuid",
+        "archetype": {
+          "id": "archetype-uuid",
+          "name": {
+            "en": "Realistic",
+            "ru": "Реалистичный",
+            "kk": "Шынайы"
+          },
+          "category": "interest",
+          "description": {
+            "en": "Prefers hands-on activities",
+            "ru": "Предпочитает практическую деятельность",
+            "kk": "Практикалық әрекетті артық көреді"
+          },
+          "icon": null,
+          "keyTraits": [],
+          "createdAt": "2025-10-16T12:00:00.000Z",
+          "updatedAt": "2025-10-16T12:00:00.000Z"
+        },
+        "score": 85,
+        "percentile": null
+      }
+    ],
+    "personality": [],
+    "skill": []
+  },
+  "lastUpdated": "2025-10-17T14:30:00.000Z"
+}
+```
+
+**Error Response:** `404 Not Found`
+```json
+{
+  "statusCode": 404,
+  "message": "User with ID {id} not found"
+}
+```
+
+**Notes:**
+- Archetype scores are grouped dynamically by ArchetypeType ID
+- Keys in `groupedArchetypes` correspond to ArchetypeType IDs in the database
+- Score represents user's affinity for that archetype (higher = stronger match)
+- Percentile calculation is planned for future implementation
+- Empty objects indicate no archetypes recorded for the user yet
+- Use `GET /archetypes/types/all` to fetch available archetype types and their names
+
 ---
 
 ## Quizzes Module
@@ -368,15 +430,79 @@ Creates a new quiz.
     "en": "Discover your personality type",
     "ru": "Откройте свой тип личности",
     "kk": "Өзіңіздің тұлға типіңізді табыңыз"
-  }
+  },
+  "parameters": {
+    "timeLimit": 30,
+    "scoringMethod": "weighted",
+    "passingScore": 70
+  },
+  "instructionsContent": {  // optional, dynamic content blocks for quiz instructions
+    "blocks": [
+      {
+        "type": "overview",
+        "id": "overview",
+        "title": { "en": "About This Test", "ru": "Об этом тесте", "kk": "Бұл тест туралы" },
+        "description": { "en": "Description text", "ru": "Текст описания", "kk": "Сипаттама мәтіні" }
+      },
+      {
+        "type": "riasec_grid",
+        "id": "riasec_grid",
+        "title": { "en": "What It Measures", "ru": "Что измеряет", "kk": "Не өлшейді" },
+        "description": { "en": "The RIASEC model", "ru": "Модель RIASEC", "kk": "RIASEC үлгісі" },
+        "items": [
+          {
+            "code": "R",
+            "title": { "en": "Realistic", "ru": "Реалистичный", "kk": "Шынайы" },
+            "description": { "en": "Hands-on", "ru": "Практический", "kk": "Практикалық" },
+            "color": "blue"
+          }
+        ]
+      },
+      {
+        "type": "numbered_steps",
+        "id": "how_it_works",
+        "title": { "en": "How It Works", "ru": "Как это работает", "kk": "Қалай жұмыс істейді" },
+        "steps": [
+          {
+            "number": 1,
+            "title": { "en": "", "ru": "", "kk": "" },
+            "description": { "en": "Step 1 text", "ru": "Текст шага 1", "kk": "1-қадам мәтіні" }
+          }
+        ]
+      },
+      {
+        "type": "bullet_list",
+        "id": "instructions",
+        "title": { "en": "Instructions", "ru": "Инструкции", "kk": "Нұсқаулар" },
+        "description": { "en": "Optional intro", "ru": "Необязательное вступление", "kk": "Қосымша кіріспе" },
+        "items": [
+          { "en": "Point 1", "ru": "Пункт 1", "kk": "1-тармақ" }
+        ]
+      }
+    ]
+  },
+  "isActive": true,           // optional, defaults to true
+  "startDate": "2025-01-01",  // optional, ISO date string
+  "isPublic": false           // optional, defaults to false
 }
 ```
+
+**instructionsContent Block Types:**
+- `overview`: Simple text block with title and description
+- `riasec_grid`: Grid of colored cards (e.g., RIASEC types with descriptions)
+- `numbered_steps`: Ordered list with numbered steps
+- `bullet_list`: Unordered list of bullet points
+- `rich_text`: Flexible text content with optional title
+
+**instructionsContent Colors (for riasec_grid):**
+- `blue`, `purple`, `pink`, `green`, `orange`, `gray`, `yellow`, `red`
 
 **Quiz Types:**
 - `PERSONALITY`
 - `APTITUDE`
 - `KNOWLEDGE`
 - `CAREER`
+- `HOLAND`
 - `OTHER`
 
 **Response:** `201 Created`
@@ -387,6 +513,10 @@ Creates a new quiz.
   "quizType": "PERSONALITY",
   "isFree": true,
   "description": {...},
+  "parameters": {...},
+  "isActive": true,
+  "startDate": "2025-01-01T00:00:00.000Z",
+  "isPublic": false,
   "createdAt": "2025-10-15T12:00:00.000Z",
   "updatedAt": "2025-10-15T12:00:00.000Z"
 }
@@ -415,12 +545,157 @@ Retrieves all quizzes with question counts.
 ]
 ```
 
+### Get User-Specific Quizzes
+**GET** `/quizzes/user/:userId`
+
+Retrieves all quizzes available to a specific user based on public access and active licenses.
+
+**Logic:**
+1. Fetches all public quizzes (`isPublic: true`) - includes both active and inactive
+2. Fetches all active quizzes from user's active licenses
+3. If quizzes share the same `quizType`, license quizzes override public ones
+4. Sorts results:
+   - License-based quizzes first (sorted by `activationDate` DESC - most recently activated first)
+   - Then public active quizzes
+   - Then inactive public quizzes (sorted by `startDate` ASC - upcoming ones first)
+5. Returns deduplicated and sorted list with source indicator
+
+**Parameters:**
+- `userId` (string, required): User ID
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "uuid",
+    "quizName": {
+      "en": "Holland Career Interest Test (RIASEC)",
+      "ru": "Тест профессиональных интересов Голланда (RIASEC)",
+      "kk": "Голланд кәсіби қызығушылық тесті (RIASEC)"
+    },
+    "quizType": "HOLAND",
+    "isFree": true,
+    "description": {...},
+    "parameters": null,
+    "isActive": true,
+    "startDate": null,
+    "isPublic": false,
+    "createdAt": "2025-10-16T04:32:47.434Z",
+    "updatedAt": "2025-10-16T04:32:47.434Z",
+    "_count": {
+      "questions": 36,
+      "results": 0
+    },
+    "source": "license",  // "public" or "license"
+    "licenseInfo": {      // Only present when source is "license"
+      "licenseCode": "SCHOOL-2024-ABC123",
+      "expireDate": "2025-08-31T23:59:59.000Z",
+      "organizationName": "School #15",
+      "activationDate": "2025-01-15T10:30:00.000Z"
+    }
+  }
+]
+```
+
+**Notes:**
+- Quiz results are sorted to prioritize the most relevant quizzes for the user
+- License-based quizzes are shown first as they are specifically assigned to the user
+- Among license quizzes, most recently activated ones appear first
+- Inactive public quizzes are sorted by startDate to show upcoming quizzes first
+- Quizzes without startDate appear last among inactive quizzes
+
 ### Get Quiz by ID
 **GET** `/quizzes/:id`
 
 Retrieves a specific quiz with all questions and results.
 
 **Response:** `200 OK`
+
+### Get Quiz Instructions
+**GET** `/quizzes/:id/instructions`
+
+Retrieves only the instructions content for a specific quiz. This endpoint is optimized for client-side caching and reduces payload size compared to fetching the full quiz.
+
+**Parameters:**
+- `id` (string, required): Quiz ID
+
+**Response:** `200 OK`
+```json
+{
+  "quizId": "uuid",
+  "instructionsContent": {
+    "blocks": [
+      {
+        "type": "heading",
+        "level": 2,
+        "content": {
+          "en": "About This Test",
+          "ru": "Об этом тесте",
+          "kz": "Бұл тест туралы"
+        }
+      },
+      {
+        "type": "paragraph",
+        "content": {
+          "en": "This test measures...",
+          "ru": "Этот тест измеряет...",
+          "kz": "Бұл тест өлшейді..."
+        }
+      },
+      {
+        "type": "bulletList",
+        "items": [
+          {
+            "en": "Point 1",
+            "ru": "Пункт 1",
+            "kz": "1-тармақ"
+          }
+        ]
+      },
+      {
+        "type": "numberedList",
+        "items": [
+          {
+            "en": "Step 1",
+            "ru": "Шаг 1",
+            "kz": "1-қадам"
+          }
+        ]
+      },
+      {
+        "type": "card",
+        "variant": "info",
+        "content": {
+          "en": "Important note...",
+          "ru": "Важное примечание...",
+          "kz": "Маңызды ескерту..."
+        }
+      }
+    ]
+  }
+}
+```
+
+**instructionsContent Block Types:**
+- `heading`: Text heading with configurable level (2-4)
+- `paragraph`: Simple text paragraph
+- `bulletList`: Unordered list with bullet points
+- `numberedList`: Ordered list with numbered items
+- `card`: Highlighted content box with optional variant (`info`, `warning`, `success`)
+
+**Notes:**
+- If quiz has no custom `instructionsContent`, the field will be `null` - client should use generic fallback
+- This endpoint returns minimal data for optimal performance
+- Designed for client-side caching to avoid repeated API calls
+- Frontend automatically uses generic instructions when `instructionsContent` is null
+
+**Error Response:** `404 Not Found`
+```json
+{
+  "statusCode": 404,
+  "message": "Quiz with ID {id} not found"
+}
+```
 
 ### Update Quiz
 **PATCH** `/quizzes/:id`
@@ -431,7 +706,11 @@ Updates quiz information.
 ```json
 {
   "isFree": false,
-  "description": {...}
+  "description": {...},
+  "parameters": {...},
+  "isActive": false,
+  "startDate": "2025-02-01",
+  "isPublic": true
 }
 ```
 
@@ -620,6 +899,271 @@ Updates result information.
 **DELETE** `/results/:id`
 
 Deletes a result.
+
+**Response:** `204 No Content`
+
+---
+
+## Licenses Module
+
+Manages user licenses, license activation, and quiz access control.
+
+### Activate License
+**POST** `/licenses/activate`
+
+Activates a license code for a user, granting access to quizzes.
+
+**Request Body:**
+```json
+{
+  "userId": "user-uuid",
+  "licenseCode": "SCHOOL-2024-ABC123"
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "message": "License activated successfully",
+  "userLicense": {
+    "id": "uuid",
+    "userId": "user-uuid",
+    "licenseId": "license-uuid",
+    "createdAt": "2025-10-16T12:00:00.000Z",
+    "license": {
+      "id": "uuid",
+      "name": "School Annual License",
+      "licenseCode": "SCHOOL-2024-ABC123",
+      "startDate": "2024-09-01T00:00:00.000Z",
+      "expireDate": "2025-08-31T23:59:59.000Z",
+      "licenseClass": {
+        "id": "uuid",
+        "name": "School License"
+      },
+      "organization": {
+        "id": "uuid",
+        "name": "School #15",
+        "type": "SCHOOL"
+      }
+    }
+  },
+  "availableQuizzes": [
+    {
+      "id": "uuid",
+      "quizName": {...},
+      "quizType": "PERSONALITY",
+      "isFree": false
+    }
+  ]
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` - License code doesn't exist
+```json
+{
+  "statusCode": 404,
+  "message": "License with code SCHOOL-2024-ABC123 not found"
+}
+```
+
+`400 Bad Request` - License expired or not active
+```json
+{
+  "statusCode": 400,
+  "message": "License is invalid, expired, or not yet active"
+}
+```
+
+`409 Conflict` - User already has this license
+```json
+{
+  "statusCode": 409,
+  "message": "User already has this license activated"
+}
+```
+
+### Validate License Code
+**GET** `/licenses/validate/:code`
+
+Checks if a license code is valid and active.
+
+**Parameters:**
+- `code` (string, required): License code to validate
+
+**Response:** `200 OK`
+```json
+{
+  "valid": true,
+  "license": {
+    "id": "uuid",
+    "name": "School Annual License",
+    "licenseCode": "SCHOOL-2024-ABC123",
+    "startDate": "2024-09-01T00:00:00.000Z",
+    "expireDate": "2025-08-31T23:59:59.000Z",
+    "isExpired": false,
+    "isActive": true,
+    "licenseClass": {
+      "id": "uuid",
+      "name": "School License"
+    },
+    "organization": {
+      "id": "uuid",
+      "name": "School #15"
+    }
+  }
+}
+```
+
+### Get User Licenses
+**GET** `/licenses/user/:userId`
+
+Retrieves all licenses for a specific user.
+
+**Parameters:**
+- `userId` (string, required): User ID
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "uuid",
+    "userId": "user-uuid",
+    "licenseId": "license-uuid",
+    "createdAt": "2025-10-16T12:00:00.000Z",
+    "license": {
+      "id": "uuid",
+      "name": "School Annual License",
+      "licenseCode": "SCHOOL-2024-ABC123",
+      "startDate": "2024-09-01T00:00:00.000Z",
+      "expireDate": "2025-08-31T23:59:59.000Z",
+      "isExpired": false,
+      "isActive": true,
+      "licenseClass": {
+        "name": "School License"
+      },
+      "organization": {
+        "name": "School #15",
+        "type": "SCHOOL"
+      }
+    },
+    "availableQuizzes": [...]
+  }
+]
+```
+
+### Get License Quizzes
+**GET** `/licenses/:id/quizzes`
+
+Retrieves all quizzes available for a specific license.
+
+**Parameters:**
+- `id` (string, required): License ID
+
+**Response:** `200 OK`
+```json
+{
+  "licenseId": "uuid",
+  "licenseName": "School Annual License",
+  "licenseClass": "School License",
+  "quizzes": [
+    {
+      "id": "uuid",
+      "quizName": {...},
+      "quizType": "PERSONALITY",
+      "isFree": false,
+      "description": {...},
+      "_count": {
+        "questions": 48,
+        "results": 150
+      }
+    }
+  ]
+}
+```
+
+### Create License (Admin)
+**POST** `/licenses`
+
+Creates a new license for an organization.
+
+**Request Body:**
+```json
+{
+  "startDate": "2024-09-01",
+  "expireDate": "2025-08-31",
+  "licenseCode": "SCHOOL-2024-ABC123",
+  "name": "School Annual License",
+  "licenseClassId": "license-class-uuid",
+  "organizationId": "organization-uuid"
+}
+```
+
+**Response:** `201 Created`
+
+**Error Response:** `409 Conflict` (if license code already exists)
+
+### Get All Licenses
+**GET** `/licenses`
+
+Retrieves all licenses with organization and usage details.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "uuid",
+    "name": "School Annual License",
+    "licenseCode": "SCHOOL-2024-ABC123",
+    "startDate": "2024-09-01T00:00:00.000Z",
+    "expireDate": "2025-08-31T23:59:59.000Z",
+    "licenseClass": {
+      "id": "uuid",
+      "name": "School License"
+    },
+    "organization": {
+      "id": "uuid",
+      "name": "School #15",
+      "type": "SCHOOL",
+      "region": {
+        "name": {...}
+      }
+    },
+    "_count": {
+      "userLicenses": 45
+    },
+    "createdAt": "2024-08-15T12:00:00.000Z"
+  }
+]
+```
+
+### Get License by ID
+**GET** `/licenses/:id`
+
+Retrieves a specific license with full details including users and available quizzes.
+
+**Response:** `200 OK`
+
+### Update License
+**PATCH** `/licenses/:id`
+
+Updates license information.
+
+**Request Body:** (all fields optional)
+```json
+{
+  "name": "Updated License Name",
+  "expireDate": "2026-08-31"
+}
+```
+
+**Response:** `200 OK`
+
+### Delete License
+**DELETE** `/licenses/:id`
+
+Deletes a license and all user license associations (cascade).
 
 **Response:** `204 No Content`
 
@@ -1049,6 +1593,39 @@ Creates a new archetype.
   }
 }
 ```
+
+### Get Archetype Types
+**GET** `/archetypes/types/all`
+
+Retrieves all archetype types (categories) available in the system.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "interest",
+    "name": {
+      "en": "Holland RIASEC",
+      "ru": "RIASEC Холланда",
+      "kk": "Холланд RIASEC"
+    },
+    "description": {
+      "en": "John Holland's theory of career choice based on six personality types",
+      "ru": "Теория профессионального выбора Джона Холланда",
+      "kk": "Джон Холландтың мансап таңдау теориясы"
+    },
+    "createdAt": "2025-10-15T21:39:30.248Z",
+    "_count": {
+      "archetypes": 6
+    }
+  }
+]
+```
+
+**Notes:**
+- Returns all archetype type categories used to organize archetypes
+- Use these types to create dynamic tabs/filters in the UI
+- The `_count.archetypes` field shows how many archetypes belong to each type
 
 ### Get All Archetypes
 **GET** `/archetypes`

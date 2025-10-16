@@ -17,6 +17,11 @@ export class ArchetypesController {
     return this.archetypesService.findAll();
   }
 
+  @Get('types/all')
+  findAllTypes() {
+    return this.archetypesService.findAllTypes();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.archetypesService.findOne(id);

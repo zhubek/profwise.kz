@@ -42,6 +42,7 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
+    "language": "Language",
     "name": "First Name",
     "surname": "Last Name",
     "licenseCode": "License Code",
@@ -177,7 +178,10 @@
         "point4": "Insights into work environments where you'll thrive",
         "point5": "Understanding of your natural strengths and preferences"
       }
-    }
+    },
+    "noLicenseRequired": "Test can be taken without a license",
+    "availableFrom": "Available from {date}",
+    "soon": "Soon"
   },
   "archetypes": {
     "title": "My Archetypes Profile",
@@ -189,6 +193,27 @@
     "abilities": "Abilities",
     "all": "All Archetypes",
     "topTraits": "Your top archetype traits in: {category}",
+    "realistic": "Realistic",
+    "investigative": "Investigative",
+    "artistic": "Artistic",
+    "social": "Social",
+    "enterprising": "Enterprising",
+    "conventional": "Conventional",
+    "viewAllMatches": "View All Profession Matches",
+    "updateProfile": "Update Profile",
+    "takeAssessment": "Take Assessment",
+    "notCompleted": "Test not completed? Take the assessment to see your results."
+  },
+  "characteristics": {
+    "title": "My Characteristics Profile",
+    "subtitle": "Discover your unique combination of traits and characteristics",
+    "interests": "Interests",
+    "skills": "Skills",
+    "personality": "Personality",
+    "values": "Values",
+    "abilities": "Abilities",
+    "all": "All Characteristics",
+    "topTraits": "Your top traits in: {category}",
     "realistic": "Realistic",
     "investigative": "Investigative",
     "artistic": "Artistic",
@@ -269,6 +294,17 @@
       "preferredFields": "Preferred Fields",
       "certifications": "Certifications",
       "learningPaths": "Learning Paths"
+    },
+    "allProfessions": {
+      "title": "All Professions",
+      "subtitle": "Browse professions by category",
+      "selectCategory": "Select a category to view professions",
+      "backToCategories": "Back to Categories",
+      "professionsInCategory": "{count} professions",
+      "noProfessionsInCategory": "No professions found in this category",
+      "browseByCategory": "Browse by Category",
+      "loadingCategories": "Loading categories...",
+      "loadingProfessions": "Loading professions..."
     }
   },
   "activity": {
@@ -280,19 +316,9 @@
     "classroomJoined": "Joined classroom: {classroomName}"
   },
   "organization": {
-    "title": "Organization Dashboard",
-    "students": "Students",
-    "classrooms": "Classrooms",
-    "licenseCodes": "License Codes",
-    "generateCodes": "Generate License Codes",
-    "viewStudents": "View Students",
-    "viewResults": "View Results",
-    "aggregatedResults": "Aggregated Results",
-    "createClassroom": "Create Classroom",
-    "studentsCount": "{count} students",
-    "activeStudents": "Active Students",
-    "completedTests": "Completed Tests",
-    "averageProgress": "Average Progress"
+    "expires": "Expires",
+    "school": "School",
+    "licenseCode": "License Code"
   },
   "profile": {
     "title": "My Profile",
@@ -303,6 +329,7 @@
     "school": "School",
     "grade": "Grade",
     "age": "Age",
+    "language": "Language",
     "avatar": "Avatar",
     "classroom": "Classroom",
     "organization": "Organization",
@@ -324,13 +351,41 @@
     "deleteAccountConfirm": "Are you sure you want to delete your account?",
     "deleteAccountSuccess": "Account successfully deleted",
     "deleteAccountError": "Failed to delete account",
-    "failedToLoadProfile": "Failed to load profile"
+    "failedToLoadProfile": "Failed to load profile",
+    "licenses": {
+      "title": "License Management",
+      "description": "Activate license codes to unlock premium features and quizzes",
+      "licenseCode": "License Code",
+      "activate": "Activate",
+      "myLicenses": "My Licenses",
+      "codeHint": "Enter the license code provided by your school or organization",
+      "activationSuccess": "License activated successfully!",
+      "activationError": "Failed to activate license. Please check the code and try again.",
+      "licensesDescription": "View and manage your active and expired licenses",
+      "noLicenses": "You don't have any licenses yet",
+      "active": "Active",
+      "expired": "Expired",
+      "organization": "Organization",
+      "availableQuizzes": "Available Quizzes",
+      "activatedOn": "Activated on",
+      "errors": {
+        "notFound": "License with code {code} not found",
+        "alreadyActivated": "This license has already been activated",
+        "alreadyActivatedByAnotherUser": "This license has already been activated by another user",
+        "expired": "This license has expired",
+        "invalidCode": "Invalid license code format",
+        "serverError": "Server error. Please try again later"
+      }
+    }
   },
   "navigation": {
     "dashboard": "Dashboard",
     "tests": "Tests",
     "archetypes": "Archetypes",
+    "characteristics": "Characteristics",
     "professions": "Professions",
+    "myProfessions": "My Professions",
+    "allProfessions": "All Professions",
     "profile": "Profile",
     "organization": "Organization",
     "help": "Help",
@@ -342,12 +397,8 @@
     "privacy": "Privacy Policy",
     "contact": "Contact Us",
     "about": "About",
+    "legal": "Legal",
     "madeWith": "Made with ❤️ in Kazakhstan"
-  },
-  "organization": {
-    "expires": "Expires",
-    "school": "School",
-    "licenseCode": "License Code"
   },
   "results": {
     "viewPreviousResults": "View your previous test results and track your progress over time.",

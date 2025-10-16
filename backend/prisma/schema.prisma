@@ -32,7 +32,8 @@ model User {
   updatedAt                DateTime  @updatedAt
 
   // Relations
-  userLicenses            UserLicense[]
+  licenses                License[]     // Direct license ownership
+  userLicenses            UserLicense[] // Deprecated: kept for backward compatibility
   results                 Result[]
   userQuestions           UserQuestion[]
   userArchetypes          UserArchetype[]
@@ -87,12 +88,16 @@ model License {
   name           String
   licenseClassId String
   organizationId String
+  userId         String?
+  activated      Boolean  @default(false)
+  activatedAt    DateTime?
   createdAt      DateTime @default(now())
 
   // Relations
   licenseClass LicenseClass  @relation(fields: [licenseClassId], references: [id])
   organization Organization  @relation(fields: [organizationId], references: [id])
-  userLicenses UserLicense[]
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userLicenses UserLicense[] // Deprecated: kept for backward compatibility
 
   @@map("licenses")
 }
@@ -142,13 +147,18 @@ model LicenseClassQuiz {
 // ================================
 
 model Quiz {
-  id          String   @id @default(uuid())
-  quizName    Json
-  quizType    QuizType
-  isFree      Boolean  @default(false)
-  description Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                  String    @id @default(uuid())
+  quizName            Json
+  quizType            QuizType
+  isFree              Boolean   @default(false)
+  description         Json?
+  parameters          Json?
+  instructionsContent Json?      // Dynamic content blocks for test instructions
+  isActive            Boolean   @default(true)
+  startDate           DateTime?
+  isPublic            Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   // Relations
   questions           Question[]

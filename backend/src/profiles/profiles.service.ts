@@ -66,4 +66,68 @@ export class ProfilesService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
   }
+
+  async getArchetypeProfile(userId: string) {
+    // Fetch user with their archetypes
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        userArchetypes: {
+          include: {
+            archetype: {
+              include: {
+                archetypeType: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Fetch ALL archetype types (to show empty states for types without data)
+    const allArchetypeTypes = await this.prisma.archetypeType.findMany({
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    // Initialize grouped data with ALL archetype types (empty arrays)
+    const groupedByType: Record<string, any[]> = {};
+    allArchetypeTypes.forEach((type) => {
+      groupedByType[type.id] = [];
+    });
+
+    // Populate with user's actual data
+    user.userArchetypes.forEach((userArchetype) => {
+      const typeId = userArchetype.archetype.archetypeType.id;
+
+      groupedByType[typeId].push({
+        archetypeId: userArchetype.archetypeId,
+        archetype: {
+          id: userArchetype.archetype.id,
+          name: userArchetype.archetype.name,
+          category: typeId,
+          archetypeType: userArchetype.archetype.archetypeType,
+          description: userArchetype.archetype.description,
+          icon: null, // Can be added later
+          keyTraits: [], // Can be added later
+          createdAt: userArchetype.archetype.createdAt.toISOString(),
+          updatedAt: userArchetype.archetype.createdAt.toISOString(),
+        },
+        score: userArchetype.score,
+        percentile: null, // Can be calculated later with all users' data
+      });
+    });
+
+    // Return grouped data with ALL archetype types (including empty ones)
+    return {
+      userId: user.id,
+      groupedArchetypes: groupedByType,
+      lastUpdated: new Date().toISOString(),
+    };
+  }
 }

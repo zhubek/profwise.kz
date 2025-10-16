@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node scripts/seed-data.ts",
-    "seed:riasec": "ts-node scripts/seed-riasec.ts"
+    "seed:riasec": "ts-node scripts/seed-riasec.ts",
+    "seed:holland-instructions": "ts-node scripts/update-holland-instructions.ts"
   },
   "dependencies": {
     "@getbrevo/brevo": "^3.0.1",

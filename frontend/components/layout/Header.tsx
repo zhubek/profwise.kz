@@ -23,8 +23,9 @@ export default function Header() {
 
   const navigation = [
     { name: t('navigation.tests'), href: '/tests' },
-    { name: t('navigation.archetypes'), href: '/archetypes' },
-    { name: t('navigation.professions'), href: '/professions' },
+    { name: t('navigation.characteristics'), href: '/characteristics' },
+    { name: t('navigation.myProfessions'), href: '/professions' },
+    { name: t('navigation.allProfessions'), href: '/professions/all' },
   ];
 
   const isActive = (href: string) => pathname?.includes(href);
@@ -103,11 +104,6 @@ export default function Header() {
                       {t('navigation.profile')}
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings" className="cursor-pointer">
-                      {t('navigation.settings')}
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
@@ -178,13 +174,6 @@ export default function Header() {
                 >
                   <User className="mr-2 inline h-4 w-4" />
                   {t('navigation.profile')}
-                </Link>
-                <Link
-                  href="/settings"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t('navigation.settings')}
                 </Link>
                 <button
                   onClick={() => {

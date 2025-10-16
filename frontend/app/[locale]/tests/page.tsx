@@ -1,19 +1,25 @@
 import { getTranslations } from 'next-intl/server';
-import { getTests, getUserTests } from '@/lib/api/tests';
+import { getUserQuizzes, getUserTests } from '@/lib/api/tests';
 import { getUserLicenseInfo } from '@/lib/api/mock/users';
 import TestsPageContent from './TestsPageContent';
 
-export default async function TestsPage() {
+export default async function TestsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const t = await getTranslations('tests');
 
-  // Mock user ID - in production, get from auth session
-  const userId = '1';
+  // Real user ID - from test user in database
+  const userId = 'c3ed58fd-8d73-40ca-9ac6-468949b56af0';
 
   // Fetch data server-side
+  // Using real API for quizzes, mock for user tests and license info
   const [tests, userTests, licenseInfo] = await Promise.all([
-    getTests(),
-    getUserTests(userId),
-    getUserLicenseInfo(userId),
+    getUserQuizzes(userId, locale), // Real API call
+    getUserTests(userId),           // Mock
+    getUserLicenseInfo(userId),     // Mock
   ]);
 
   // Merge tests with user progress

@@ -20,28 +20,28 @@ export default function ProfessionNav({ professionId }: ProfessionNavProps) {
 
   const navItems = [
     {
-      label: 'Overview',
+      label: 'Обзор',
       href: `/professions/${professionId}`,
       icon: Info,
       exact: true,
     },
     {
-      label: 'Description',
+      label: 'Описание',
       href: `/professions/${professionId}/description`,
       icon: FileText,
     },
     {
-      label: 'Archetypes',
+      label: 'Архетипы',
       href: `/professions/${professionId}/archetypes`,
       icon: User,
     },
     {
-      label: 'Education',
+      label: 'Образование',
       href: `/professions/${professionId}/education`,
       icon: GraduationCap,
     },
     {
-      label: 'Market',
+      label: 'Рынок труда',
       href: `/professions/${professionId}/market`,
       icon: TrendingUp,
     },

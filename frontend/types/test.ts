@@ -13,6 +13,16 @@ export interface Test {
   available?: boolean; // Whether the test is available to take
   createdAt: string;
   updatedAt: string;
+  source?: 'public' | 'license'; // Source of the quiz
+  isActive?: boolean; // Whether the quiz is currently active
+  startDate?: string | null; // When the quiz becomes active
+  licenseInfo?: {
+    licenseCode: string;
+    expireDate: string;
+    organizationName: string;
+    activationDate: string;
+  };
+  instructionsContent?: import('@/types/quiz-content').QuizInstructionsContent;
 }
 
 export type LocalizedText = {

@@ -46,7 +46,7 @@ export default function Footer() {
 
           {/* Links - Column 2 */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Legal</h3>
+            <h3 className="text-sm font-semibold mb-3">{t('legal')}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -74,7 +74,7 @@ export default function Footer() {
             {t('copyright', { year: currentYear })}
           </p>
           <p className="text-xs text-muted-foreground">
-            Made with ❤️ in Kazakhstan
+            {t('madeWith')}
           </p>
         </div>
       </div>

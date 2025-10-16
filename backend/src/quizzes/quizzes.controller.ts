@@ -17,9 +17,19 @@ export class QuizzesController {
     return this.quizzesService.findAll();
   }
 
+  @Get('user/:userId')
+  getUserQuizzes(@Param('userId') userId: string) {
+    return this.quizzesService.getUserQuizzes(userId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.quizzesService.findOne(id);
+  }
+
+  @Get(':id/instructions')
+  getInstructions(@Param('id') id: string) {
+    return this.quizzesService.getInstructions(id);
   }
 
   @Patch(':id')

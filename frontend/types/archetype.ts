@@ -2,6 +2,24 @@ export type ArchetypeCategory = 'interests' | 'skills' | 'personality' | 'values
 
 export type RIASECCode = 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
 
+export interface ArchetypeType {
+  id: string;
+  name: {
+    en: string;
+    ru: string;
+    kk: string;
+  };
+  description: {
+    en: string;
+    ru: string;
+    kk: string;
+  };
+  createdAt: string;
+  _count?: {
+    archetypes: number;
+  };
+}
+
 export interface Archetype {
   id: string;
   code: string; // e.g., "R" for Realistic
@@ -23,19 +41,8 @@ export interface UserArchetypeScore {
 
 export interface UserArchetypeProfile {
   userId: string;
-  interests: UserArchetypeScore[];
-  skills: UserArchetypeScore[];
-  personality: UserArchetypeScore[];
-  values: UserArchetypeScore[];
-  abilities: UserArchetypeScore[];
-  riasecProfile?: RIASECProfile;
+  groupedArchetypes: Record<string, UserArchetypeScore[]>; // Dynamic keys based on archetype type IDs
   lastUpdated: string;
-  testsCompleted: {
-    interests: boolean;
-    skills: boolean;
-    personality: boolean;
-    values: boolean;
-  };
 }
 
 export interface RIASECProfile {

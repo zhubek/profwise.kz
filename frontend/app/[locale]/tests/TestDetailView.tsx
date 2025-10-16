@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Clock, FileText, Play, CheckCircle2, Award } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import type { Test, UserTest } from '@/types/test';
 import { hasHollandTestInProgress, getHollandTestProgress } from '@/lib/utils/testStorage';
 import { HOLLAND_TEST_ID } from '@/lib/api/mock/holland';
 import ResultsDrawer from './ResultsDrawer';
+import ContentBlockRenderer from '@/components/features/tests/ContentBlockRenderer';
+import { useQuizInstructions } from '@/lib/hooks/useQuizInstructions';
 
 interface TestDetailViewProps {
   test: Test;
@@ -20,8 +22,12 @@ interface TestDetailViewProps {
 export default function TestDetailView({ test, userTest }: TestDetailViewProps) {
   const t = useTranslations('tests');
   const th = useTranslations('tests.holland');
+  const locale = useLocale();
   const [localStorageProgress, setLocalStorageProgress] = useState<number | null>(null);
   const [hasLocalTest, setHasLocalTest] = useState(false);
+
+  // Fetch quiz instructions with caching
+  const { instructions, loading: instructionsLoading } = useQuizInstructions(test.id);
 
   // Check localStorage for Holland test on mount
   useEffect(() => {
@@ -122,8 +128,8 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
         <CardHeader>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-2xl md:text-3xl mb-2">{th('title')}</CardTitle>
-              <CardDescription className="text-base">{th('subtitle')}</CardDescription>
+              <CardTitle className="text-2xl md:text-3xl mb-2">{test.title}</CardTitle>
+              <CardDescription className="text-base">{test.description}</CardDescription>
             </div>
             {getStatusBadge()}
           </div>
@@ -178,119 +184,135 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
         </CardContent>
       </Card>
 
-      {/* Overview Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('aboutThisTest')}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground leading-relaxed">{th('overview')}</p>
-        </CardContent>
-      </Card>
+      {/* Dynamic Instructions Content */}
+      {instructionsLoading ? (
+        <Card>
+          <CardContent className="py-8">
+            <div className="flex items-center justify-center">
+              <div className="text-muted-foreground">Loading instructions...</div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : instructions?.blocks && instructions.blocks.length > 0 ? (
+        <ContentBlockRenderer blocks={instructions.blocks} locale={locale} />
+      ) : (
+        // Fallback to hardcoded content for backward compatibility (should rarely be used now)
+        <>
+          {/* Overview Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('aboutThisTest')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground leading-relaxed">{th('overview')}</p>
+            </CardContent>
+          </Card>
 
-      {/* What It Measures */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{th('whatItMeasures.title')}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground">{th('whatItMeasures.description')}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950">
-              <h4 className="font-medium mb-1">R - {th('whatItMeasures.realistic').split(':')[0]}</h4>
-              <p className="text-sm text-muted-foreground">{th('whatItMeasures.realistic').split(': ')[1]}</p>
-            </div>
-            <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-950">
-              <h4 className="font-medium mb-1">I - {th('whatItMeasures.investigative').split(':')[0]}</h4>
-              <p className="text-sm text-muted-foreground">{th('whatItMeasures.investigative').split(': ')[1]}</p>
-            </div>
-            <div className="p-4 rounded-lg bg-pink-50 dark:bg-pink-950">
-              <h4 className="font-medium mb-1">A - {th('whatItMeasures.artistic').split(':')[0]}</h4>
-              <p className="text-sm text-muted-foreground">{th('whatItMeasures.artistic').split(': ')[1]}</p>
-            </div>
-            <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950">
-              <h4 className="font-medium mb-1">S - {th('whatItMeasures.social').split(':')[0]}</h4>
-              <p className="text-sm text-muted-foreground">{th('whatItMeasures.social').split(': ')[1]}</p>
-            </div>
-            <div className="p-4 rounded-lg bg-orange-50 dark:bg-orange-950">
-              <h4 className="font-medium mb-1">E - {th('whatItMeasures.enterprising').split(':')[0]}</h4>
-              <p className="text-sm text-muted-foreground">{th('whatItMeasures.enterprising').split(': ')[1]}</p>
-            </div>
-            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-900">
-              <h4 className="font-medium mb-1">C - {th('whatItMeasures.conventional').split(':')[0]}</h4>
-              <p className="text-sm text-muted-foreground">{th('whatItMeasures.conventional').split(': ')[1]}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          {/* What It Measures */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{th('whatItMeasures.title')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">{th('whatItMeasures.description')}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950">
+                  <h4 className="font-medium mb-1">R - {th('whatItMeasures.realistic').split(':')[0]}</h4>
+                  <p className="text-sm text-muted-foreground">{th('whatItMeasures.realistic').split(': ')[1]}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-950">
+                  <h4 className="font-medium mb-1">I - {th('whatItMeasures.investigative').split(':')[0]}</h4>
+                  <p className="text-sm text-muted-foreground">{th('whatItMeasures.investigative').split(': ')[1]}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-pink-50 dark:bg-pink-950">
+                  <h4 className="font-medium mb-1">A - {th('whatItMeasures.artistic').split(':')[0]}</h4>
+                  <p className="text-muted-foreground">{th('whatItMeasures.artistic').split(': ')[1]}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950">
+                  <h4 className="font-medium mb-1">S - {th('whatItMeasures.social').split(':')[0]}</h4>
+                  <p className="text-sm text-muted-foreground">{th('whatItMeasures.social').split(': ')[1]}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-orange-50 dark:bg-orange-950">
+                  <h4 className="font-medium mb-1">E - {th('whatItMeasures.enterprising').split(':')[0]}</h4>
+                  <p className="text-sm text-muted-foreground">{th('whatItMeasures.enterprising').split(': ')[1]}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-900">
+                  <h4 className="font-medium mb-1">C - {th('whatItMeasures.conventional').split(':')[0]}</h4>
+                  <p className="text-sm text-muted-foreground">{th('whatItMeasures.conventional').split(': ')[1]}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* How It Works */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{th('howItWorks.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ol className="space-y-3">
-            <li className="flex gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
-                1
-              </span>
-              <p className="text-muted-foreground pt-0.5">{th('howItWorks.step1')}</p>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
-                2
-              </span>
-              <p className="text-muted-foreground pt-0.5">{th('howItWorks.step2')}</p>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
-                3
-              </span>
-              <p className="text-muted-foreground pt-0.5">{th('howItWorks.step3')}</p>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
-                4
-              </span>
-              <p className="text-muted-foreground pt-0.5">{th('howItWorks.step4')}</p>
-            </li>
-          </ol>
-        </CardContent>
-      </Card>
+          {/* How It Works */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{th('howItWorks.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ol className="space-y-3">
+                <li className="flex gap-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
+                    1
+                  </span>
+                  <p className="text-muted-foreground pt-0.5">{th('howItWorks.step1')}</p>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
+                    2
+                  </span>
+                  <p className="text-muted-foreground pt-0.5">{th('howItWorks.step2')}</p>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
+                    3
+                  </span>
+                  <p className="text-muted-foreground pt-0.5">{th('howItWorks.step3')}</p>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
+                    4
+                  </span>
+                  <p className="text-muted-foreground pt-0.5">{th('howItWorks.step4')}</p>
+                </li>
+              </ol>
+            </CardContent>
+          </Card>
 
-      {/* Instructions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{th('instructions.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-4">{th('instructions.intro')}</p>
-          <ul className="space-y-2 list-disc list-inside text-muted-foreground">
-            <li>{th('instructions.point1')}</li>
-            <li>{th('instructions.point2')}</li>
-            <li>{th('instructions.point3')}</li>
-            <li>{th('instructions.point4')}</li>
-            <li>{th('instructions.point5')}</li>
-          </ul>
-        </CardContent>
-      </Card>
+          {/* Instructions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{th('instructions.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">{th('instructions.intro')}</p>
+              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                <li>{th('instructions.point1')}</li>
+                <li>{th('instructions.point2')}</li>
+                <li>{th('instructions.point3')}</li>
+                <li>{th('instructions.point4')}</li>
+                <li>{th('instructions.point5')}</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-      {/* What You'll Learn */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{th('resultsInfo.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2 list-disc list-inside text-muted-foreground">
-            <li>{th('resultsInfo.point1')}</li>
-            <li>{th('resultsInfo.point2')}</li>
-            <li>{th('resultsInfo.point3')}</li>
-            <li>{th('resultsInfo.point4')}</li>
-            <li>{th('resultsInfo.point5')}</li>
-          </ul>
-        </CardContent>
-      </Card>
+          {/* What You'll Learn */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{th('resultsInfo.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                <li>{th('resultsInfo.point1')}</li>
+                <li>{th('resultsInfo.point2')}</li>
+                <li>{th('resultsInfo.point3')}</li>
+                <li>{th('resultsInfo.point4')}</li>
+                <li>{th('resultsInfo.point5')}</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Bottom Action Button */}
       <div className="pt-4">{getActionButton()}</div>

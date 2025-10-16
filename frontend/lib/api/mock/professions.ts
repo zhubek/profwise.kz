@@ -712,6 +712,128 @@ export async function getProfessionEducation(professionId: string): Promise<Prof
         ],
       },
     ],
+    colleges: [
+      {
+        name: 'Almaty College of Communication and Information Technologies',
+        type: 'Technical College',
+        duration: '2-3 years',
+        specializations: [
+          'Software Development',
+          'Web Technologies',
+          'Mobile Development',
+          'Database Administration',
+        ],
+      },
+      {
+        name: 'Astana IT College',
+        type: 'Vocational School',
+        duration: '2 years',
+        specializations: [
+          'Frontend Development',
+          'Backend Development',
+          'Full Stack Development',
+        ],
+      },
+      {
+        name: 'Shymkent College of Digital Technologies',
+        type: 'Technical College',
+        duration: '3 years',
+        specializations: [
+          'Software Engineering',
+          'Computer Networks',
+          'Cybersecurity',
+        ],
+      },
+    ],
+    universities: [
+      {
+        name: 'Al-Farabi Kazakh National University',
+        type: 'National University',
+        entPoints: '110-125',
+        scholarships: true,
+        specializations: [
+          'Computer Science',
+          'Software Engineering',
+          'Information Systems',
+          'Data Science',
+        ],
+        subjects: ['Mathematics', 'Physics', 'English'],
+      },
+      {
+        name: 'Nazarbayev University',
+        type: 'Research University',
+        entPoints: '120-140',
+        scholarships: true,
+        specializations: [
+          'Computer Science',
+          'Robotics',
+          'Artificial Intelligence',
+          'Data Science',
+        ],
+        subjects: ['Mathematics', 'Physics', 'English', 'Computer Science'],
+      },
+      {
+        name: 'KBTU (Kazakh-British Technical University)',
+        type: 'Technical University',
+        entPoints: '105-120',
+        scholarships: true,
+        specializations: [
+          'Software Engineering',
+          'Information Systems',
+          'Computer Engineering',
+        ],
+        subjects: ['Mathematics', 'Physics', 'English'],
+      },
+      {
+        name: 'Satbayev University',
+        type: 'Technical University',
+        entPoints: '100-115',
+        scholarships: true,
+        specializations: [
+          'Computer Science',
+          'Software Engineering',
+          'Information Security',
+        ],
+        subjects: ['Mathematics', 'Physics', 'English'],
+      },
+    ],
+    courses: [
+      {
+        name: 'The Complete Web Developer Bootcamp',
+        platform: 'Udemy',
+        duration: '65 hours',
+        cost: '$14.99',
+        skills: ['HTML', 'CSS', 'JavaScript', 'React', 'Node.js', 'MongoDB'],
+      },
+      {
+        name: 'CS50: Introduction to Computer Science',
+        platform: 'Harvard / edX',
+        duration: '12 weeks',
+        cost: 'Free (Certificate $90)',
+        skills: ['C', 'Python', 'SQL', 'Algorithms', 'Data Structures'],
+      },
+      {
+        name: 'Full Stack Open',
+        platform: 'University of Helsinki',
+        duration: '200 hours',
+        cost: 'Free',
+        skills: ['React', 'Redux', 'Node.js', 'MongoDB', 'GraphQL', 'TypeScript'],
+      },
+      {
+        name: 'Python for Everybody',
+        platform: 'Coursera / University of Michigan',
+        duration: '8 months',
+        cost: 'Free (Certificate $49/month)',
+        skills: ['Python', 'SQL', 'Web Scraping', 'Data Analysis'],
+      },
+      {
+        name: 'Meta Front-End Developer',
+        platform: 'Coursera / Meta',
+        duration: '7 months',
+        cost: '$49/month',
+        skills: ['HTML', 'CSS', 'JavaScript', 'React', 'UI/UX', 'Git'],
+      },
+    ],
   };
 }
 

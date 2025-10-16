@@ -85,6 +85,30 @@ export interface ProfessionSalary {
   updatedAt: string;
 }
 
+export interface College {
+  name: string;
+  type: string;
+  duration: string;
+  specializations: string[];
+}
+
+export interface University {
+  name: string;
+  type: string;
+  entPoints: string;
+  scholarships: boolean;
+  specializations: string[];
+  subjects: string[];
+}
+
+export interface Course {
+  name: string;
+  platform: string;
+  duration: string;
+  cost: string;
+  skills: string[];
+}
+
 export interface ProfessionEducation {
   professionId: string;
   minimumEducation: EducationLevel;
@@ -95,6 +119,9 @@ export interface ProfessionEducation {
   };
   certifications: MultilingualText[];
   learningPaths: LearningPath[];
+  colleges?: College[];
+  universities?: University[];
+  courses?: Course[];
 }
 
 export interface LearningPath {

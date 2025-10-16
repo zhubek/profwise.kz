@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsObject, IsOptional } from 'class-validator';
+import { IsBoolean, IsEnum, IsObject, IsOptional, IsDateString } from 'class-validator';
 
 export enum QuizType {
   PERSONALITY = 'PERSONALITY',
@@ -22,4 +22,24 @@ export class CreateQuizDto {
   @IsOptional()
   @IsObject()
   description?: any;
+
+  @IsOptional()
+  @IsObject()
+  parameters?: any;
+
+  @IsOptional()
+  @IsObject()
+  instructionsContent?: any;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isPublic?: boolean;
 }

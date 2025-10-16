@@ -84,4 +84,17 @@ export class ArchetypesService {
       throw new NotFoundException(`Archetype with ID ${id} not found`);
     }
   }
+
+  async findAllTypes() {
+    return this.prisma.archetypeType.findMany({
+      include: {
+        _count: {
+          select: { archetypes: true },
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+  }
 }

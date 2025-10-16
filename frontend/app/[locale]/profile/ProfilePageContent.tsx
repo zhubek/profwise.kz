@@ -1,19 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { UserProfile, UpdateUserDTO } from '@/types/user';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { User, UpdateUserDTO } from '@/types/user';
+import { UserLicense } from '@/types/license';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { updateUser, deleteUser } from '@/lib/api/users';
+import { activateLicense, getUserLicenses } from '@/lib/api/licenses';
+import { useAuth } from '@/contexts/AuthContext';
+import MyLicensesDrawer from './MyLicensesDrawer';
+import { Award, CheckCircle } from 'lucide-react';
 
 interface ProfilePageContentProps {
-  profile: UserProfile;
+  profile: User;
 }
 
 export default function ProfilePageContent({ profile: initialProfile }: ProfilePageContentProps) {
   const t = useTranslations('profile');
   const tCommon = useTranslations('common');
+  const router = useRouter();
+  const { refreshUser, logout } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState(initialProfile);
@@ -29,6 +39,14 @@ export default function ProfilePageContent({ profile: initialProfile }: ProfileP
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // License state
+  const [licenseCode, setLicenseCode] = useState('');
+  const [isActivatingLicense, setIsActivatingLicense] = useState(false);
+  const [licenseMessage, setLicenseMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [userLicenses, setUserLicenses] = useState<UserLicense[]>([]);
+  const [showLicensesDrawer, setShowLicensesDrawer] = useState(false);
+  const [loadingLicenses, setLoadingLicenses] = useState(false);
+
   const handleChange = (field: keyof UpdateUserDTO, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -40,12 +58,13 @@ export default function ProfilePageContent({ profile: initialProfile }: ProfileP
 
     try {
       const updatedUser = await updateUser(profile.id, formData);
-      setProfile({ ...profile, ...updatedUser });
+      setProfile(updatedUser);
+      await refreshUser(); // Refresh user in AuthContext
       setIsEditing(false);
       setMessage({ type: 'success', text: t('updateSuccess') });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update profile:', error);
-      setMessage({ type: 'error', text: t('updateError') });
+      setMessage({ type: 'error', text: error.message || t('updateError') });
     } finally {
       setIsLoading(false);
     }
@@ -68,15 +87,95 @@ export default function ProfilePageContent({ profile: initialProfile }: ProfileP
     try {
       await deleteUser(profile.id);
       setMessage({ type: 'success', text: t('deleteAccountSuccess') });
-      // Redirect to logout or home page after deletion
+      // Logout and redirect to home after deletion
       setTimeout(() => {
-        window.location.href = '/';
+        logout();
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete account:', error);
-      setMessage({ type: 'error', text: t('deleteAccountError') });
+      setMessage({ type: 'error', text: error.message || t('deleteAccountError') });
       setIsDeleting(false);
       setShowDeleteConfirm(false);
+    }
+  };
+
+  // Load user licenses
+  useEffect(() => {
+    loadUserLicenses();
+  }, [profile.id]);
+
+  const loadUserLicenses = async () => {
+    try {
+      setLoadingLicenses(true);
+      const licenses = await getUserLicenses(profile.id);
+      setUserLicenses(licenses);
+    } catch (error) {
+      console.error('Failed to load licenses:', error);
+    } finally {
+      setLoadingLicenses(false);
+    }
+  };
+
+  const getTranslatedErrorMessage = (errorMessage: string, code: string): string => {
+    // Map backend error messages to translation keys
+    if (errorMessage.includes('not found') || errorMessage.includes('не найдена')) {
+      return t('licenses.errors.notFound', { code });
+    }
+    // Check for "already activated by another user" before checking just "already activated"
+    if (errorMessage.includes('another user') || errorMessage.includes('другим пользователем')) {
+      return t('licenses.errors.alreadyActivatedByAnotherUser');
+    }
+    if (errorMessage.includes('already activated') || errorMessage.includes('уже активирована')) {
+      return t('licenses.errors.alreadyActivated');
+    }
+    if (errorMessage.includes('expired') || errorMessage.includes('истек')) {
+      return t('licenses.errors.expired');
+    }
+    if (errorMessage.includes('invalid') || errorMessage.includes('неверный')) {
+      return t('licenses.errors.invalidCode');
+    }
+    // Default to generic error message
+    return t('licenses.activationError');
+  };
+
+  const handleActivateLicense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!licenseCode.trim()) return;
+
+    setIsActivatingLicense(true);
+    setLicenseMessage(null);
+
+    try {
+      const response = await activateLicense({
+        userId: profile.id,
+        licenseCode: licenseCode.trim(),
+      });
+
+      setLicenseMessage({
+        type: 'success',
+        text: t('licenses.activationSuccess')
+      });
+      setLicenseCode('');
+
+      // Reload licenses
+      await loadUserLicenses();
+    } catch (error: any) {
+      // Only log technical errors (500+, network errors) to console
+      // Business logic errors (400-499) are expected and should not be logged
+      const statusCode = error.statusCode || 0;
+      const isTechnicalError = statusCode === 0 || statusCode >= 500;
+
+      if (isTechnicalError) {
+        console.error('Failed to activate license:', error);
+      }
+
+      const translatedError = getTranslatedErrorMessage(error.message || '', licenseCode.trim());
+      setLicenseMessage({
+        type: 'error',
+        text: translatedError
+      });
+    } finally {
+      setIsActivatingLicense(false);
     }
   };
 
@@ -139,9 +238,17 @@ export default function ProfilePageContent({ profile: initialProfile }: ProfileP
                   <div>
                     <p className="text-sm text-gray-500">{t('joinedDate')}</p>
                     <p className="font-medium">
-                      {new Date(profile.joinedDate).toLocaleDateString()}
+                      {new Date(profile.createdAt).toLocaleDateString()}
                     </p>
                   </div>
+                  {profile.language && (
+                    <div>
+                      <p className="text-sm text-gray-500">{t('language')}</p>
+                      <p className="font-medium">
+                        {profile.language === 'EN' ? 'English' : profile.language === 'RU' ? 'Русский' : 'Қазақша'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -214,6 +321,80 @@ export default function ProfilePageContent({ profile: initialProfile }: ProfileP
         </CardContent>
       </Card>
 
+      {/* License Activation Card */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5" />
+                {t('licenses.title')}
+              </CardTitle>
+              <CardDescription className="mt-1">
+                {t('licenses.description')}
+              </CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setShowLicensesDrawer(true)}
+              disabled={loadingLicenses}
+              className="hidden sm:flex"
+            >
+              {t('licenses.myLicenses')} {userLicenses.length > 0 && `(${userLicenses.length})`}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {licenseMessage && (
+            <div className={`mb-4 p-3 rounded ${licenseMessage.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'}`}>
+              <div className="flex items-center gap-2">
+                {licenseMessage.type === 'success' && <CheckCircle className="h-4 w-4" />}
+                {licenseMessage.text}
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleActivateLicense} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="licenseCode">{t('licenses.licenseCode')}</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="licenseCode"
+                  type="text"
+                  placeholder="SCHOOL-2024-ABC123"
+                  value={licenseCode}
+                  onChange={(e) => setLicenseCode(e.target.value)}
+                  disabled={isActivatingLicense}
+                  className="font-mono"
+                />
+                <Button
+                  type="submit"
+                  disabled={isActivatingLicense || !licenseCode.trim()}
+                  className="whitespace-nowrap"
+                >
+                  {isActivatingLicense ? tCommon('labels.loading') : t('licenses.activate')}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t('licenses.codeHint')}
+              </p>
+            </div>
+          </form>
+
+          {/* Mobile: My Licenses Button */}
+          <div className="mt-4 sm:hidden">
+            <Button
+              variant="outline"
+              onClick={() => setShowLicensesDrawer(true)}
+              disabled={loadingLicenses}
+              className="w-full"
+            >
+              {t('licenses.myLicenses')} {userLicenses.length > 0 && `(${userLicenses.length})`}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Delete Account Card */}
       <Card className="border-red-200">
         <CardHeader>
@@ -261,6 +442,13 @@ export default function ProfilePageContent({ profile: initialProfile }: ProfileP
           )}
         </CardContent>
       </Card>
+
+      {/* My Licenses Drawer */}
+      <MyLicensesDrawer
+        open={showLicensesDrawer}
+        onOpenChange={setShowLicensesDrawer}
+        licenses={userLicenses}
+      />
     </div>
   );
 }

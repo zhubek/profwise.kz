@@ -2,42 +2,43 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { Briefcase, User2 } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { Briefcase, User2, Info } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import type { UserArchetypeProfile } from '@/types/archetype';
+import type { UserArchetypeProfile, ArchetypeType } from '@/types/archetype';
 
 interface ArchetypeTabsProps {
   profile: UserArchetypeProfile;
+  archetypeTypes: ArchetypeType[];
 }
 
-type TabType = 'interests' | 'skills' | 'personality' | 'values' | 'all';
+type TabType = string; // Can be any archetype type ID or 'all'
 
-export default function ArchetypeTabs({ profile }: ArchetypeTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('interests');
-  const t = useTranslations('archetypes');
+export default function ArchetypeTabs({ profile, archetypeTypes }: ArchetypeTabsProps) {
+  const [activeTab, setActiveTab] = useState<TabType>('interest'); // Default to first type
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const t = useTranslations('characteristics');
+  const locale = useLocale() as 'en' | 'ru' | 'kk';
 
+  // Create tabs from archetype types + "all" tab
   const tabs: { key: TabType; label: string }[] = [
-    { key: 'interests', label: t('interests') },
-    { key: 'skills', label: t('skills') },
-    { key: 'personality', label: t('personality') },
-    { key: 'values', label: t('values') },
+    ...archetypeTypes.map(type => ({
+      key: type.id,
+      label: type.name[locale] || type.name.en,
+    })),
     { key: 'all', label: t('all') },
   ];
 
   const getArchetypesForTab = () => {
     if (activeTab === 'all') {
-      return [
-        ...profile.interests,
-        ...profile.skills,
-        ...profile.personality,
-        ...profile.values,
-      ];
+      // Return all archetypes from all types
+      return Object.values(profile.groupedArchetypes).flat();
     }
-    return profile[activeTab] || [];
+    // Return archetypes for the specific type
+    return profile.groupedArchetypes[activeTab] || [];
   };
 
   const archetypes = getArchetypesForTab();
@@ -66,7 +67,7 @@ export default function ArchetypeTabs({ profile }: ArchetypeTabsProps) {
 
       {/* Tab Content */}
       <div>
-        {!hasData ? (
+        {!hasData && activeTab === 'all' ? (
           <Card>
             <CardContent className="py-12">
               <div className="text-center">
@@ -76,6 +77,14 @@ export default function ArchetypeTabs({ profile }: ArchetypeTabsProps) {
                     {t('takeAssessment')}
                   </Button>
                 </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ) : !hasData && activeTab !== 'all' ? (
+          <Card>
+            <CardContent className="py-12">
+              <div className="text-center">
+                <p className="text-muted-foreground">No related test is passed yet.</p>
               </div>
             </CardContent>
           </Card>
@@ -96,33 +105,51 @@ export default function ArchetypeTabs({ profile }: ArchetypeTabsProps) {
             {/* Archetypes Grid - Mobile: 1 col, Tablet: 2 cols */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
               {archetypes.map((archetypeScore) => (
-                <Card key={archetypeScore.archetypeId} className="hover:shadow-md transition-shadow">
+                <Card
+                  key={archetypeScore.archetypeId}
+                  className="hover:shadow-md transition-shadow"
+                >
                   <CardHeader>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {archetypeScore.archetype.icon && (
-                            <span className="text-3xl">{archetypeScore.archetype.icon}</span>
-                          )}
-                          <div>
-                            <CardTitle>{archetypeScore.archetype.name}</CardTitle>
-                            <CardDescription className="text-xs uppercase tracking-wide">
-                              {archetypeScore.archetype.category}
-                            </CardDescription>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1">
+                        {archetypeScore.archetype.icon && (
+                          <span className="text-3xl">{archetypeScore.archetype.icon}</span>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CardTitle className="text-lg">{archetypeScore.archetype.name[locale] || archetypeScore.archetype.name.en}</CardTitle>
+                            <button
+                              onClick={() => setExpandedCard(
+                                expandedCard === archetypeScore.archetypeId ? null : archetypeScore.archetypeId
+                              )}
+                              className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                              aria-label="Show description"
+                            >
+                              <Info className="h-4 w-4" />
+                            </button>
                           </div>
+                          {archetypeScore.archetype.archetypeType && (
+                            <CardDescription className="text-xs">
+                              {archetypeScore.archetype.archetypeType.name[locale] || archetypeScore.archetype.archetypeType.name.en}
+                            </CardDescription>
+                          )}
                         </div>
                       </div>
-                      <Badge variant="secondary" className="text-base">
+                      <Badge variant="secondary" className="text-base flex-shrink-0">
                         {archetypeScore.score}%
                       </Badge>
                     </div>
                   </CardHeader>
 
                   <CardContent className="space-y-4">
-                    {/* Description */}
-                    <p className="text-sm text-muted-foreground">
-                      {archetypeScore.archetype.description}
-                    </p>
+                    {/* Description - shown when info icon is clicked */}
+                    {expandedCard === archetypeScore.archetypeId && (
+                      <div className="mb-4 p-3 bg-muted/50 rounded-md">
+                        <p className="text-sm text-foreground">
+                          {archetypeScore.archetype.description[locale] || archetypeScore.archetype.description.en}
+                        </p>
+                      </div>
+                    )}
 
                     {/* Progress Bar */}
                     <div className="space-y-2">

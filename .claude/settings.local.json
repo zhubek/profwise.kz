@@ -78,7 +78,15 @@
       "Bash(find:*)",
       "Bash(tree:*)",
       "Bash(mkdir:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd 5 new backend modules with 25 API endpoints\n\nBackend enhancements:\n- Results module: Quiz result submission and retrieval\n- Questions module: Quiz question management\n- Categories module: Profession category management\n- Universities module: University and institution data\n- Specs module: Academic specialization management\n\nEach module includes full CRUD operations with DTOs, services, and controllers.\nUpdated API documentation with comprehensive endpoint descriptions.\n\nFrontend updates:\n- UI component improvements\n- API integration updates\n- i18n configuration enhancements\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_type",
+      "Read(//home/bex/.config/**)",
+      "Read(//home/bex/**)",
+      "Bash(npm run seed:holland-instructions:*)",
+      "Bash(mcp__playwright__browser_navigate)"
     ]
   },
   "enableAllProjectMcpServers": true,
