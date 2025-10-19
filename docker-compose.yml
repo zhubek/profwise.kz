@@ -9,7 +9,7 @@ services:
       - "5432:5432"  # TEMPORARY: Exposed for data import via DBeaver
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PASSWORD
       - POSTGRES_DB=postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -43,13 +43,13 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      # Database connection (internal Docker network)
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
+      # Database connection (set full URL in Coolify env vars)
+      - DATABASE_URL
       # Redis connection (internal Docker network)
       - REDIS_URL=redis://redis:6379
       # Security & Auth
-      - JWT_SECRET=${JWT_SECRET}
-      - BREVO_API_KEY=${BREVO_API_KEY}
+      - JWT_SECRET
+      - BREVO_API_KEY
       - EMAIL_FROM=${EMAIL_FROM:-noreply@profwise.kz}
       - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-Profwise}
       - ENABLE_EMAIL_VERIFICATION=${ENABLE_EMAIL_VERIFICATION:-true}
