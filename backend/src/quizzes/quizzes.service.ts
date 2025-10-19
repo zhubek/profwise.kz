@@ -250,10 +250,6 @@ export class QuizzesService {
       scalePercentages[scale] = count > 0 ? (sum / (count * 5)) * 100 : 0;
     });
 
-    console.log('Scale Sums:', scaleSums);
-    console.log('Scale Counts:', scaleCounts);
-    console.log('Scale Percentages:', scalePercentages);
-
     // Step 3: Map RIASEC scales to archetype IDs
     const archetypeMap = {
       R: 'interest-realistic',
@@ -315,11 +311,129 @@ export class QuizzesService {
       LIMIT 20
     `;
 
-    // Return the results
+    // Step 5: Calculate Holland Code (top 3 scales) and determine primary/secondary interests
+    const sortedScales = Object.entries(scalePercentages)
+      .sort(([, a], [, b]) => b - a)
+      .map(([scale]) => scale);
+
+    const hollandCode = sortedScales.slice(0, 3).join('');
+    const scaleNameMap = {
+      R: 'Realistic',
+      I: 'Investigative',
+      A: 'Artistic',
+      S: 'Social',
+      E: 'Enterprising',
+      C: 'Conventional',
+    };
+    const primaryInterest = scaleNameMap[sortedScales[0]];
+    const secondaryInterest = scaleNameMap[sortedScales[1]];
+
+    // Step 6: Persist results to database using transaction
+    const result = await this.prisma.$transaction(async (tx) => {
+      // 6.1: Upsert UserArchetype records for all 6 RIASEC scales
+      const archetypeTypeId = 'interest';
+      for (const [scale, archetypeId] of Object.entries(archetypeMap)) {
+        await tx.userArchetype.upsert({
+          where: {
+            userId_archetypeId: {
+              userId: data.userId,
+              archetypeId: archetypeId,
+            },
+          },
+          create: {
+            userId: data.userId,
+            archetypeId: archetypeId,
+            score: Math.round(scalePercentages[scale]),
+          },
+          update: {
+            score: Math.round(scalePercentages[scale]),
+          },
+        });
+      }
+
+      // 6.2: Upsert UserProfession records and UserProfessionArchetypeType for top 20 professions
+      for (const match of professionMatches) {
+        // Create or get UserProfession
+        const userProfession = await tx.userProfession.upsert({
+          where: {
+            userId_professionId: {
+              userId: data.userId,
+              professionId: match.professionId,
+            },
+          },
+          create: {
+            userId: data.userId,
+            professionId: match.professionId,
+          },
+          update: {},
+        });
+
+        // Calculate score: (20000 - matchScore) / 200
+        const matchScoreValue = Math.round((20000 - match.ssd) / 200);
+
+        // Upsert UserProfessionArchetypeType
+        await tx.userProfessionArchetypeType.upsert({
+          where: {
+            userProfessionId_archetypeTypeId: {
+              userProfessionId: userProfession.id,
+              archetypeTypeId: archetypeTypeId,
+            },
+          },
+          create: {
+            userProfessionId: userProfession.id,
+            archetypeTypeId: archetypeTypeId,
+            score: matchScoreValue,
+          },
+          update: {
+            score: matchScoreValue,
+          },
+        });
+      }
+
+      // 6.3: Create Result record with structured JSON
+      const topProfessionsForResult = professionMatches.map((match, index) => ({
+        rank: index + 1,
+        professionId: match.professionId,
+        professionName: match.professionName,
+        professionCode: match.professionCode,
+        matchScore: Math.round((20000 - match.ssd) / 200),
+      }));
+
+      const resultRecord = await tx.result.create({
+        data: {
+          userId: data.userId,
+          quizId: data.quizId,
+          answers: data.answers,
+          results: {
+            scores: {
+              R: Math.round(scalePercentages.R),
+              I: Math.round(scalePercentages.I),
+              A: Math.round(scalePercentages.A),
+              S: Math.round(scalePercentages.S),
+              E: Math.round(scalePercentages.E),
+              C: Math.round(scalePercentages.C),
+            },
+            hollandCode: hollandCode,
+            primaryInterest: primaryInterest,
+            secondaryInterest: secondaryInterest,
+            topProfessions: topProfessionsForResult,
+            description: `Based on your responses, your primary interest is ${primaryInterest}, followed by ${secondaryInterest}. Your Holland Code is ${hollandCode}.`,
+          },
+        },
+      });
+
+      return resultRecord;
+    });
+
+    // Return the results with resultId
     return {
+      resultId: result.id,
       userId: data.userId,
       quizId: data.quizId,
       scalePercentages,
+      hollandCode,
+      primaryInterest,
+      secondaryInterest,
       topProfessions: professionMatches.map((match, index) => ({
         rank: index + 1,
         professionId: match.professionId,

@@ -101,7 +101,8 @@
       "Bash(npx ts-node:*)",
       "Bash(npm run seed:populate-all:*)",
       "Bash([ -f docker-compose.yml ])",
-      "WebFetch(domain:coolify.io)"
+      "WebFetch(domain:coolify.io)",
+      "Bash(kill:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

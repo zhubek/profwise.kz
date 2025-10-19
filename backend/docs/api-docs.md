@@ -726,7 +726,7 @@ Deletes a quiz and all related questions and results (cascade).
 ### Calculate HOLAND Quiz Result
 **POST** `/quizzes/calculate-holand`
 
-Calculates profession recommendations for HOLAND (RIASEC) quiz based on user answers. Performs database-driven calculation using sum of squared differences algorithm to match user's interest profile with profession archetype scores.
+Calculates profession recommendations for HOLAND (RIASEC) quiz based on user answers. Performs database-driven calculation using sum of squared differences algorithm to match user's interest profile with profession archetype scores. Automatically persists results to database including UserArchetype scores, UserProfession records, and Result record.
 
 **Request Body:**
 ```json
@@ -755,16 +755,22 @@ Calculates profession recommendations for HOLAND (RIASEC) quiz based on user ans
 - `parameters.type`: Always "Interest" for HOLAND quiz
 - `parameters.scale`: RIASEC scale letter - one of R (Realistic), I (Investigative), A (Artistic), S (Social), E (Enterprising), C (Conventional)
 
-**Calculation Algorithm:**
+**Calculation & Persistence Algorithm:**
 1. Aggregates answer scores by RIASEC scale (R, I, A, S, E, C)
 2. Calculates percentage for each scale: `(sum / (questionCount * 5)) * 100`
 3. Queries `profession_archetypes` table for all professions with RIASEC archetype scores
 4. Calculates sum of squared differences: `SUM((user_percentage - profession_score)^2)` for each profession
 5. Returns top 20 professions with lowest match scores (lower score = better match)
+6. **Database Persistence (in transaction):**
+   - Creates/updates 6 `UserArchetype` records (one per RIASEC scale) with percentage scores
+   - Creates/updates 20 `UserProfession` records for matched professions
+   - Creates/updates 20 `UserProfessionArchetypeType` records with match scores: `(20000 - ssd) / 200`
+   - Creates `Result` record with answers, scores, Holland Code, and top professions
 
 **Response:** `201 Created`
 ```json
 {
+  "resultId": "result-uuid",
   "userId": "user-uuid",
   "quizId": "quiz-uuid",
   "scalePercentages": {
@@ -775,6 +781,9 @@ Calculates profession recommendations for HOLAND (RIASEC) quiz based on user ans
     "E": 60,
     "C": 20
   },
+  "hollandCode": "EIA",
+  "primaryInterest": "Enterprising",
+  "secondaryInterest": "Investigative",
   "topProfessions": [
     {
       "rank": 1,
@@ -794,12 +803,29 @@ Calculates profession recommendations for HOLAND (RIASEC) quiz based on user ans
 }
 ```
 
+**Response Fields:**
+- `resultId`: UUID of created Result record - can be used to fetch full result details later
+- `scalePercentages`: Calculated percentages for each RIASEC dimension
+- `hollandCode`: Three-letter code representing top 3 RIASEC scales (e.g., "EIA" for Enterprising-Investigative-Artistic)
+- `primaryInterest`: Name of highest scoring RIASEC dimension
+- `secondaryInterest`: Name of second-highest scoring RIASEC dimension
+- `topProfessions`: Array of 20 best-matching professions ranked by match score (lower is better)
+
+**Database Records Created:**
+- `Result` record with structure matching frontend expectations (`/results/[resultId]`)
+- 6 `UserArchetype` records with RIASEC scores (upserted based on userId + archetypeId)
+- 20 `UserProfession` records (upserted based on userId + professionId)
+- 20 `UserProfessionArchetypeType` records with transformed match scores (upserted based on userProfessionId + archetypeTypeId)
+
 **Notes:**
 - Calculation is performed entirely in the database using PostgreSQL's POWER function
-- Lower `matchScore` indicates better match between user profile and profession
+- Lower `matchScore` in topProfessions indicates better match between user profile and profession
 - Match score represents the sum of squared differences across all six RIASEC dimensions
 - Archetype IDs used: `interest-realistic`, `interest-investigative`, `interest-artistic`, `interest-social`, `interest-enterprising`, `interest-conventional`
+- All database operations are wrapped in a transaction for data consistency
+- UserProfessionArchetypeType scores are transformed to 0-100 scale: `(20000 - matchScore) / 200`
 - Currently supports HOLAND quiz type only; other quiz types will require separate calculation methods
+- Idempotent: Running multiple times for same user updates existing records rather than creating duplicates
 
 **Error Responses:**
 
