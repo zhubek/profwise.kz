@@ -20,10 +20,11 @@ Coolify is a self-hosted platform that automates:
 
 - Coolify installed on your server
 - Git repository with your code
-- PostgreSQL database running (already configured)
 - Domain names pointed to your server:
   - `profwise.kz` → Frontend
   - `api.profwise.kz` → Backend
+
+**Note:** PostgreSQL is now included in the docker-compose.yml, so you don't need a separate database server.
 
 ---
 
@@ -44,15 +45,15 @@ In Coolify's UI, set these environment variables:
 ### Required Variables
 
 ```env
-DATABASE_URL=postgres://postgres:IOjMrygG1nTG2sl8zbs292TygkerLFI5HCD2xEBRzxFIwGg8wUESY7jViB0p2Adw@gswoks40sccwssogc80o404k:5432/profwise
+POSTGRES_PASSWORD=your-secure-database-password-here
 JWT_SECRET=your-super-strong-random-secret-here-min-32-chars
 BREVO_API_KEY=your-brevo-api-key-from-dashboard
 ```
 
 **Important Notes:**
-- The database name must be `profwise` (matching your dev setup)
-- The hostname should be accessible from within Coolify's Docker network
-- Ensure the `profwise` database exists on your PostgreSQL server
+- PostgreSQL runs as a container in the same docker-compose stack
+- The password will be used for the postgres user
+- Data persists in a Docker volume (survives container restarts)
 
 ### Optional Variables (with defaults)
 
@@ -124,9 +125,13 @@ environment:
 Services communicate via Docker network:
 
 ```yaml
-# Backend connects to Redis
+# Backend connects to PostgreSQL (internal)
+DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
+
+# Backend connects to Redis (internal)
 REDIS_URL=redis://redis:6379
-# No need for external IP - Docker DNS resolves "redis"
+
+# No need for external IPs - Docker DNS resolves service names
 ```
 
 ### Port Exposure
@@ -258,16 +263,17 @@ View in Coolify dashboard:
 
 ### Database Connection Failed
 
-1. Verify `DATABASE_URL` in environment (must use database name `profwise`, not `postgres`)
-2. Check external PostgreSQL is accessible:
+1. Verify `POSTGRES_PASSWORD` is set in Coolify environment variables
+2. Check if postgres container is running:
    ```bash
-   # From Coolify server
-   psql postgres://postgres:PASSWORD@gswoks40sccwssogc80o404k:5432/profwise
+   # In Coolify, check the postgres service status
+   # Should show "Running" and health check passing
    ```
-3. Ensure the `profwise` database exists:
+3. Check postgres logs in Coolify for any errors
+4. Verify backend can reach postgres:
    ```bash
-   # Connect to PostgreSQL and create database if needed
-   psql postgres://postgres:PASSWORD@gswoks40sccwssogc80o404k:5432/postgres -c "CREATE DATABASE profwise;"
+   # From backend container terminal
+   pg_isready -h postgres -U postgres
    ```
 
 ### Redis Connection Failed
@@ -329,19 +335,41 @@ Already configured in backend:
 
 ## Backup Strategy
 
+### PostgreSQL Data
+
+Coolify persists volumes automatically:
+```yaml
+volumes:
+  - postgres-data:/var/lib/postgresql/data  # Survives container restarts
+```
+
+### Database Backup
+
+Export database from postgres container:
+```bash
+# From Coolify terminal or via docker exec
+docker exec <postgres-container-id> pg_dump -U postgres postgres > backup.sql
+
+# Or via Coolify's backup feature (if available)
+```
+
+### Restore Database
+
+Import your dev database to production:
+```bash
+# Copy backup file to postgres container
+docker cp backup.sql <postgres-container-id>:/tmp/
+
+# Restore the database
+docker exec <postgres-container-id> psql -U postgres postgres < /tmp/backup.sql
+```
+
 ### Redis Data
 
 Coolify persists volumes automatically:
 ```yaml
 volumes:
   - redis-data:/data  # Survives container restarts
-```
-
-### Database Backup
-
-Your external PostgreSQL - backup separately:
-```bash
-pg_dump -h gswoks40sccwssogc80o404k -U postgres profwise > backup.sql
 ```
 
 ---

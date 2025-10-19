@@ -1,6 +1,22 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?}
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Redis for caching and sessions
   redis:
     image: redis:7-alpine
@@ -25,8 +41,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      # Database connection (configured in Coolify Environment Variables)
-      - DATABASE_URL=${DATABASE_URL:?}
+      # Database connection (internal Docker network)
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:?}@postgres:5432/postgres
       # Redis connection (internal Docker network)
       - REDIS_URL=redis://redis:6379
       # Security & Auth
@@ -38,6 +54,8 @@ services:
       # Frontend URL (Coolify will set this via FQDN)
       - FRONTEND_URL=${SERVICE_FQDN_FRONTEND}
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
@@ -79,5 +97,7 @@ services:
       - "coolify.managed=true"
 
 volumes:
+  postgres-data:
+    driver: local
   redis-data:
     driver: local
