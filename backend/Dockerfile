@@ -45,5 +45,5 @@ COPY --from=builder /app/dist ./dist
 # Expose port
 EXPOSE 4000
 
-# Start the application
-CMD ["npm", "run", "start:prod"]
+# Run migrations and start the application
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
