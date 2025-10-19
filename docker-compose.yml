@@ -9,7 +9,7 @@ services:
       - "5432:5432"  # TEMPORARY: Exposed for data import via DBeaver
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD
+      - POSTGRES_PASSWORD=profwise2024
       - POSTGRES_DB=postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
