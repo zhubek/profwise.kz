@@ -94,7 +94,7 @@ export default function ArchetypeTabs({ profile, archetypeTypes }: ArchetypeTabs
             {activeTab !== 'all' && (
               <div className="mb-6">
                 <h2 className="text-lg font-semibold mb-2">
-                  {t('topTraits', { category: tabs.find((t) => t.key === activeTab)?.label })}
+                  {t('topTraits', { category: tabs.find((t) => t.key === activeTab)?.label || '' })}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   Based on your completed assessments

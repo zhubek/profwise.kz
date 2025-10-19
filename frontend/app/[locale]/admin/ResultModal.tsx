@@ -208,8 +208,7 @@ export default function ResultModal({ resultId, isOpen, onClose }: ResultModalPr
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50"
                   >
                     <div className="flex items-center gap-2">
-                      {profession.icon && <span className="text-lg">{profession.icon}</span>}
-                      <span className="text-sm font-medium">{getLocalized(profession.title)}</span>
+                      <span className="text-sm font-medium">{getLocalized(profession.name)}</span>
                     </div>
                     <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
                       {profession.matchScore}%

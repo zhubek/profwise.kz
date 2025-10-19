@@ -23,10 +23,8 @@ dist
 README.md
 docs
 
-# Mock data (large files)
-mock-data/*.xlsx
-
-# Scripts (not needed in production)
+# Mock data and scripts (not needed in production)
+mock-data
 scripts
 
 # Logs
