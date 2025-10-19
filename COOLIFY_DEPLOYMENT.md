@@ -44,12 +44,15 @@ In Coolify's UI, set these environment variables:
 ### Required Variables
 
 ```env
-DATABASE_URL=postgres://postgres:IOjMrygG1nTG2sl8zbs292TygkerLFI5HCD2xEBRzxFIwGg8wUESY7jViB0p2Adw@gswoks40sccwssogc80o404k:5432/postgres
+DATABASE_URL=postgres://postgres:IOjMrygG1nTG2sl8zbs292TygkerLFI5HCD2xEBRzxFIwGg8wUESY7jViB0p2Adw@gswoks40sccwssogc80o404k:5432/profwise
 JWT_SECRET=your-super-strong-random-secret-here-min-32-chars
 BREVO_API_KEY=your-brevo-api-key-from-dashboard
 ```
 
-**Important:** Replace the DATABASE_URL with your actual PostgreSQL connection string. The hostname should be accessible from within Coolify's Docker network.
+**Important Notes:**
+- The database name must be `profwise` (matching your dev setup)
+- The hostname should be accessible from within Coolify's Docker network
+- Ensure the `profwise` database exists on your PostgreSQL server
 
 ### Optional Variables (with defaults)
 
@@ -255,11 +258,16 @@ View in Coolify dashboard:
 
 ### Database Connection Failed
 
-1. Verify `DATABASE_URL` in environment
+1. Verify `DATABASE_URL` in environment (must use database name `profwise`, not `postgres`)
 2. Check external PostgreSQL is accessible:
    ```bash
    # From Coolify server
-   psql postgres://postgres:PASSWORD@gswoks40sccwssogc80o404k:5432/postgres
+   psql postgres://postgres:PASSWORD@gswoks40sccwssogc80o404k:5432/profwise
+   ```
+3. Ensure the `profwise` database exists:
+   ```bash
+   # Connect to PostgreSQL and create database if needed
+   psql postgres://postgres:PASSWORD@gswoks40sccwssogc80o404k:5432/postgres -c "CREATE DATABASE profwise;"
    ```
 
 ### Redis Connection Failed
@@ -333,7 +341,7 @@ volumes:
 
 Your external PostgreSQL - backup separately:
 ```bash
-pg_dump -h gswoks40sccwssogc80o404k -U postgres postgres > backup.sql
+pg_dump -h gswoks40sccwssogc80o404k -U postgres profwise > backup.sql
 ```
 
 ---
