@@ -76,15 +76,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # Use Coolify magic variable for backend URL
-        - NEXT_PUBLIC_API_URL=${SERVICE_FQDN_BACKEND}
+        # Hardcoded production URL (build-time variable)
+        - NEXT_PUBLIC_API_URL=https://api.profwise.kz
     restart: unless-stopped
     expose:
       - "3000"
     environment:
       - NODE_ENV=production
-      # Use Coolify magic variable for backend URL
-      - NEXT_PUBLIC_API_URL=${SERVICE_FQDN_BACKEND}
+      # Hardcoded production URL
+      - NEXT_PUBLIC_API_URL=https://api.profwise.kz
     depends_on:
       backend:
         condition: service_healthy
