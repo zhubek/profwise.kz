@@ -17,8 +17,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import { getArchetypeDescription, getRIASECTrait } from '@/lib/riasec-descriptions';
-import { getLocalizedText } from '@/lib/utils/i18n';
+import { getArchetypeDescription, getRIASECTrait, getLocalizedText } from '@/lib/riasec-descriptions-localized';
 
 interface ResultsPageContentProps {
   result: RIASECResultDisplay;
@@ -60,6 +59,9 @@ export default function ResultsPageContent({
   const archetypeDesc = getArchetypeDescription(primaryCode, secondaryCode);
   const primaryTrait = getRIASECTrait(primaryCode);
   const secondaryTrait = getRIASECTrait(secondaryCode);
+
+  // Helper to get localized RIASEC text
+  const getLocalized = (text: any) => getLocalizedText(text, locale);
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,21 +108,21 @@ export default function ResultsPageContent({
                 <Target className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold mb-2 md:text-3xl">
-                    {tResults('yourArchetype', { name: archetypeDesc.name })}
+                    {tResults('yourArchetype', { name: getLocalized(archetypeDesc.name) })}
                   </h2>
                   <p className="text-base text-muted-foreground leading-relaxed mb-4 md:text-lg">
                     {tResults('yourStrongestTraitsAre')}{' '}
                     <span className="font-semibold text-foreground">
-                      {primaryTrait?.name}
+                      {getLocalized(primaryTrait?.name)}
                     </span>{' '}
                     {tResults('and')}{' '}
                     <span className="font-semibold text-foreground">
-                      {secondaryTrait?.name}
+                      {getLocalized(secondaryTrait?.name)}
                     </span>
                     .
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed md:text-base">
-                    {archetypeDesc.description}
+                    {getLocalized(archetypeDesc.description)}
                   </p>
                 </div>
               </div>
@@ -135,10 +137,10 @@ export default function ResultsPageContent({
                   <Badge variant="default" className="text-base px-3 py-1">
                     {primaryTrait.code}
                   </Badge>
-                  <h3 className="text-lg font-semibold">{primaryTrait.name}</h3>
+                  <h3 className="text-lg font-semibold">{getLocalized(primaryTrait.name)}</h3>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3">
-                  {primaryTrait.fullDescription}
+                  {getLocalized(primaryTrait.fullDescription)}
                 </p>
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -148,7 +150,7 @@ export default function ResultsPageContent({
                     {primaryTrait.characteristics.slice(0, 3).map((char, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="text-primary mt-0.5">•</span>
-                        <span>{char}</span>
+                        <span>{getLocalized(char)}</span>
                       </li>
                     ))}
                   </ul>
@@ -162,10 +164,10 @@ export default function ResultsPageContent({
                   <Badge variant="secondary" className="text-base px-3 py-1">
                     {secondaryTrait.code}
                   </Badge>
-                  <h3 className="text-lg font-semibold">{secondaryTrait.name}</h3>
+                  <h3 className="text-lg font-semibold">{getLocalized(secondaryTrait.name)}</h3>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3">
-                  {secondaryTrait.fullDescription}
+                  {getLocalized(secondaryTrait.fullDescription)}
                 </p>
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -175,7 +177,7 @@ export default function ResultsPageContent({
                     {secondaryTrait.characteristics.slice(0, 3).map((char, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="text-primary mt-0.5">•</span>
-                        <span>{char}</span>
+                        <span>{getLocalized(char)}</span>
                       </li>
                     ))}
                   </ul>
@@ -205,7 +207,7 @@ export default function ResultsPageContent({
                           {code}
                         </Badge>
                         <span className="text-sm font-medium md:text-base">
-                          {trait?.name}
+                          {getLocalized(trait?.name)}
                         </span>
                       </div>
                       <span className="text-sm font-semibold md:text-base">
@@ -242,7 +244,7 @@ export default function ResultsPageContent({
                             <span className="text-2xl">{profession.icon}</span>
                           )}
                           <CardTitle className="text-base md:text-lg">
-                            {getLocalizedText(profession.title, locale)}
+                            {getLocalized(profession.title)}
                           </CardTitle>
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
@@ -266,7 +268,7 @@ export default function ResultsPageContent({
                   <CardContent className="space-y-4">
                     {/* Description */}
                     <CardDescription className="line-clamp-2 text-sm">
-                      {getLocalizedText(profession.description, locale)}
+                      {getLocalized(profession.description)}
                     </CardDescription>
 
                     {/* View Details Button */}

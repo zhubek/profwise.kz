@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { getLocalizedText } from '@/lib/utils/i18n';
 import type { ProfessionDetails } from '@/types/profession';
 
@@ -13,19 +14,10 @@ interface ProfessionContentProps {
   locale: string;
 }
 
-const categoryTranslations: Record<string, string> = {
-  technology: 'Технологии',
-  business: 'Бизнес',
-  healthcare: 'Здравоохранение',
-  science: 'Наука',
-  design: 'Дизайн',
-  communication: 'Коммуникация',
-  education: 'Образование',
-  arts: 'Искусство',
-  other: 'Другое',
-};
-
 export default function ProfessionContent({ profession, locale }: ProfessionContentProps) {
+  const t = useTranslations('professions.detail.overview');
+  const tCategory = useTranslations('professions.category');
+
   return (
     <div className="space-y-6">
       {/* Back Button */}
@@ -33,7 +25,7 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
         <Link href="/professions">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад к профессиям
+            {t('backToProfessions')}
           </Button>
         </Link>
       </div>
@@ -41,7 +33,7 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
       {/* Key Information Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Ключевая информация</CardTitle>
+          <CardTitle>{t('keyInformation')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Key Stats Grid */}
@@ -49,38 +41,42 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
             <div className="space-y-3">
               <div>
                 <span className="text-sm font-medium text-muted-foreground">
-                  Категория:
+                  {t('category')}
                 </span>
                 <div className="mt-1">
                   <Badge variant="secondary">
-                    {categoryTranslations[profession.category] || profession.category}
+                    {profession.category ? getLocalizedText(profession.category.name, locale) : 'N/A'}
                   </Badge>
                 </div>
               </div>
-              {profession.popular && (
+              {profession.featured && (
                 <div>
-                  <Badge variant="default">Популярная профессия</Badge>
+                  <Badge variant="default">{t('popularProfession')}</Badge>
                 </div>
               )}
             </div>
 
             <div className="space-y-3">
-              <div>
-                <span className="text-sm font-medium text-muted-foreground">
-                  Создано:
-                </span>
-                <p className="mt-1 text-sm">
-                  {new Date(profession.createdAt).toLocaleDateString('ru-RU')}
-                </p>
-              </div>
-              <div>
-                <span className="text-sm font-medium text-muted-foreground">
-                  Обновлено:
-                </span>
-                <p className="mt-1 text-sm">
-                  {new Date(profession.updatedAt).toLocaleDateString('ru-RU')}
-                </p>
-              </div>
+              {profession.createdAt && (
+                <div>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t('created')}
+                  </span>
+                  <p className="mt-1 text-sm">
+                    {new Date(profession.createdAt).toLocaleDateString(locale)}
+                  </p>
+                </div>
+              )}
+              {profession.updatedAt && (
+                <div>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t('updated')}
+                  </span>
+                  <p className="mt-1 text-sm">
+                    {new Date(profession.updatedAt).toLocaleDateString(locale)}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
@@ -89,7 +85,7 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
       {/* Overview Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Обзор</CardTitle>
+          <CardTitle>{t('overview')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground leading-relaxed">
@@ -102,7 +98,7 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
       {profession.keyResponsibilities && profession.keyResponsibilities.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Основные обязанности</CardTitle>
+            <CardTitle>{t('keyResponsibilities')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -121,7 +117,7 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
       {profession.requiredSkills && profession.requiredSkills.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Необходимые навыки</CardTitle>
+            <CardTitle>{t('requiredSkills')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
@@ -139,7 +135,7 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
       {profession.workEnvironment && (
         <Card>
           <CardHeader>
-            <CardTitle>Рабочая среда</CardTitle>
+            <CardTitle>{t('workEnvironment')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">{getLocalizedText(profession.workEnvironment, locale)}</p>
@@ -151,7 +147,7 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
       {profession.typicalTasks && profession.typicalTasks.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Типичные ежедневные задачи</CardTitle>
+            <CardTitle>{t('typicalTasks')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -170,7 +166,7 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
       {profession.toolsAndTechnologies && profession.toolsAndTechnologies.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Инструменты и технологии</CardTitle>
+            <CardTitle>{t('toolsAndTechnologies')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
@@ -188,10 +184,10 @@ export default function ProfessionContent({ profession, locale }: ProfessionCont
       <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
         <Button variant="outline" className="w-full sm:w-auto">
           <Heart className="w-4 h-4 mr-2" />
-          Сохранить профессию
+          {t('saveProfession')}
         </Button>
         <Button className="w-full sm:w-auto">
-          Посмотреть похожие профессии
+          {t('viewSimilarProfessions')}
         </Button>
       </div>
     </div>

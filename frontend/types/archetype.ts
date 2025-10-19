@@ -7,12 +7,12 @@ export interface ArchetypeType {
   name: {
     en: string;
     ru: string;
-    kk: string;
+    kz: string;
   };
   description: {
     en: string;
     ru: string;
-    kk: string;
+    kz: string;
   };
   createdAt: string;
   _count?: {

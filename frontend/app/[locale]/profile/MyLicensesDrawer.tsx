@@ -103,7 +103,7 @@ export default function MyLicensesDrawer({ open, onOpenChange, licenses }: MyLic
                         <div className="flex flex-wrap gap-2">
                           {userLicense.availableQuizzes.map((quiz) => (
                             <Badge key={quiz.id} variant="outline">
-                              {quiz.quizName.en || quiz.quizName.ru || quiz.quizName.kk}
+                              {quiz.quizName.en || quiz.quizName.ru || quiz.quizName.kz}
                             </Badge>
                           ))}
                         </div>

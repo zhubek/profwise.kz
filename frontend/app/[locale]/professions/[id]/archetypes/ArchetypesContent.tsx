@@ -16,54 +16,43 @@ import {
   MinusIcon,
   TrendingDownIcon,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { ProfessionArchetypes } from '@/types/profession';
 
 interface ArchetypesContentProps {
   archetypes: ProfessionArchetypes;
 }
 
-const riasecInfo = {
+const riasecIconInfo = {
   realistic: {
-    name: 'Realistic',
     icon: User,
     color: 'text-green-600',
     bgColor: 'bg-green-500',
-    description: 'Practical, hands-on work with tools, machines, and outdoor activities',
   },
   investigative: {
-    name: 'Investigative',
     icon: Brain,
     color: 'text-blue-600',
     bgColor: 'bg-blue-500',
-    description: 'Analytical work, research, and problem-solving with data',
   },
   artistic: {
-    name: 'Artistic',
     icon: Palette,
     color: 'text-purple-600',
     bgColor: 'bg-purple-500',
-    description: 'Creative work, self-expression, and aesthetic activities',
   },
   social: {
-    name: 'Social',
     icon: Users,
     color: 'text-orange-600',
     bgColor: 'bg-orange-500',
-    description: 'Helping others, teaching, and collaborative work',
   },
   enterprising: {
-    name: 'Enterprising',
     icon: TrendingUp,
     color: 'text-red-600',
     bgColor: 'bg-red-500',
-    description: 'Leadership, persuasion, and business-oriented activities',
   },
   conventional: {
-    name: 'Conventional',
     icon: FileText,
     color: 'text-gray-600',
     bgColor: 'bg-gray-500',
-    description: 'Organized work with data, records, and established procedures',
   },
 };
 
@@ -99,11 +88,10 @@ const groupByLevel = (items: Record<string, number>): Record<LevelType, GroupedI
   return grouped;
 };
 
-const getLevelInfo = (level: LevelType) => {
+const getLevelIconInfo = (level: LevelType) => {
   switch (level) {
     case 'high':
       return {
-        label: 'Высокое соответствие',
         icon: TrendingUpIcon,
         color: 'text-green-600',
         bgColor: 'bg-green-500',
@@ -111,7 +99,6 @@ const getLevelInfo = (level: LevelType) => {
       };
     case 'medium':
       return {
-        label: 'Среднее соответствие',
         icon: MinusIcon,
         color: 'text-blue-600',
         bgColor: 'bg-blue-500',
@@ -119,7 +106,6 @@ const getLevelInfo = (level: LevelType) => {
       };
     case 'low':
       return {
-        label: 'Низкое соответствие',
         icon: TrendingDownIcon,
         color: 'text-gray-600',
         bgColor: 'bg-gray-400',
@@ -129,11 +115,44 @@ const getLevelInfo = (level: LevelType) => {
 };
 
 export default function ArchetypesContent({ archetypes }: ArchetypesContentProps) {
-  // Group interests by level
-  const groupedInterests = groupByLevel(archetypes.archetypeScores.interests);
-  const groupedSkills = groupByLevel(archetypes.archetypeScores.skills);
-  const groupedPersonality = groupByLevel(archetypes.archetypeScores.personality);
-  const groupedValues = groupByLevel(archetypes.archetypeScores.values);
+  const t = useTranslations('professions.detail.archetypes');
+
+  // Group interests by level with null checks
+  const groupedInterests = groupByLevel(archetypes.archetypeScores?.interests || {});
+  const groupedSkills = groupByLevel(archetypes.archetypeScores?.skills || {});
+  const groupedPersonality = groupByLevel(archetypes.archetypeScores?.personality || {});
+  const groupedValues = groupByLevel(archetypes.archetypeScores?.values || {});
+
+  const getLevelLabel = (level: LevelType): string => {
+    switch (level) {
+      case 'high':
+        return t('highMatch');
+      case 'medium':
+        return t('mediumMatch');
+      case 'low':
+        return t('lowMatch');
+    }
+  };
+
+  const getRiasecName = (key: string): string => {
+    return t(key);
+  };
+
+  const getRiasecDescription = (key: string): string => {
+    return t(`${key}Desc`);
+  };
+
+  const getSkillName = (key: string): string => {
+    return t(key);
+  };
+
+  const getPersonalityName = (key: string): string => {
+    return t(key);
+  };
+
+  const getValueName = (key: string): string => {
+    return t(key);
+  };
 
   const renderGroupedSection = (
     grouped: Record<LevelType, GroupedItem[]>,
@@ -143,14 +162,14 @@ export default function ArchetypesContent({ archetypes }: ArchetypesContentProps
       <div className="space-y-6">
         {(['high', 'medium', 'low'] as LevelType[]).map((level) => {
           if (grouped[level].length === 0) return null;
-          const levelInfo = getLevelInfo(level);
+          const levelInfo = getLevelIconInfo(level);
           const LevelIcon = levelInfo.icon;
 
           return (
             <div key={level} className="space-y-3">
               <div className="flex items-center gap-2">
                 <LevelIcon className={`w-5 h-5 ${levelInfo.color}`} />
-                <h4 className="font-medium">{levelInfo.label}</h4>
+                <h4 className="font-medium">{getLevelLabel(level)}</h4>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {grouped[level].map((item) => renderItem(item))}
@@ -167,20 +186,18 @@ export default function ArchetypesContent({ archetypes }: ArchetypesContentProps
       {/* Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Профиль карьерных интересов</CardTitle>
+          <CardTitle>{t('careerInterestProfile')}</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            На основе модели RIASEC
+            {t('basedOnRiasec')}
           </p>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground leading-relaxed">
-            Эта профессия соответствует определенным областям интересов на основе модели Holland Codes (RIASEC).
-            Понимание этих интересов поможет вам определить, соответствует ли эта карьера вашим предпочтениям
-            и стилю работы.
+            {t('riasecDescription')}
           </p>
           <div className="flex flex-wrap gap-2 mt-4">
-            <span className="text-sm font-medium">Коды RIASEC:</span>
-            {archetypes.riasecCodes.map((code, index) => (
+            <span className="text-sm font-medium">{t('riasecCodes')}</span>
+            {(archetypes.riasecCodes || []).map((code, index) => (
               <Badge key={index} variant="secondary">
                 {code}
               </Badge>
@@ -192,31 +209,31 @@ export default function ArchetypesContent({ archetypes }: ArchetypesContentProps
       {/* RIASEC Interest Areas */}
       <Card>
         <CardHeader>
-          <CardTitle>Области интересов RIASEC</CardTitle>
+          <CardTitle>{t('riasecAreas')}</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Шесть областей интересов, описывающих рабочую деятельность и среду
+            {t('riasecDesc')}
           </p>
         </CardHeader>
         <CardContent>
           {renderGroupedSection(groupedInterests, (item) => {
-            const info = riasecInfo[item.key as keyof typeof riasecInfo];
-            const Icon = info.icon;
-            const levelInfo = getLevelInfo(item.level);
+            const iconInfo = riasecIconInfo[item.key as keyof typeof riasecIconInfo];
+            const Icon = iconInfo.icon;
+            const levelInfo = getLevelIconInfo(item.level);
 
             return (
               <div key={item.key} className="p-4 border rounded-lg">
                 <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded-lg ${info.bgColor} text-white flex-shrink-0`}>
+                  <div className={`p-2 rounded-lg ${iconInfo.bgColor} text-white flex-shrink-0`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium">{info.name}</h3>
+                      <h3 className="font-medium">{getRiasecName(item.key)}</h3>
                       <Badge variant={levelInfo.badgeVariant} className="text-xs">
-                        {levelInfo.label}
+                        {getLevelLabel(item.level)}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{info.description}</p>
+                    <p className="text-sm text-muted-foreground">{getRiasecDescription(item.key)}</p>
                   </div>
                 </div>
               </div>
@@ -230,19 +247,19 @@ export default function ArchetypesContent({ archetypes }: ArchetypesContentProps
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lightbulb className="w-5 h-5" />
-            Профиль навыков
+            {t('skillsProfile')}
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Ключевые области навыков, необходимые для этой профессии
+            {t('skillsDesc')}
           </p>
         </CardHeader>
         <CardContent>
           {renderGroupedSection(groupedSkills, (item) => (
             <div key={item.key} className="p-3 border rounded-lg">
               <div className="flex items-center justify-between">
-                <span className="font-medium capitalize">{item.key}</span>
-                <Badge variant={getLevelInfo(item.level).badgeVariant} className="text-xs">
-                  {getLevelInfo(item.level).label}
+                <span className="font-medium">{getSkillName(item.key)}</span>
+                <Badge variant={getLevelIconInfo(item.level).badgeVariant} className="text-xs">
+                  {getLevelLabel(item.level)}
                 </Badge>
               </div>
             </div>
@@ -255,19 +272,19 @@ export default function ArchetypesContent({ archetypes }: ArchetypesContentProps
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="w-5 h-5" />
-            Личностные черты
+            {t('personalityTraits')}
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Измерения личности "Большой пятерки", соответствующие этой карьере
+            {t('personalityDesc')}
           </p>
         </CardHeader>
         <CardContent>
           {renderGroupedSection(groupedPersonality, (item) => (
             <div key={item.key} className="p-3 border rounded-lg">
               <div className="flex items-center justify-between">
-                <span className="font-medium capitalize">{item.key}</span>
-                <Badge variant={getLevelInfo(item.level).badgeVariant} className="text-xs">
-                  {getLevelInfo(item.level).label}
+                <span className="font-medium">{getPersonalityName(item.key)}</span>
+                <Badge variant={getLevelIconInfo(item.level).badgeVariant} className="text-xs">
+                  {getLevelLabel(item.level)}
                 </Badge>
               </div>
             </div>
@@ -280,21 +297,19 @@ export default function ArchetypesContent({ archetypes }: ArchetypesContentProps
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Heart className="w-5 h-5" />
-            Рабочие ценности
+            {t('workValues')}
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Ценности, которые обычно важны в этой профессии
+            {t('workValuesDesc')}
           </p>
         </CardHeader>
         <CardContent>
           {renderGroupedSection(groupedValues, (item) => (
             <div key={item.key} className="p-3 border rounded-lg">
               <div className="flex items-center justify-between">
-                <span className="font-medium capitalize">
-                  {item.key.replace(/([A-Z])/g, ' $1').trim()}
-                </span>
-                <Badge variant={getLevelInfo(item.level).badgeVariant} className="text-xs">
-                  {getLevelInfo(item.level).label}
+                <span className="font-medium">{getValueName(item.key)}</span>
+                <Badge variant={getLevelIconInfo(item.level).badgeVariant} className="text-xs">
+                  {getLevelLabel(item.level)}
                 </Badge>
               </div>
             </div>
@@ -307,49 +322,49 @@ export default function ArchetypesContent({ archetypes }: ArchetypesContentProps
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5" />
-            Основные архетипы
+            {t('primaryArchetypes')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h4 className="text-sm font-medium mb-2">Интересы</h4>
+            <h4 className="text-sm font-medium mb-2">{t('interests')}</h4>
             <div className="flex flex-wrap gap-2">
-              {archetypes.primaryArchetypes.interests.map((interest, index) => (
-                <Badge key={index} variant="outline" className="capitalize">
-                  {interest}
+              {(archetypes.primaryArchetypes?.interests || []).map((interest, index) => (
+                <Badge key={index} variant="outline">
+                  {getRiasecName(interest)}
                 </Badge>
               ))}
             </div>
           </div>
 
           <div>
-            <h4 className="text-sm font-medium mb-2">Навыки</h4>
+            <h4 className="text-sm font-medium mb-2">{t('skills')}</h4>
             <div className="flex flex-wrap gap-2">
-              {archetypes.primaryArchetypes.skills.map((skill, index) => (
-                <Badge key={index} variant="outline" className="capitalize">
-                  {skill}
+              {(archetypes.primaryArchetypes?.skills || []).map((skill, index) => (
+                <Badge key={index} variant="outline">
+                  {getSkillName(skill)}
                 </Badge>
               ))}
             </div>
           </div>
 
           <div>
-            <h4 className="text-sm font-medium mb-2">Личность</h4>
+            <h4 className="text-sm font-medium mb-2">{t('personality')}</h4>
             <div className="flex flex-wrap gap-2">
-              {archetypes.primaryArchetypes.personality.map((trait, index) => (
-                <Badge key={index} variant="outline" className="capitalize">
-                  {trait}
+              {(archetypes.primaryArchetypes?.personality || []).map((trait, index) => (
+                <Badge key={index} variant="outline">
+                  {getPersonalityName(trait)}
                 </Badge>
               ))}
             </div>
           </div>
 
           <div>
-            <h4 className="text-sm font-medium mb-2">Ценности</h4>
+            <h4 className="text-sm font-medium mb-2">{t('values')}</h4>
             <div className="flex flex-wrap gap-2">
-              {archetypes.primaryArchetypes.values.map((value, index) => (
-                <Badge key={index} variant="outline" className="capitalize">
-                  {value}
+              {(archetypes.primaryArchetypes?.values || []).map((value, index) => (
+                <Badge key={index} variant="outline">
+                  {getValueName(value)}
                 </Badge>
               ))}
             </div>

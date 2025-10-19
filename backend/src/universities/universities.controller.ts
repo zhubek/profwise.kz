@@ -45,4 +45,10 @@ export class UniversitiesController {
   remove(@Param('id') id: string) {
     return this.universitiesService.remove(id);
   }
+
+  // Separate endpoint for moreInfo field
+  @Get(':id/more-info')
+  getMoreInfo(@Param('id') id: string) {
+    return this.universitiesService.getMoreInfo(id);
+  }
 }

@@ -86,7 +86,22 @@
       "Read(//home/bex/.config/**)",
       "Read(//home/bex/**)",
       "Bash(npm run seed:holland-instructions:*)",
-      "Bash(mcp__playwright__browser_navigate)"
+      "Bash(mcp__playwright__browser_navigate)",
+      "mcp__playwright__browser_tabs",
+      "Bash([ -f components.json ])",
+      "Bash(xdotool search:*)",
+      "Bash(xdotool key:*)",
+      "Bash(npx tsx:*)",
+      "Bash([ -f \"/home/bex/projects/profwise.kz/frontend/.env.local\" ])",
+      "Bash(PORT=3000 npm run dev:*)",
+      "Bash(npm run seed:unt-points:*)",
+      "Bash(npm run seed:profession-json:*)",
+      "Bash(xargs:*)",
+      "Bash(npm run seed:repopulate-50:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(npm run seed:populate-all:*)",
+      "Bash([ -f docker-compose.yml ])",
+      "WebFetch(domain:coolify.io)"
     ]
   },
   "enableAllProjectMcpServers": true,

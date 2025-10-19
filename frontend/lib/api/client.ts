@@ -91,7 +91,7 @@ async function fetcher<T>(
     if (response.status === 401) {
       clearAuthToken();
       if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login';
+        window.location.href = '/login';
       }
       throw new APIErrorClass(
         'Unauthorized. Please log in again.',

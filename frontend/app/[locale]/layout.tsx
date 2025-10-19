@@ -4,8 +4,7 @@ import { notFound } from 'next/navigation';
 import { locales } from '@/config/i18n';
 import { AuthProvider } from '@/contexts/AuthContext';
 import AuthWrapper from '@/components/features/auth/AuthWrapper';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import LayoutWrapper from '@/components/layout/LayoutWrapper';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -41,11 +40,7 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages}>
       <AuthProvider>
         <AuthWrapper>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </div>
+          <LayoutWrapper>{children}</LayoutWrapper>
         </AuthWrapper>
       </AuthProvider>
     </NextIntlClientProvider>

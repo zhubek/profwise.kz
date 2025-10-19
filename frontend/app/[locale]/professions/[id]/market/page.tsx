@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getProfessionLaborMarket, getProfessionSalary } from '@/lib/api/mock/professions';
+import { getProfessionLaborMarket, getProfessionSalary } from '@/lib/api/professions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -13,6 +13,7 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { getLocalizedText } from '@/lib/utils/i18n';
+import { getTranslations } from 'next-intl/server';
 
 interface MarketPageProps {
   params: Promise<{
@@ -21,11 +22,11 @@ interface MarketPageProps {
   }>;
 }
 
-const demandLevelColors: Record<string, { bg: string; text: string; label: string }> = {
-  low: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Low Demand' },
-  moderate: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Moderate Demand' },
-  high: { bg: 'bg-green-100', text: 'text-green-800', label: 'High Demand' },
-  'very-high': { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Very High Demand' },
+const demandLevelColors: Record<string, { bg: string; text: string }> = {
+  low: { bg: 'bg-gray-100', text: 'text-gray-800' },
+  moderate: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
+  high: { bg: 'bg-green-100', text: 'text-green-800' },
+  'very-high': { bg: 'bg-blue-100', text: 'text-blue-800' },
 };
 
 const formatSalary = (amount: number, currency: string) => {
@@ -39,6 +40,22 @@ const formatSalary = (amount: number, currency: string) => {
 
 export default async function MarketPage({ params }: MarketPageProps) {
   const { id, locale } = await params;
+  const t = await getTranslations('professions.detail.market');
+
+  const getDemandLabel = (level: string): string => {
+    switch (level) {
+      case 'low':
+        return t('demandLevel.low');
+      case 'moderate':
+        return t('demandLevel.moderate');
+      case 'high':
+        return t('demandLevel.high');
+      case 'very-high':
+        return t('demandLevel.veryHigh');
+      default:
+        return t('demandLevel.moderate');
+    }
+  };
 
   try {
     const [laborMarket, salary] = await Promise.all([
@@ -55,30 +72,30 @@ export default async function MarketPage({ params }: MarketPageProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5" />
-              Labor Market Overview
+              {t('laborMarketOverview')}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Current market conditions and outlook for this profession
+              {t('marketOverviewDesc')}
             </p>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Market Demand</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t('marketDemand')}</span>
                   <div className="mt-2">
                     <Badge className={`${demandInfo.bg} ${demandInfo.text} px-3 py-1`}>
-                      {demandInfo.label}
+                      {getDemandLabel(laborMarket.demandLevel)}
                     </Badge>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Job Growth</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t('jobGrowth')}</span>
                   <div className="flex items-center gap-2 mt-2">
                     <TrendingUp className="w-5 h-5 text-green-600" />
                     <span className="text-xl font-bold text-green-700">{laborMarket.jobGrowth}</span>
-                    <span className="text-sm text-muted-foreground">over next 5 years</span>
+                    <span className="text-sm text-muted-foreground">{t('jobGrowthSuffix')}</span>
                   </div>
                 </div>
               </div>
@@ -86,21 +103,21 @@ export default async function MarketPage({ params }: MarketPageProps) {
               <div className="space-y-4">
                 <div>
                   <span className="text-sm font-medium text-muted-foreground">
-                    Annual Job Openings
+                    {t('annualJobOpenings')}
                   </span>
                   <div className="flex items-center gap-2 mt-2">
                     <Briefcase className="w-5 h-5 text-blue-600" />
                     <span className="text-xl font-bold">
                       {laborMarket.annualOpenings.toLocaleString()}
                     </span>
-                    <span className="text-sm text-muted-foreground">positions per year</span>
+                    <span className="text-sm text-muted-foreground">{t('positionsPerYear')}</span>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Last Updated</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t('lastUpdated')}</span>
                   <p className="mt-2 text-sm">
-                    {new Date(laborMarket.updatedAt).toLocaleDateString()}
+                    {new Date(laborMarket.updatedAt).toLocaleDateString(locale)}
                   </p>
                 </div>
               </div>
@@ -113,17 +130,17 @@ export default async function MarketPage({ params }: MarketPageProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="w-5 h-5" />
-              Salary Insights
+              {t('salaryInsights')}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Typical salary ranges by experience level in {salary.currency}
+              {t('salaryDesc', { currency: salary.currency })}
             </p>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Entry Level */}
               <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
-                <div className="text-sm font-medium text-green-900 mb-2">Entry Level</div>
+                <div className="text-sm font-medium text-green-900 mb-2">{t('entryLevel')}</div>
                 <div className="text-3xl font-bold text-green-700 mb-1">
                   {formatSalary((salary.entryLevel.min + salary.entryLevel.max) / 2, salary.currency)}
                 </div>
@@ -131,12 +148,12 @@ export default async function MarketPage({ params }: MarketPageProps) {
                   {formatSalary(salary.entryLevel.min, salary.currency)} -{' '}
                   {formatSalary(salary.entryLevel.max, salary.currency)}
                 </div>
-                <div className="text-xs text-muted-foreground mt-2">0-2 years experience</div>
+                <div className="text-xs text-muted-foreground mt-2">{t('entryYears')}</div>
               </div>
 
               {/* Mid Career */}
               <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-                <div className="text-sm font-medium text-blue-900 mb-2">Mid Career</div>
+                <div className="text-sm font-medium text-blue-900 mb-2">{t('midCareer')}</div>
                 <div className="text-3xl font-bold text-blue-700 mb-1">
                   {formatSalary((salary.midCareer.min + salary.midCareer.max) / 2, salary.currency)}
                 </div>
@@ -144,12 +161,12 @@ export default async function MarketPage({ params }: MarketPageProps) {
                   {formatSalary(salary.midCareer.min, salary.currency)} -{' '}
                   {formatSalary(salary.midCareer.max, salary.currency)}
                 </div>
-                <div className="text-xs text-muted-foreground mt-2">3-7 years experience</div>
+                <div className="text-xs text-muted-foreground mt-2">{t('midYears')}</div>
               </div>
 
               {/* Senior Level */}
               <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-                <div className="text-sm font-medium text-purple-900 mb-2">Senior Level</div>
+                <div className="text-sm font-medium text-purple-900 mb-2">{t('seniorLevel')}</div>
                 <div className="text-3xl font-bold text-purple-700 mb-1">
                   {formatSalary((salary.seniorLevel.min + salary.seniorLevel.max) / 2, salary.currency)}
                 </div>
@@ -157,14 +174,13 @@ export default async function MarketPage({ params }: MarketPageProps) {
                   {formatSalary(salary.seniorLevel.min, salary.currency)} -{' '}
                   {formatSalary(salary.seniorLevel.max, salary.currency)}
                 </div>
-                <div className="text-xs text-muted-foreground mt-2">8+ years experience</div>
+                <div className="text-xs text-muted-foreground mt-2">{t('seniorYears')}</div>
               </div>
             </div>
 
             <div className="mt-4 p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                <strong>Note:</strong> Salaries vary based on experience, location, company size, and
-                specific skills. These ranges represent typical compensation in the current market.
+                <strong>{t('note')}</strong> {t('salaryNote')}
               </p>
             </div>
           </CardContent>
@@ -176,10 +192,10 @@ export default async function MarketPage({ params }: MarketPageProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
-                Industry Sectors
+                {t('industrySectors')}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Key industries actively hiring for this profession
+                {t('industrySectorsDesc')}
               </p>
             </CardHeader>
             <CardContent>
@@ -204,10 +220,10 @@ export default async function MarketPage({ params }: MarketPageProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
-                Geographic Hotspots
+                {t('geographicHotspots')}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Cities and regions with high demand for this profession
+                {t('geographicDesc')}
               </p>
             </CardHeader>
             <CardContent>
@@ -222,7 +238,7 @@ export default async function MarketPage({ params }: MarketPageProps) {
                     </div>
                     <div>
                       <div className="font-medium">{getLocalizedText(location, locale)}</div>
-                      <div className="text-xs text-muted-foreground">High job availability</div>
+                      <div className="text-xs text-muted-foreground">{t('highJobAvailability')}</div>
                     </div>
                   </div>
                 ))}
@@ -236,7 +252,7 @@ export default async function MarketPage({ params }: MarketPageProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Target className="w-5 h-5" />
-              Job Search Strategy
+              {t('jobSearchStrategy')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -244,28 +260,28 @@ export default async function MarketPage({ params }: MarketPageProps) {
               <div className="space-y-3">
                 <h4 className="font-medium flex items-center gap-2">
                   <Briefcase className="w-4 h-4" />
-                  Application Strategy
+                  {t('applicationStrategy')}
                 </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Tailor your resume and cover letter for each application</span>
+                    <span>{t('appTip1')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Highlight relevant projects and quantifiable achievements</span>
+                    <span>{t('appTip2')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Prepare thoroughly for technical and behavioral interviews</span>
+                    <span>{t('appTip3')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Network actively on LinkedIn and professional forums</span>
+                    <span>{t('appTip4')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Follow up with recruiters and hiring managers</span>
+                    <span>{t('appTip5')}</span>
                   </li>
                 </ul>
               </div>
@@ -273,28 +289,28 @@ export default async function MarketPage({ params }: MarketPageProps) {
               <div className="space-y-3">
                 <h4 className="font-medium flex items-center gap-2">
                   <TrendingUp className="w-4 h-4" />
-                  Career Development
+                  {t('careerDevelopment')}
                 </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Build a strong portfolio showcasing your best work</span>
+                    <span>{t('devTip1')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Stay updated with latest industry trends and technologies</span>
+                    <span>{t('devTip2')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Pursue relevant certifications and advanced training</span>
+                    <span>{t('devTip3')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Seek mentorship from experienced professionals</span>
+                    <span>{t('devTip4')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Contribute to open-source projects or community initiatives</span>
+                    <span>{t('devTip5')}</span>
                   </li>
                 </ul>
               </div>
@@ -307,7 +323,7 @@ export default async function MarketPage({ params }: MarketPageProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-blue-900">
               <Lightbulb className="w-5 h-5" />
-              Market Insights
+              {t('marketInsights')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -315,29 +331,25 @@ export default async function MarketPage({ params }: MarketPageProps) {
               <li className="flex items-start gap-2">
                 <TrendingUp className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span>
-                  With {laborMarket.jobGrowth} projected growth, this profession shows strong career
-                  prospects
+                  {t('insight1', { growth: laborMarket.jobGrowth })}
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <Users className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span>
-                  Approximately {laborMarket.annualOpenings.toLocaleString()} new positions open
-                  annually, indicating healthy job availability
+                  {t('insight2', { openings: laborMarket.annualOpenings.toLocaleString() })}
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span>
-                  Geographic mobility can significantly impact earning potential - consider relocating
-                  to high-demand areas
+                  {t('insight3')}
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <DollarSign className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span>
-                  Salary growth is typically strong with experience - senior professionals can earn 3-4x
-                  entry-level compensation
+                  {t('insight4')}
                 </span>
               </li>
             </ul>

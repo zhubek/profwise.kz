@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
+import { CalculateResultDto } from './dto/calculate-result.dto';
 
 @Controller('quizzes')
 export class QuizzesController {
@@ -41,5 +42,10 @@ export class QuizzesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.quizzesService.remove(id);
+  }
+
+  @Post('calculate-holand')
+  calculateHolandResult(@Body() calculateResultDto: CalculateResultDto) {
+    return this.quizzesService.calculateHolandResult(calculateResultDto);
   }
 }

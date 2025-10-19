@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import {
   Info,
@@ -17,31 +18,32 @@ interface ProfessionNavProps {
 
 export default function ProfessionNav({ professionId }: ProfessionNavProps) {
   const pathname = usePathname();
+  const t = useTranslations('professions.detail.nav');
 
   const navItems = [
     {
-      label: 'Обзор',
+      label: t('overview'),
       href: `/professions/${professionId}`,
       icon: Info,
       exact: true,
     },
     {
-      label: 'Описание',
+      label: t('description'),
       href: `/professions/${professionId}/description`,
       icon: FileText,
     },
     {
-      label: 'Архетипы',
+      label: t('archetypes'),
       href: `/professions/${professionId}/archetypes`,
       icon: User,
     },
     {
-      label: 'Образование',
+      label: t('education'),
       href: `/professions/${professionId}/education`,
       icon: GraduationCap,
     },
     {
-      label: 'Рынок труда',
+      label: t('laborMarket'),
       href: `/professions/${professionId}/market`,
       icon: TrendingUp,
     },

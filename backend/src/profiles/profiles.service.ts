@@ -130,4 +130,82 @@ export class ProfilesService {
       lastUpdated: new Date().toISOString(),
     };
   }
+
+  async getUserProfessions(userId: string) {
+    // Verify user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Fetch user's professions with full profession details
+    const userProfessions = await this.prisma.userProfession.findMany({
+      where: { userId },
+      include: {
+        profession: {
+          include: {
+            category: true,
+          },
+        },
+        userProfessionArchetypeTypes: {
+          include: {
+            archetypeType: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc', // Sort by most recently added
+      },
+    });
+
+    // Transform to frontend format
+    return userProfessions.map((up) => {
+      // Calculate matchScore from archetype scores (average of all scores)
+      let matchScore = 0;
+      if (up.userProfessionArchetypeTypes.length > 0) {
+        const totalScore = up.userProfessionArchetypeTypes.reduce(
+          (sum, at) => sum + at.score,
+          0,
+        );
+        matchScore = Math.round(totalScore / up.userProfessionArchetypeTypes.length);
+      }
+
+      // Group archetype scores by type for matchBreakdown
+      const matchBreakdown: any = {
+        interests: 0,
+        skills: 0,
+        personality: 0,
+        values: 0,
+      };
+
+      up.userProfessionArchetypeTypes.forEach((at) => {
+        const typeId = at.archetypeType.id;
+        // Map archetype types to frontend categories
+        if (typeId === 'interest' || typeId.includes('interest')) {
+          matchBreakdown.interests = at.score;
+        } else if (typeId === 'skill' || typeId.includes('skill')) {
+          matchBreakdown.skills = at.score;
+        } else if (typeId === 'personality' || typeId.includes('personality')) {
+          matchBreakdown.personality = at.score;
+        } else if (typeId === 'value' || typeId.includes('value')) {
+          matchBreakdown.values = at.score;
+        }
+      });
+
+      return {
+        id: up.profession.id,
+        title: up.profession.name,
+        description: up.profession.description,
+        category: up.profession.category?.name || { en: 'Other', ru: 'Другое', kk: 'Басқа' },
+        matchScore,
+        matchBreakdown,
+        popular: up.profession.featured || false,
+        isLiked: false, // TODO: Add isLiked functionality later
+        icon: null, // Can be added later
+      };
+    });
+  }
 }

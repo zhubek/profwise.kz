@@ -40,4 +40,9 @@ export class ProfilesController {
   getArchetypeProfile(@Param('id') id: string) {
     return this.profilesService.getArchetypeProfile(id);
   }
+
+  @Get(':id/professions')
+  getUserProfessions(@Param('id') id: string) {
+    return this.profilesService.getUserProfessions(id);
+  }
 }

@@ -118,3 +118,46 @@ export function updateHollandTestSection(sectionIndex: number): void {
   state.currentSectionIndex = sectionIndex;
   saveHollandTestState(state);
 }
+
+/**
+ * Generic function to check if any test has progress in localStorage
+ */
+export function hasTestInProgress(testId: string): boolean {
+  try {
+    if (typeof window === 'undefined') return false;
+
+    const storageKey = `profwise_test_${testId}`;
+    const data = localStorage.getItem(storageKey);
+
+    if (!data) return false;
+
+    const parsed = JSON.parse(data);
+    // Check if there are any answers
+    return parsed.answers && Object.keys(parsed.answers).length > 0;
+  } catch (error) {
+    console.error('Failed to check test progress:', error);
+    return false;
+  }
+}
+
+/**
+ * Generic function to get test progress percentage
+ */
+export function getTestProgress(testId: string, totalQuestions: number = 36): number {
+  try {
+    if (typeof window === 'undefined') return 0;
+
+    const storageKey = `profwise_test_${testId}`;
+    const data = localStorage.getItem(storageKey);
+
+    if (!data) return 0;
+
+    const parsed = JSON.parse(data);
+    const answeredCount = parsed.answers ? Object.keys(parsed.answers).length : 0;
+
+    return Math.round((answeredCount / totalQuestions) * 100);
+  } catch (error) {
+    console.error('Failed to get test progress:', error);
+    return 0;
+  }
+}

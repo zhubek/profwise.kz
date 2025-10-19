@@ -49,6 +49,11 @@ export class ProfessionsService {
                 specUniversities: {
                   include: {
                     university: true,
+                    testScores: {
+                      include: {
+                        type: true,
+                      },
+                    },
                   },
                 },
               },
@@ -92,5 +97,120 @@ export class ProfessionsService {
     } catch (error) {
       throw new NotFoundException(`Profession with ID ${id} not found`);
     }
+  }
+
+  // Methods for retrieving specific JSON fields
+  async getGeneral(id: string) {
+    const profession = await this.prisma.profession.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        general: true,
+      },
+    });
+
+    if (!profession) {
+      throw new NotFoundException(`Profession with ID ${id} not found`);
+    }
+
+    return {
+      professionId: profession.id,
+      general: profession.general,
+    };
+  }
+
+  async getDescription(id: string) {
+    const profession = await this.prisma.profession.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        description: true,
+      },
+    });
+
+    if (!profession) {
+      throw new NotFoundException(`Profession with ID ${id} not found`);
+    }
+
+    return {
+      professionId: profession.id,
+      description: profession.description,
+    };
+  }
+
+  async getArchetypes(id: string) {
+    const profession = await this.prisma.profession.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        archetypes: true,
+      },
+    });
+
+    if (!profession) {
+      throw new NotFoundException(`Profession with ID ${id} not found`);
+    }
+
+    return {
+      professionId: profession.id,
+      archetypes: profession.archetypes,
+    };
+  }
+
+  async getEducation(id: string) {
+    const profession = await this.prisma.profession.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        education: true,
+      },
+    });
+
+    if (!profession) {
+      throw new NotFoundException(`Profession with ID ${id} not found`);
+    }
+
+    return {
+      professionId: profession.id,
+      education: profession.education,
+    };
+  }
+
+  async getMarketResearch(id: string) {
+    const profession = await this.prisma.profession.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        marketResearch: true,
+      },
+    });
+
+    if (!profession) {
+      throw new NotFoundException(`Profession with ID ${id} not found`);
+    }
+
+    return {
+      professionId: profession.id,
+      marketResearch: profession.marketResearch,
+    };
+  }
+
+  async getDescriptionData(id: string) {
+    const profession = await this.prisma.profession.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        descriptionData: true,
+      },
+    });
+
+    if (!profession) {
+      throw new NotFoundException(`Profession with ID ${id} not found`);
+    }
+
+    return {
+      professionId: profession.id,
+      descriptionData: profession.descriptionData,
+    };
   }
 }

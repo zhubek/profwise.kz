@@ -238,13 +238,18 @@ model UserQuestion {
 // ================================
 
 model Profession {
-  id          String   @id @default(uuid())
-  name        Json
-  description Json?
-  code        String
-  categoryId  String
-  featured    Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id              String   @id @default(uuid())
+  name            Json
+  description     Json?
+  code            String   @unique
+  categoryId      String
+  featured        Boolean  @default(false)
+  general         Json?
+  descriptionData Json?    // Detailed description: overview, responsibilities, skills, tasks, tools
+  archetypes      Json?
+  education       Json?
+  marketResearch  Json?
+  createdAt       DateTime @default(now())
 
   // Relations
   category                    Category                    @relation(fields: [categoryId], references: [id])
@@ -273,6 +278,7 @@ model University {
   name        Json
   description Json?
   code        String   @unique
+  moreInfo    Json?
   createdAt   DateTime @default(now())
 
   // Relations
@@ -327,20 +333,27 @@ model ProfessionSpec {
   @@map("profession_specs")
 }
 
+enum GrantType {
+  GENERAL
+  AUL
+}
+
 model TestScore {
-  id               String   @id @default(uuid())
+  id               String    @id @default(uuid())
   year             Int
   specUniversityId String
   minPoints        Int
   maxPoints        Int?
   grantCounts      Int?
+  grantType        GrantType @default(GENERAL)
   typeId           String
-  createdAt        DateTime @default(now())
+  createdAt        DateTime  @default(now())
 
   // Relations
   specUniversity SpecUniversity @relation(fields: [specUniversityId], references: [id], onDelete: Cascade)
   type           TestScoreType  @relation(fields: [typeId], references: [id])
 
+  @@unique([specUniversityId, year, grantType, typeId])
   @@map("test_scores")
 }
 

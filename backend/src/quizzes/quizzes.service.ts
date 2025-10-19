@@ -199,4 +199,134 @@ export class QuizzesService {
       throw new NotFoundException(`Quiz with ID ${id} not found`);
     }
   }
+
+  async calculateHolandResult(data: {
+    answers: Record<string, {
+      answer: Record<string, number>;
+      parameters: {
+        type: string;
+        scale: string;
+      };
+    }>;
+    userId: string;
+    quizId: string;
+  }) {
+    // Step 1: Parse answers and calculate sums for each RIASEC scale
+    const scaleSums: Record<string, number> = {
+      R: 0,
+      I: 0,
+      A: 0,
+      S: 0,
+      E: 0,
+      C: 0,
+    };
+
+    const scaleCounts: Record<string, number> = {
+      R: 0,
+      I: 0,
+      A: 0,
+      S: 0,
+      E: 0,
+      C: 0,
+    };
+
+    // Aggregate scores by scale
+    Object.values(data.answers).forEach((questionAnswer) => {
+      const scale = questionAnswer.parameters.scale;
+      const answerValue = Object.values(questionAnswer.answer)[0]; // Get the numeric value
+
+      if (scale && scaleSums.hasOwnProperty(scale)) {
+        scaleSums[scale] += answerValue;
+        scaleCounts[scale] += 1;
+      }
+    });
+
+    // Step 2: Calculate percentages for each scale
+    const scalePercentages: Record<string, number> = {};
+    Object.keys(scaleSums).forEach((scale) => {
+      const sum = scaleSums[scale];
+      const count = scaleCounts[scale];
+      // percentage = (sum / (count * 5)) * 100
+      scalePercentages[scale] = count > 0 ? (sum / (count * 5)) * 100 : 0;
+    });
+
+    console.log('Scale Sums:', scaleSums);
+    console.log('Scale Counts:', scaleCounts);
+    console.log('Scale Percentages:', scalePercentages);
+
+    // Step 3: Map RIASEC scales to archetype IDs
+    const archetypeMap = {
+      R: 'interest-realistic',
+      I: 'interest-investigative',
+      A: 'interest-artistic',
+      S: 'interest-social',
+      E: 'interest-enterprising',
+      C: 'interest-conventional',
+    };
+
+    // Step 4: Calculate sum of squared differences using database query
+    // We'll use raw SQL for efficient calculation
+    const professionMatches = await this.prisma.$queryRaw<Array<{
+      professionId: string;
+      professionName: string;
+      professionCode: string;
+      ssd: number;
+    }>>`
+      WITH user_scores AS (
+        SELECT
+          ${archetypeMap.R}::text as archetype_id, ${scalePercentages.R}::numeric as user_score
+        UNION ALL SELECT ${archetypeMap.I}::text, ${scalePercentages.I}::numeric
+        UNION ALL SELECT ${archetypeMap.A}::text, ${scalePercentages.A}::numeric
+        UNION ALL SELECT ${archetypeMap.S}::text, ${scalePercentages.S}::numeric
+        UNION ALL SELECT ${archetypeMap.E}::text, ${scalePercentages.E}::numeric
+        UNION ALL SELECT ${archetypeMap.C}::text, ${scalePercentages.C}::numeric
+      ),
+      profession_scores AS (
+        SELECT
+          pa."professionId",
+          pa."archetypeId",
+          pa.score
+        FROM profession_archetypes pa
+        WHERE pa."archetypeId" IN (
+          ${archetypeMap.R}::text,
+          ${archetypeMap.I}::text,
+          ${archetypeMap.A}::text,
+          ${archetypeMap.S}::text,
+          ${archetypeMap.E}::text,
+          ${archetypeMap.C}::text
+        )
+      ),
+      squared_differences AS (
+        SELECT
+          ps."professionId",
+          SUM(POWER(us.user_score - ps.score, 2)) as ssd
+        FROM profession_scores ps
+        JOIN user_scores us ON ps."archetypeId" = us.archetype_id
+        GROUP BY ps."professionId"
+      )
+      SELECT
+        sd."professionId" as "professionId",
+        p.name->>'en' as "professionName",
+        p.code as "professionCode",
+        sd.ssd as ssd
+      FROM squared_differences sd
+      JOIN professions p ON sd."professionId" = p.id
+      ORDER BY sd.ssd ASC
+      LIMIT 20
+    `;
+
+    // Return the results
+    return {
+      userId: data.userId,
+      quizId: data.quizId,
+      scalePercentages,
+      topProfessions: professionMatches.map((match, index) => ({
+        rank: index + 1,
+        professionId: match.professionId,
+        professionName: match.professionName,
+        professionCode: match.professionCode,
+        matchScore: match.ssd,
+      })),
+    };
+  }
 }

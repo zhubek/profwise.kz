@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -31,8 +32,18 @@ function groupQuestionsIntoSections(questions: Question[], questionsPerSection: 
   return sections;
 }
 
-// Calculate RIASEC scores from answers
-function calculateRIASECScores(answers: Record<string, number>, questions: Question[]): Record<string, number> {
+// Enriched answer format that includes scoring and parameters
+interface EnrichedAnswer {
+  answer: Record<string, number>; // e.g., {"3": 1} - the selected option key and its score
+  parameters: {
+    type?: string;
+    scale?: string;
+    [key: string]: any;
+  };
+}
+
+// Calculate RIASEC scores from enriched answers
+function calculateRIASECScores(answers: Record<string, EnrichedAnswer>, questions: Question[]): Record<string, number> {
   const scores: Record<string, number> = {
     R: 0,
     I: 0,
@@ -43,11 +54,13 @@ function calculateRIASECScores(answers: Record<string, number>, questions: Quest
   };
 
   questions.forEach((question) => {
-    const answer = answers[question.id];
+    const answerData = answers[question.id];
     const archetypeCode = question.archetypeCode;
 
-    if (answer !== undefined && archetypeCode && scores[archetypeCode] !== undefined) {
-      scores[archetypeCode] += Number(answer);
+    if (answerData && archetypeCode && scores[archetypeCode] !== undefined) {
+      // Get the score from the answer object (e.g., {"3": 1} => score is 1)
+      const scoreValue = Object.values(answerData.answer)[0] || 0;
+      scores[archetypeCode] += Number(scoreValue);
     }
   });
 
@@ -55,10 +68,12 @@ function calculateRIASECScores(answers: Record<string, number>, questions: Quest
 }
 
 export default function TestTakingContent({ quiz, questions, locale }: TestTakingContentProps) {
+  const t = useTranslations('tests');
+  const tc = useTranslations('common');
   const router = useRouter();
   const { user } = useAuth();
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<Record<string, EnrichedAnswer>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -105,8 +120,20 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
   // Check if all questions are answered
   const isTestComplete = questions.every((q) => answers[q.id] !== undefined);
 
-  const handleAnswerChange = (questionId: string, answer: number) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+  const handleAnswerChange = (questionId: string, selectedValue: number) => {
+    // Find the question to get its backend data
+    const question = questions.find(q => q.id === questionId);
+    if (!question) return;
+
+    // Build the enriched answer object
+    const enrichedAnswer: EnrichedAnswer = {
+      answer: {
+        [String(selectedValue)]: question.backendAnswers?.[String(selectedValue)] ?? selectedValue
+      },
+      parameters: question.parameters || {}
+    };
+
+    setAnswers((prev) => ({ ...prev, [questionId]: enrichedAnswer }));
   };
 
   const handleNext = () => {
@@ -130,20 +157,31 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
       // Calculate RIASEC scores (or other scoring logic based on quiz type)
       const results = calculateRIASECScores(answers, questions);
 
+      // Log scores for debugging
+      console.log('Test completed! RIASEC Scores:', results);
+
+      // TODO: Re-enable API submission when backend is ready
+      // Convert enriched answers back to simple format for backend submission
+      // const simpleAnswers: Record<string, number> = {};
+      // Object.entries(answers).forEach(([questionId, enrichedAnswer]) => {
+      //   const selectedValue = Number(Object.keys(enrichedAnswer.answer)[0]);
+      //   simpleAnswers[questionId] = selectedValue;
+      // });
+
       // Submit to backend
-      await submitQuizResult({
-        userId: user.id,
-        quizId: quiz.id,
-        answers,
-        results,
-      });
+      // await submitQuizResult({
+      //   userId: user.id,
+      //   quizId: quiz.id,
+      //   answers: simpleAnswers,
+      //   results,
+      // });
 
       // Clear localStorage
       const storageKey = `profwise_test_${quiz.id}`;
       localStorage.removeItem(storageKey);
 
-      // Redirect to characteristics page to see updated results
-      router.push('/characteristics');
+      // Redirect to mock result page
+      router.push('/results/result-1');
     } catch (error) {
       console.error('Failed to submit test:', error);
       alert('Failed to submit test. Please try again.');
@@ -155,7 +193,7 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">Loading test...</p>
+        <p className="text-muted-foreground">{tc('labels.loading')}</p>
       </div>
     );
   }
@@ -163,7 +201,7 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
   if (!currentSection) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">Test section not found</p>
+        <p className="text-muted-foreground">{tc('labels.error')}</p>
       </div>
     );
   }
@@ -174,9 +212,11 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
       <Card className="p-4">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="font-medium">Progress</span>
+            <span className="font-medium">
+              {locale === 'ru' ? 'Прогресс' : locale === 'kz' ? 'Прогресс' : 'Progress'}
+            </span>
             <span className="text-muted-foreground">
-              Section {currentSectionIndex + 1} of {totalSections}
+              {t('section', { current: currentSectionIndex + 1, total: totalSections })}
             </span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -189,10 +229,12 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
           {/* Section Header */}
           <div>
             <h2 className="text-xl font-bold md:text-2xl">
-              Section {currentSectionIndex + 1}
+              {locale === 'ru' ? `Раздел ${currentSectionIndex + 1}` :
+               locale === 'kz' ? `Бөлім ${currentSectionIndex + 1}` :
+               `Section ${currentSectionIndex + 1}`}
             </h2>
             <p className="text-muted-foreground mt-2">
-              Answer all questions to continue
+              {t('answerAllQuestions')}
             </p>
           </div>
 
@@ -221,7 +263,7 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
           className="w-full sm:w-auto"
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
-          Previous
+          {tc('buttons.previous')}
         </Button>
 
         {currentSectionIndex < totalSections - 1 ? (
@@ -230,7 +272,7 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
             disabled={!isSectionComplete}
             className="w-full sm:w-auto"
           >
-            Next
+            {tc('buttons.next')}
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (
@@ -240,11 +282,11 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
             className="w-full sm:w-auto"
           >
             {isSubmitting ? (
-              'Submitting...'
+              tc('labels.loading')
             ) : (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                Submit Test
+                {tc('buttons.submit')}
               </>
             )}
           </Button>
@@ -258,12 +300,15 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
 interface QuestionItemProps {
   question: Question;
   questionNumber: number;
-  answer: number | undefined;
+  answer: EnrichedAnswer | undefined;
   onAnswerChange: (questionId: string, answer: number) => void;
   locale: string;
 }
 
 function QuestionItem({ question, questionNumber, answer, onAnswerChange, locale }: QuestionItemProps) {
+  // Extract the selected value from the enriched answer (e.g., {"3": 1} => "3")
+  const selectedValue = answer ? Number(Object.keys(answer.answer)[0]) : undefined;
+
   if (question.type === 'likert') {
     const firstOption = question.options?.[0];
     const lastOption = question.options?.[question.options.length - 1];
@@ -284,7 +329,7 @@ function QuestionItem({ question, questionNumber, answer, onAnswerChange, locale
                   key={option.id}
                   onClick={() => onAnswerChange(question.id, Number(option.value))}
                   className={`w-12 h-12 rounded-full border-2 transition-all hover:scale-105 ${
-                    answer === option.value
+                    selectedValue === option.value
                       ? 'border-primary bg-primary'
                       : 'border-border hover:border-primary/50'
                   }`}
@@ -311,7 +356,6 @@ function QuestionItem({ question, questionNumber, answer, onAnswerChange, locale
           {questionNumber}. {getLocalizedText(question.text, locale)}
           {question.required && <span className="text-destructive ml-1">*</span>}
         </p>
-        <p className="text-sm text-muted-foreground">Select one option</p>
 
         <div className="space-y-2">
           {question.options?.map((option) => (
@@ -319,19 +363,19 @@ function QuestionItem({ question, questionNumber, answer, onAnswerChange, locale
               key={option.id}
               onClick={() => onAnswerChange(question.id, Number(option.value))}
               className={`w-full rounded-lg border-2 px-4 py-3 text-left transition-all flex items-center gap-3 ${
-                answer === option.value
+                selectedValue === option.value
                   ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-primary/50'
               }`}
             >
               <div
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                  answer === option.value
+                  selectedValue === option.value
                     ? 'border-primary'
                     : 'border-muted-foreground'
                 }`}
               >
-                {answer === option.value && (
+                {selectedValue === option.value && (
                   <div className="w-3 h-3 rounded-full bg-primary" />
                 )}
               </div>

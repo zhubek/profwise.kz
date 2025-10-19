@@ -27,7 +27,7 @@ export default function RegisterPage() {
   // Map locale to user language format
   const getLanguageFromLocale = (locale: string): 'EN' | 'RU' | 'KZ' => {
     if (locale === 'en') return 'EN';
-    if (locale === 'kk') return 'KZ';
+    if (locale === "kz") return 'KZ';
     return 'RU';
   };
 

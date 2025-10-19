@@ -77,7 +77,7 @@ export default function Header() {
                 <Link href="/ru">Русский</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/kk">Қазақша</Link>
+                <Link href="/kz">Қазақша</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -176,7 +176,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
                       {profession.matchScore}% {t('matchScore', { percent: '' }).replace('%', '')}
                     </Badge>
                     <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                      {t(`category.${profession.category}`)}
+                      {getLocalizedText(profession.category, locale)}
                     </Badge>
                     {profession.popular && (
                       <Badge variant="destructive" className="gap-1">

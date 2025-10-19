@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
-import { getProfessionDetails } from '@/lib/api/mock/professions';
+import { getProfessionDetails } from '@/lib/api/professions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Briefcase, Wrench } from 'lucide-react';
 import { getLocalizedText } from '@/lib/utils/i18n';
+import { getTranslations } from 'next-intl/server';
 
 interface DescriptionPageProps {
   params: Promise<{
@@ -14,6 +15,7 @@ interface DescriptionPageProps {
 
 export default async function DescriptionPage({ params }: DescriptionPageProps) {
   const { id, locale } = await params;
+  const t = await getTranslations('professions.detail.description');
 
   try {
     const profession = await getProfessionDetails(id);
@@ -23,7 +25,7 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
         {/* Overview */}
         <Card>
           <CardHeader>
-            <CardTitle>Overview</CardTitle>
+            <CardTitle>{t('overview')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground leading-relaxed">
@@ -38,10 +40,10 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Briefcase className="w-5 h-5" />
-                Key Responsibilities
+                {t('keyResponsibilities')}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                What you'll be doing in this role on a regular basis
+                {t('responsibilitiesDesc')}
               </p>
             </CardHeader>
             <CardContent>
@@ -61,9 +63,9 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
         {profession.typicalTasks && profession.typicalTasks.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Typical Daily Tasks</CardTitle>
+              <CardTitle>{t('typicalTasks')}</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Common activities you'll perform in this profession
+                {t('tasksDesc')}
               </p>
             </CardHeader>
             <CardContent>
@@ -85,10 +87,10 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Wrench className="w-5 h-5" />
-                Tools & Technologies
+                {t('toolsAndTech')}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Software, platforms, and tools commonly used in this profession
+                {t('toolsDesc')}
               </p>
             </CardHeader>
             <CardContent>
@@ -107,7 +109,7 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
         {profession.requiredSkills && profession.requiredSkills.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Essential Skills</CardTitle>
+              <CardTitle>{t('essentialSkills')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
@@ -125,7 +127,7 @@ export default async function DescriptionPage({ params }: DescriptionPageProps) 
         {profession.workEnvironment && (
           <Card>
             <CardHeader>
-              <CardTitle>Work Environment</CardTitle>
+              <CardTitle>{t('workEnvironment')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed">

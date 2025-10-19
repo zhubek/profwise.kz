@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getProfessionArchetypes } from '@/lib/api/mock/professions';
+import { getProfessionArchetypes } from '@/lib/api/professions';
 import ArchetypesContent from './ArchetypesContent';
 
 interface ArchetypesPageProps {

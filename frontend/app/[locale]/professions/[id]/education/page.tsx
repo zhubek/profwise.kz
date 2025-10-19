@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getProfessionEducation } from '@/lib/api/mock/professions';
+import { getProfessionEducation } from '@/lib/api/professions';
 import EducationContent from './EducationContent';
 
 interface EducationPageProps {

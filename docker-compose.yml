@@ -1,38 +1,83 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: profwise-postgres
-    restart: unless-stopped
-    ports:
-      - '5432:5432'
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: profwise
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
+  # Redis for caching and sessions
   redis:
     image: redis:7-alpine
-    container_name: profwise-redis
     restart: unless-stopped
-    ports:
-      - '6379:6379'
+    command: redis-server --appendonly yes
     volumes:
-      - redis_data:/data
+      - redis-data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # Backend API (NestJS)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - "4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      # Database connection (external PostgreSQL)
+      - DATABASE_URL=postgres://postgres:IOjMrygG1nTG2sl8zbs292TygkerLFI5HCD2xEBRzxFIwGg8wUESY7jViB0p2Adw@gswoks40sccwssogc80o404k:5432/postgres
+      # Redis connection (internal Docker network)
+      - REDIS_URL=redis://redis:6379
+      # Security & Auth
+      - JWT_SECRET=${JWT_SECRET:?}
+      - BREVO_API_KEY=${BREVO_API_KEY:?}
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@profwise.kz}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-Profwise}
+      - ENABLE_EMAIL_VERIFICATION=${ENABLE_EMAIL_VERIFICATION:-true}
+      # Frontend URL (Coolify will set this via FQDN)
+      - FRONTEND_URL=${SERVICE_FQDN_FRONTEND}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      # Coolify labels for domain routing
+      - "coolify.managed=true"
+
+  # Frontend (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Use Coolify magic variable for backend URL
+        - NEXT_PUBLIC_API_URL=${SERVICE_FQDN_BACKEND}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      # Use Coolify magic variable for backend URL
+      - NEXT_PUBLIC_API_URL=${SERVICE_FQDN_BACKEND}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      # Coolify labels for domain routing
+      - "coolify.managed=true"
+
 volumes:
-  postgres_data:
-  redis_data:
+  redis-data:
+    driver: local

@@ -8,6 +8,11 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors({
     origin: [
+      // Production domains
+      'https://profwise.kz',
+      'https://www.profwise.kz',
+      'https://api.profwise.kz',
+      // Development/staging
       'http://172.26.195.243:3000',
       'http://172.26.195.243:3001',
       'http://172.26.195.243:3002',

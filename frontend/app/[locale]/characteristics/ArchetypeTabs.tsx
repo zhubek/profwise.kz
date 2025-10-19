@@ -21,7 +21,7 @@ export default function ArchetypeTabs({ profile, archetypeTypes }: ArchetypeTabs
   const [activeTab, setActiveTab] = useState<TabType>('interest'); // Default to first type
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const t = useTranslations('characteristics');
-  const locale = useLocale() as 'en' | 'ru' | 'kk';
+  const locale = useLocale() as 'en' | 'ru' | "kz";
 
   // Create tabs from archetype types + "all" tab
   const tabs: { key: TabType; label: string }[] = [

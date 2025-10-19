@@ -41,6 +41,14 @@ export default function Footer() {
                   {t('contact')}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/admin"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t('admin')}
+                </Link>
+              </li>
             </ul>
           </div>
 

@@ -723,6 +723,95 @@ Deletes a quiz and all related questions and results (cascade).
 
 **Response:** `204 No Content`
 
+### Calculate HOLAND Quiz Result
+**POST** `/quizzes/calculate-holand`
+
+Calculates profession recommendations for HOLAND (RIASEC) quiz based on user answers. Performs database-driven calculation using sum of squared differences algorithm to match user's interest profile with profession archetype scores.
+
+**Request Body:**
+```json
+{
+  "userId": "user-uuid",
+  "quizId": "quiz-uuid",
+  "answers": {
+    "holand-1-1": {
+      "answer": {"1": 0},
+      "parameters": {"type": "Interest", "scale": "R"}
+    },
+    "holand-1-2": {
+      "answer": {"2": 1},
+      "parameters": {"type": "Interest", "scale": "R"}
+    },
+    "holand-1-3": {
+      "answer": {"4": 3},
+      "parameters": {"type": "Interest", "scale": "I"}
+    }
+  }
+}
+```
+
+**Answer Structure:**
+- `answer`: Object with single key-value pair where key is answer option (1-5 for Likert scale) and value is the score
+- `parameters.type`: Always "Interest" for HOLAND quiz
+- `parameters.scale`: RIASEC scale letter - one of R (Realistic), I (Investigative), A (Artistic), S (Social), E (Enterprising), C (Conventional)
+
+**Calculation Algorithm:**
+1. Aggregates answer scores by RIASEC scale (R, I, A, S, E, C)
+2. Calculates percentage for each scale: `(sum / (questionCount * 5)) * 100`
+3. Queries `profession_archetypes` table for all professions with RIASEC archetype scores
+4. Calculates sum of squared differences: `SUM((user_percentage - profession_score)^2)` for each profession
+5. Returns top 20 professions with lowest match scores (lower score = better match)
+
+**Response:** `201 Created`
+```json
+{
+  "userId": "user-uuid",
+  "quizId": "quiz-uuid",
+  "scalePercentages": {
+    "R": 20,
+    "I": 46.67,
+    "A": 40,
+    "S": 33.33,
+    "E": 60,
+    "C": 20
+  },
+  "topProfessions": [
+    {
+      "rank": 1,
+      "professionId": "uuid",
+      "professionName": "Journalists",
+      "professionCode": "2642-1",
+      "matchScore": 1676.22
+    },
+    {
+      "rank": 2,
+      "professionId": "uuid",
+      "professionName": "Urban planners",
+      "professionCode": "2164-1",
+      "matchScore": 1840.56
+    }
+  ]
+}
+```
+
+**Notes:**
+- Calculation is performed entirely in the database using PostgreSQL's POWER function
+- Lower `matchScore` indicates better match between user profile and profession
+- Match score represents the sum of squared differences across all six RIASEC dimensions
+- Archetype IDs used: `interest-realistic`, `interest-investigative`, `interest-artistic`, `interest-social`, `interest-enterprising`, `interest-conventional`
+- Currently supports HOLAND quiz type only; other quiz types will require separate calculation methods
+
+**Error Responses:**
+
+`400 Bad Request` - Invalid request data
+```json
+{
+  "statusCode": 400,
+  "message": ["answers should not be empty"],
+  "error": "Bad Request"
+}
+```
+
 ---
 
 ## Questions Module
@@ -1274,6 +1363,279 @@ Deletes a profession and all related data (cascade).
 
 **Response:** `204 No Content`
 
+### Get Profession General Info
+**GET** `/professions/:id/general`
+
+Retrieves only the general JSON field for a specific profession.
+
+**Parameters:**
+- `id` (string, required): Profession ID
+
+**Response:** `200 OK`
+```json
+{
+  "professionId": "uuid",
+  "general": {
+    "overview": "General overview content...",
+    "keyInfo": ["info1", "info2"],
+    "highlights": {...}
+  }
+}
+```
+
+**Notes:**
+- Returns `null` for `general` field if not set
+- Optimized endpoint for client-side caching
+- Designed to reduce payload size by fetching only specific content
+
+### Get Profession Description
+**GET** `/professions/:id/description`
+
+Retrieves only the description JSON field for a specific profession.
+
+**Parameters:**
+- `id` (string, required): Profession ID
+
+**Response:** `200 OK`
+```json
+{
+  "professionId": "uuid",
+  "description": {
+    "en": "Detailed description...",
+    "ru": "Подробное описание...",
+    "kk": "Толық сипаттама..."
+  }
+}
+```
+
+### Get Profession Archetypes Data
+**GET** `/professions/:id/archetypes`
+
+Retrieves only the archetypes JSON field for a specific profession.
+
+**Parameters:**
+- `id` (string, required): Profession ID
+
+**Response:** `200 OK`
+```json
+{
+  "professionId": "uuid",
+  "archetypes": {
+    "riasecCodes": ["I", "R", "C"],
+    "primaryArchetypes": {
+      "interests": ["investigative", "realistic"],
+      "skills": ["technical", "analytical"],
+      "personality": ["introverted", "thinking"],
+      "values": ["achievement", "independence"]
+    },
+    "archetypeScores": {
+      "interests": {
+        "investigative": 85,
+        "realistic": 75,
+        "conventional": 60,
+        "enterprising": 45,
+        "artistic": 40,
+        "social": 30
+      },
+      "skills": {
+        "technical": 90,
+        "analytical": 85,
+        "creative": 50,
+        "interpersonal": 45
+      },
+      "personality": {
+        "openness": 80,
+        "conscientiousness": 85,
+        "agreeableness": 55,
+        "neuroticism": 50,
+        "extraversion": 35
+      },
+      "values": {
+        "achievement": 90,
+        "independence": 85,
+        "workingConditions": 75,
+        "recognition": 70,
+        "support": 50,
+        "relationships": 45
+      }
+    }
+  }
+}
+```
+
+### Get Profession Education Data
+**GET** `/professions/:id/education`
+
+Retrieves only the education JSON field for a specific profession.
+
+**Parameters:**
+- `id` (string, required): Profession ID
+
+**Response:** `200 OK`
+```json
+{
+  "professionId": "uuid",
+  "education": {
+    "minimumEducation": "Bachelor's Degree",
+    "preferredFields": ["Computer Science", "Software Engineering"],
+    "certifications": ["AWS Certified", "Google Cloud Certified"],
+    "learningPaths": [
+      {
+        "type": "university",
+        "description": "4-year degree program...",
+        "examples": [...]
+      },
+      {
+        "type": "bootcamp",
+        "description": "Intensive coding bootcamp...",
+        "duration": "3-6 months"
+      }
+    ]
+  }
+}
+```
+
+### Get Profession Description Details
+**GET** `/professions/:id/description-data`
+
+Retrieves the descriptionData JSON field containing detailed profession description, responsibilities, skills, work environment, and tasks.
+
+**Parameters:**
+- `id` (string, required): Profession ID
+
+**Response:** `200 OK`
+```json
+{
+  "professionId": "uuid",
+  "descriptionData": {
+    "overview": {
+      "en": "Software developers create the applications and systems that run on computers and devices...",
+      "ru": "Разработчики программного обеспечения создают приложения и системы...",
+      "kk": "Бағдарламалық қамтамасыз ету әзірлеушілері компьютерлер мен құрылғыларда жұмыс істейтін қосымшалар..."
+    },
+    "keyResponsibilities": [
+      {
+        "en": "Write clean, maintainable code following best practices",
+        "ru": "Написание чистого, поддерживаемого кода согласно лучшим практикам",
+        "kk": "Үздік тәжірибелерді ұстана отырып, таза, қолдауға жарамды код жазу"
+      },
+      {
+        "en": "Debug and troubleshoot software issues",
+        "ru": "Отладка и устранение проблем программного обеспечения",
+        "kk": "Бағдарламалық қамтамасыз ету мәселелерін жөндеу және шешу"
+      },
+      {
+        "en": "Collaborate with team members on project development",
+        "ru": "Сотрудничество с членами команды над разработкой проекта",
+        "kk": "Жоба әзірлеу бойынша топ мүшелерімен ынтымақтасу"
+      }
+    ],
+    "requiredSkills": [
+      {
+        "en": "Programming Languages (Java, Python, JavaScript)",
+        "ru": "Языки программирования (Java, Python, JavaScript)",
+        "kk": "Бағдарламалау тілдері (Java, Python, JavaScript)"
+      },
+      {
+        "en": "Problem-solving and analytical thinking",
+        "ru": "Решение проблем и аналитическое мышление",
+        "kk": "Мәселелерді шешу және аналитикалық ойлау"
+      },
+      {
+        "en": "Version Control (Git)",
+        "ru": "Контроль версий (Git)",
+        "kk": "Нұсқаларды басқару (Git)"
+      }
+    ],
+    "workEnvironment": {
+      "en": "Office or remote settings, often in collaborative team environments with flexible schedules",
+      "ru": "Офисные или удаленные условия, часто в совместных командных средах с гибким графиком",
+      "kk": "Кеңсе немесе қашықтан жағдайлар, көбінесе икемді кестелермен бірлескен топтық ортада"
+    },
+    "typicalTasks": [
+      {
+        "en": "Writing and testing code",
+        "ru": "Написание и тестирование кода",
+        "kk": "Код жазу және тестілеу"
+      },
+      {
+        "en": "Attending team meetings and stand-ups",
+        "ru": "Участие в командных встречах и стендапах",
+        "kk": "Топтық кездесулерге және стендаптарға қатысу"
+      },
+      {
+        "en": "Reviewing and refactoring existing code",
+        "ru": "Обзор и рефакторинг существующего кода",
+        "kk": "Бар кодты қарау және рефакторинг жасау"
+      }
+    ],
+    "toolsAndTechnologies": [
+      {
+        "en": "VS Code, IntelliJ IDEA",
+        "ru": "VS Code, IntelliJ IDEA",
+        "kk": "VS Code, IntelliJ IDEA"
+      },
+      {
+        "en": "Git/GitHub",
+        "ru": "Git/GitHub",
+        "kk": "Git/GitHub"
+      },
+      {
+        "en": "Docker, Kubernetes",
+        "ru": "Docker, Kubernetes",
+        "kk": "Docker, Kubernetes"
+      }
+    ]
+  }
+}
+```
+
+**Notes:**
+- Returns `null` for `descriptionData` field if not set
+- All text fields are multilingual objects with `en`, `ru`, `kk` keys
+- Optimized endpoint for profession detail pages
+- Contains 6 main fields: overview, keyResponsibilities, requiredSkills, workEnvironment, typicalTasks, and toolsAndTechnologies
+- `toolsAndTechnologies` is optional and may not be present for all professions
+
+### Get Profession Market Research Data
+**GET** `/professions/:id/market-research`
+
+Retrieves only the marketResearch JSON field for a specific profession.
+
+**Parameters:**
+- `id` (string, required): Profession ID
+
+**Response:** `200 OK`
+```json
+{
+  "professionId": "uuid",
+  "marketResearch": {
+    "demandLevel": "high",
+    "jobGrowth": "+15%",
+    "annualOpenings": 5000,
+    "salaryRanges": {
+      "entry": { "min": 50000, "max": 80000 },
+      "mid": { "min": 80000, "max": 120000 },
+      "senior": { "min": 120000, "max": 180000 }
+    },
+    "industrySectors": ["Technology", "Finance", "Healthcare"],
+    "geographicHotspots": ["Almaty", "Nur-Sultan", "Shymkent"],
+    "trends": [
+      "Increasing demand for cloud expertise",
+      "Growing focus on AI/ML skills"
+    ]
+  }
+}
+```
+
+**Error Response for all endpoints:** `404 Not Found`
+```json
+{
+  "statusCode": 404,
+  "message": "Profession with ID {id} not found"
+}
+```
+
 ---
 
 ## Categories Module
@@ -1440,6 +1802,107 @@ Updates university information.
 Deletes a university and all related data (cascade).
 
 **Response:** `204 No Content`
+
+### Get University More Info
+**GET** `/universities/:id/more-info`
+
+Retrieves only the moreInfo JSON field for a specific university.
+
+**Parameters:**
+- `id` (string, required): University ID
+
+**Response:** `200 OK`
+```json
+{
+  "universityId": "uuid",
+  "moreInfo": {
+    "facilities": {
+      "en": "Modern campus with state-of-the-art laboratories, library, sports complex, and student dormitories",
+      "ru": "Современный кампус с современными лабораториями, библиотекой, спортивным комплексом и общежитиями",
+      "kk": "Заманауи зертханалар, кітапхана, спорт кешені және жатақханалар бар заманауи кампус"
+    },
+    "achievements": [
+      {
+        "en": "Top 500 QS World University Rankings",
+        "ru": "Топ-500 мирового рейтинга QS",
+        "kk": "QS әлемдік рейтингінің топ-500"
+      },
+      {
+        "en": "95% graduate employment rate",
+        "ru": "95% трудоустройства выпускников",
+        "kk": "Түлектердің 95% жұмыспен қамтылуы"
+      }
+    ],
+    "studentLife": {
+      "clubs": 50,
+      "events": {
+        "en": "Annual science fair, cultural festivals, sports competitions",
+        "ru": "Ежегодная научная ярмарка, культурные фестивали, спортивные соревнования",
+        "kk": "Жыл сайынғы ғылыми жәрмеңке, мәдени фестивальдер, спорттық жарыстар"
+      },
+      "internationalStudents": 1200
+    },
+    "admissionProcess": {
+      "deadline": {
+        "en": "August 15",
+        "ru": "15 августа",
+        "kk": "15 тамыз"
+      },
+      "requirements": {
+        "en": "ENT scores, high school diploma, medical certificate",
+        "ru": "Результаты ЕНТ, аттестат о среднем образовании, медицинская справка",
+        "kk": "ҰБТ нәтижелері, орта білім туралы аттестат, медициналық анықтама"
+      },
+      "scholarships": {
+        "available": true,
+        "types": {
+          "en": ["Merit-based", "Need-based", "Athletic", "International"],
+          "ru": ["За заслуги", "По нуждаемости", "Спортивные", "Международные"],
+          "kk": ["Еңбегі үшін", "Қажеттілік бойынша", "Спорттық", "Халықаралық"]
+        }
+      }
+    },
+    "contactInfo": {
+      "phone": "+7 (727) 123-45-67",
+      "email": "info@university.kz",
+      "website": "https://university.kz",
+      "address": {
+        "en": "123 Al-Farabi Avenue, Almaty, Kazakhstan",
+        "ru": "пр. аль-Фараби, 123, Алматы, Казахстан",
+        "kk": "әл-Фараби даңғылы, 123, Алматы, Қазақстан"
+      },
+      "socialMedia": {
+        "instagram": "@university_kz",
+        "facebook": "UniversityKZ",
+        "linkedin": "university-kazakhstan"
+      }
+    },
+    "rankings": {
+      "national": 5,
+      "international": 450,
+      "subjectRankings": {
+        "computerScience": 200,
+        "engineering": 300,
+        "business": 250
+      }
+    }
+  }
+}
+```
+
+**Notes:**
+- Returns `null` for `moreInfo` field if not set
+- Optimized endpoint for client-side caching
+- Designed to reduce payload size by fetching only specific content
+- The moreInfo field can store flexible JSON data about university facilities, achievements, student life, admission process, contact information, and rankings
+
+**Error Response:** `404 Not Found`
+```json
+{
+  "statusCode": 404,
+  "message": "University with ID {id} not found"
+}
+```
 
 ---
 

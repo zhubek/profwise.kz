@@ -97,4 +97,24 @@ export class UniversitiesService {
       throw new NotFoundException(`University with ID ${id} not found`);
     }
   }
+
+  // Method for retrieving moreInfo field
+  async getMoreInfo(id: string) {
+    const university = await this.prisma.university.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        moreInfo: true,
+      },
+    });
+
+    if (!university) {
+      throw new NotFoundException(`University with ID ${id} not found`);
+    }
+
+    return {
+      universityId: university.id,
+      moreInfo: university.moreInfo,
+    };
+  }
 }

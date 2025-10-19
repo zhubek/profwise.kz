@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Test, UserTest } from '@/types/test';
-import { hasHollandTestInProgress, getHollandTestProgress } from '@/lib/utils/testStorage';
+import { hasTestInProgress, getTestProgress } from '@/lib/utils/testStorage';
 import { HOLLAND_TEST_ID } from '@/lib/api/mock/holland';
 import ResultsDrawer from './ResultsDrawer';
 import ContentBlockRenderer from '@/components/features/tests/ContentBlockRenderer';
@@ -29,21 +29,19 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
   // Fetch quiz instructions with caching
   const { instructions, loading: instructionsLoading } = useQuizInstructions(test.id);
 
-  // Check localStorage for Holland test on mount
+  // Check localStorage for any test on mount
   useEffect(() => {
-    if (test.id === HOLLAND_TEST_ID) {
-      const inProgress = hasHollandTestInProgress();
-      setHasLocalTest(inProgress);
-      if (inProgress) {
-        setLocalStorageProgress(getHollandTestProgress());
-      }
+    const inProgress = hasTestInProgress(test.id);
+    setHasLocalTest(inProgress);
+    if (inProgress) {
+      setLocalStorageProgress(getTestProgress(test.id, test.totalQuestions));
     }
-  }, [test.id]);
+  }, [test.id, test.totalQuestions]);
 
   // Get status badge
   const getStatusBadge = () => {
-    // For Holland test, check localStorage first
-    if (test.id === HOLLAND_TEST_ID && hasLocalTest) {
+    // Check localStorage first for any test
+    if (hasLocalTest) {
       return (
         <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
           {t('inProgress')} - {localStorageProgress}%
@@ -74,50 +72,23 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
     // Get the correct test URL - Holland test has special route
     const testUrl = test.id === HOLLAND_TEST_ID ? '/tests/holland' : `/tests/${test.id}`;
 
-    // For Holland test, check localStorage first
-    if (test.id === HOLLAND_TEST_ID && hasLocalTest) {
-      return (
-        <Link href={testUrl}>
-          <Button className="w-full">
-            <Play className="mr-2 h-4 w-4" />
-            {t('common.buttons.continueTest')}
-          </Button>
-        </Link>
-      );
-    }
-
-    if (userTest?.status === 'completed') {
-      return (
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1">
-            <ResultsDrawer />
-          </div>
-          <Link href={testUrl} className="flex-1">
-            <Button className="w-full">
-              <Play className="mr-2 h-4 w-4" />
-              {t('common.buttons.retakeTest')}
-            </Button>
-          </Link>
-        </div>
-      );
-    }
-    if (userTest?.status === 'in_progress') {
-      return (
-        <Link href={testUrl}>
-          <Button className="w-full">
-            <Play className="mr-2 h-4 w-4" />
-            {t('common.buttons.continueTest')}
-          </Button>
-        </Link>
-      );
-    }
+    // Always show ResultsDrawer in a flex layout
     return (
-      <Link href={testUrl}>
-        <Button className="w-full" size="lg">
-          <Play className="mr-2 h-5 w-5" />
-          {t('common.buttons.startTest')}
-        </Button>
-      </Link>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1">
+          <ResultsDrawer />
+        </div>
+        <Link href={testUrl} className="flex-1">
+          <Button className="w-full">
+            <Play className="mr-2 h-4 w-4" />
+            {hasLocalTest || userTest?.status === 'in_progress'
+              ? t('common.buttons.continueTest')
+              : userTest?.status === 'completed'
+              ? t('common.buttons.retakeTest')
+              : t('common.buttons.startTest')}
+          </Button>
+        </Link>
+      </div>
     );
   };
 
@@ -156,23 +127,23 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
           </div>
 
           {/* Progress Bar (if in progress) */}
-          {((test.id === HOLLAND_TEST_ID && hasLocalTest) || userTest?.status === 'in_progress') && (
+          {(hasLocalTest || userTest?.status === 'in_progress') && (
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">
-                  {test.id === HOLLAND_TEST_ID && hasLocalTest
+                  {hasLocalTest
                     ? t('testInProgress')
                     : t('section', { current: userTest?.currentSection || 1, total: test.totalSections })}
                 </span>
                 <span className="font-medium">
-                  {test.id === HOLLAND_TEST_ID && hasLocalTest ? localStorageProgress : userTest?.progress}%
+                  {hasLocalTest ? localStorageProgress : userTest?.progress}%
                 </span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary transition-all"
                   style={{
-                    width: `${test.id === HOLLAND_TEST_ID && hasLocalTest ? localStorageProgress : userTest?.progress}%`,
+                    width: `${hasLocalTest ? localStorageProgress : userTest?.progress}%`,
                   }}
                 />
               </div>

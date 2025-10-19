@@ -1,5 +1,5 @@
 - Refer to me as Bex
-- as we are using WSL seems like localhost is not available, services are accessible through http://172.26.195.243/
+
 - after you did changes to backend api, also update @backend/docs/api-docs.md
 - close playwright browser everytime you finish work. also run it headless if possible.
 - if need to login to web then creds are zhumirov@gmail.com:asdasd123

@@ -5,6 +5,7 @@ import path from 'path';
 const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
 const nextConfig: NextConfig = {
+  output: 'standalone', // Enable for Docker deployment
   outputFileTracingRoot: path.join(__dirname),
 
   // Webpack optimizations for WSL cross-filesystem performance

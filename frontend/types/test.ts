@@ -50,6 +50,12 @@ export interface Question {
   options?: QuestionOption[];
   archetypeCategory?: string; // interests, skills, personality, values
   archetypeCode?: string; // For RIASEC: R, I, A, S, E, C
+  backendAnswers?: Record<string, number>; // Backend scoring map (e.g., {"1": 0, "2": 0, "3": 1, "4": 3, "5": 5})
+  parameters?: {
+    type?: string; // Interest, Personality, Skills, etc.
+    scale?: string; // R, I, A, S, E, C for RIASEC
+    [key: string]: any;
+  };
 }
 
 export interface QuestionOption {

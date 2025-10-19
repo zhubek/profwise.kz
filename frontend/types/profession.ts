@@ -2,7 +2,7 @@
 export interface MultilingualText {
   en: string;
   ru: string;
-  kk: string;
+  kz: string;
 }
 
 export type ProfessionCategory =
@@ -26,15 +26,28 @@ export type EducationLevel =
 
 export type DemandLevel = 'low' | 'medium' | 'high' | 'very_high';
 
+export interface Category {
+  id: string;
+  name: MultilingualText;
+  description: MultilingualText;
+  createdAt: string;
+}
+
 export interface Profession {
   id: string;
-  title: MultilingualText;
+  name: MultilingualText;  // Backend uses 'name' not 'title'
   description: MultilingualText;
-  category: ProfessionCategory;
-  icon?: string;
-  popular?: boolean;
-  createdAt: string;
-  updatedAt: string;
+  code: string;
+  categoryId: string;
+  category?: Category;  // Backend returns category object
+  featured?: boolean;  // Backend uses 'featured' not 'popular'
+  general?: any;  // JSON field from backend
+  descriptionData?: any;  // JSON field from backend
+  archetypes?: any;  // JSON field from backend
+  education?: any;  // JSON field from backend
+  marketResearch?: any;  // JSON field from backend
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProfessionDetails extends Profession {
@@ -101,6 +114,30 @@ export interface University {
   subjects: string[];
 }
 
+export interface UNTPointsData {
+  year: 2023 | 2024 | 2025;
+  grantType: 'general' | 'aul'; // aul = rural/regional grants
+  minPoints: number;
+  maxPoints?: number;
+  grantCount?: number;
+}
+
+export interface UniversityWithUNT {
+  name: string;
+  type: string;
+  scholarships: boolean;
+  untPoints: UNTPointsData[];
+}
+
+export interface Specialization {
+  name: MultilingualText;
+  code: string;
+  description: MultilingualText;
+  subjects: MultilingualText;
+  groupName: MultilingualText;
+  universities: UniversityWithUNT[];
+}
+
 export interface Course {
   name: string;
   platform: string;
@@ -121,6 +158,7 @@ export interface ProfessionEducation {
   learningPaths: LearningPath[];
   colleges?: College[];
   universities?: University[];
+  specializations?: Specialization[]; // New: for accordion view
   courses?: Course[];
 }
 

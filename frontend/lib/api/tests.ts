@@ -2,7 +2,7 @@ const USE_MOCK = true;
 
 import * as mockAPI from './mock/tests';
 import api from './client';
-import type { Test, UserTest, TestResults, TestType } from '@/types/test';
+import type { Test, UserTest, TestResults, TestType, Question, QuestionOption, QuestionType } from '@/types/test';
 import type { APIResponse } from '@/types/api';
 
 // Backend quiz response interface
@@ -158,18 +158,23 @@ interface BackendQuestion {
   questionText: {
     en: string;
     ru: string;
-    kk: string;
+    kz: string;
   };
   answers: {
-    options: Array<{
+    // For LIKERT/SCALE: scoring map like {"1": 0, "2": 0, "3": 1, "4": 3, "5": 5}
+    // For MULTIPLE_CHOICE/SINGLE_CHOICE: options array
+    options?: Array<{
       en: string;
       ru: string;
-      kk: string;
+      kz: string;
     }>;
+    [key: string]: any;
   };
   parameters: {
     archetype?: string;
     weight?: number;
+    scale?: string; // R, I, A, S, E, C for RIASEC
+    type?: string;  // Interest, Personality, Skills, etc.
     [key: string]: any;
   } | null;
   questionType: string; // MULTIPLE_CHOICE, SINGLE_CHOICE, TRUE_FALSE, SCALE, LIKERT, TEXT
@@ -190,19 +195,46 @@ function mapQuestionType(backendType: string): QuestionType {
 
 // Transform backend question to frontend question
 function transformBackendQuestion(question: BackendQuestion, locale: string = 'en'): Question {
-  const localeKey = locale as 'en' | 'ru' | 'kk';
+  const localeKey = locale as 'en' | 'ru' | "kz";
 
-  // Transform options
-  const options: QuestionOption[] = question.answers.options.map((option, index) => ({
-    id: `${question.id}-option-${index}`,
-    text: {
-      en: option.en,
-      ru: option.ru,
-      kz: option.kk,
-    },
-    value: index + 1, // Use 1-5 for likert scales, 1-n for other types
-    order: index,
-  }));
+  // Transform options based on question type
+  let options: QuestionOption[];
+
+  if (question.questionType === 'LIKERT' || question.questionType === 'SCALE') {
+    // For LIKERT/SCALE questions, generate standard 1-5 options
+    const likertLabels = {
+      en: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'],
+      ru: ['Полностью не согласен', 'Не согласен', 'Нейтрально', 'Согласен', 'Полностью согласен'],
+      kz: ['Мүлдем келіспеймін', 'Келіспеймін', 'Бейтарап', 'Келісемін', 'Толық келісемін'],
+    };
+
+    options = [1, 2, 3, 4, 5].map((value, index) => ({
+      id: `${question.id}-option-${index}`,
+      text: {
+        en: likertLabels.en[index],
+        ru: likertLabels.ru[index],
+        kz: likertLabels.kz[index],
+      },
+      value: value,
+      order: index,
+    }));
+  } else {
+    // For other question types, use options from answers
+    if (!question.answers?.options || !Array.isArray(question.answers.options)) {
+      options = [];
+    } else {
+      options = question.answers.options.map((option, index) => ({
+        id: `${question.id}-option-${index}`,
+        text: {
+          en: option.en,
+          ru: option.ru,
+          kz: option.kz,
+        },
+        value: index + 1,
+        order: index,
+      }));
+    }
+  }
 
   return {
     id: question.id,
@@ -210,13 +242,15 @@ function transformBackendQuestion(question: BackendQuestion, locale: string = 'e
     text: {
       en: question.questionText.en,
       ru: question.questionText.ru,
-      kz: question.questionText.kk,
+      kz: question.questionText.kz,
     },
     type: mapQuestionType(question.questionType),
     order: 0, // Will be set by order in array
     required: true,
     options,
-    archetypeCode: question.parameters?.archetype,
+    archetypeCode: question.parameters?.archetype || question.parameters?.scale,
+    backendAnswers: question.answers as Record<string, number>, // Preserve backend scoring map
+    parameters: question.parameters || undefined,
   };
 }
 

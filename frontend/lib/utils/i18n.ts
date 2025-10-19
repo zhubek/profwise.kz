@@ -3,14 +3,14 @@ import type { MultilingualText } from '@/types/profession';
 /**
  * Extract the text in the current locale from a multilingual object
  * @param text Multilingual text object
- * @param locale Current locale (en, ru, kk)
+ * @param locale Current locale (en, ru, kz)
  * @returns The text in the specified locale
  */
 export function getLocalizedText(
   text: MultilingualText,
   locale: string
 ): string {
-  const lang = (locale as 'en' | 'ru' | 'kk') || 'en';
+  const lang = (locale as 'en' | 'ru' | "kz") || 'en';
   return text[lang] || text.en; // Fallback to English if translation is missing
 }
 
