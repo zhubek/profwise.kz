@@ -117,7 +117,9 @@
       "nameRequired": "Имя обязательно",
       "surnameRequired": "Фамилия обязательна",
       "licenseCodeInvalid": "Неверный формат лицензионного кода"
-    }
+    },
+    "emailVerificationInstructions": "Проверьте вашу почту и нажмите на ссылку подтверждения, чтобы активировать ваш аккаунт.",
+    "goToLogin": "Перейти к входу"
   },
   "dashboard": {
     "title": "Панель управления",
@@ -294,6 +296,7 @@
     },
     "category": {
       "all": "Все",
+      "General": "Общее",
       "technology": "Технологии",
       "business": "Бизнес",
       "healthcare": "Здравоохранение",

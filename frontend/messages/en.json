@@ -117,7 +117,9 @@
       "nameRequired": "First name is required",
       "surnameRequired": "Last name is required",
       "licenseCodeInvalid": "Invalid license code format"
-    }
+    },
+    "emailVerificationInstructions": "Check your inbox and click the verification link to activate your account.",
+    "goToLogin": "Go to Login"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -294,6 +296,7 @@
     },
     "category": {
       "all": "All",
+      "General": "General",
       "technology": "Technology",
       "business": "Business",
       "healthcare": "Healthcare",

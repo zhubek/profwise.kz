@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { FileText, Calendar, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,13 +16,14 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { TestResultListItem } from '@/types/test';
-import { getUserTestResults } from '@/lib/api/mock/results';
+import { getUserResults } from '@/lib/api/results';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function ResultsDrawer() {
   const t = useTranslations('tests');
   const tCommon = useTranslations('common');
   const tResults = useTranslations('results');
+  const locale = useLocale();
   const { user } = useAuth();
   const [results, setResults] = useState<TestResultListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,11 +31,10 @@ export default function ResultsDrawer() {
 
   // Fetch results when drawer opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && user) {
       setIsLoading(true);
-      const userId = user?.id || 'default-user';
 
-      getUserTestResults(userId)
+      getUserResults(user.id, locale)
         .then((data) => {
           setResults(data);
         })
@@ -44,7 +44,7 @@ export default function ResultsDrawer() {
         })
         .finally(() => setIsLoading(false));
     }
-  }, [isOpen, user]);
+  }, [isOpen, user, locale]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

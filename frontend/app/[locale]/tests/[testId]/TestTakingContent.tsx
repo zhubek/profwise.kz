@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import type { Test, Question, LocalizedText } from '@/types/test';
-import { submitQuizResult } from '@/lib/api/tests';
+import { calculateHollandResult } from '@/lib/api/tests';
 
 interface TestTakingContentProps {
   quiz: Test;
@@ -154,37 +154,35 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
     setIsSubmitting(true);
 
     try {
-      // Calculate RIASEC scores (or other scoring logic based on quiz type)
+      // Calculate RIASEC scores for logging
       const results = calculateRIASECScores(answers, questions);
-
-      // Log scores for debugging
       console.log('Test completed! RIASEC Scores:', results);
 
-      // TODO: Re-enable API submission when backend is ready
-      // Convert enriched answers back to simple format for backend submission
-      // const simpleAnswers: Record<string, number> = {};
-      // Object.entries(answers).forEach(([questionId, enrichedAnswer]) => {
-      //   const selectedValue = Number(Object.keys(enrichedAnswer.answer)[0]);
-      //   simpleAnswers[questionId] = selectedValue;
-      // });
+      // Submit to backend - answers are already in the enriched format the backend expects
+      const response = await calculateHollandResult({
+        answers,
+        userId: user.id,
+        quizId: quiz.id,
+      });
 
-      // Submit to backend
-      // await submitQuizResult({
-      //   userId: user.id,
-      //   quizId: quiz.id,
-      //   answers: simpleAnswers,
-      //   results,
-      // });
+      console.log('Backend calculation complete:', {
+        resultId: response.resultId,
+        hollandCode: response.hollandCode,
+        primaryInterest: response.primaryInterest,
+        secondaryInterest: response.secondaryInterest,
+        topProfessions: response.topProfessions.length,
+      });
 
       // Clear localStorage
       const storageKey = `profwise_test_${quiz.id}`;
       localStorage.removeItem(storageKey);
 
-      // Redirect to mock result page
-      router.push('/results/result-1');
-    } catch (error) {
+      // Redirect to results page to see the detailed results
+      router.push(`/${locale}/results/${response.resultId}`);
+    } catch (error: any) {
       console.error('Failed to submit test:', error);
-      alert('Failed to submit test. Please try again.');
+      const errorMessage = error?.message || 'Failed to submit test. Please try again.';
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

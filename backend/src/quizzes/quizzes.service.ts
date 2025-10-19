@@ -265,7 +265,10 @@ export class QuizzesService {
     const professionMatches = await this.prisma.$queryRaw<Array<{
       professionId: string;
       professionName: string;
+      professionDescription: string;
       professionCode: string;
+      professionIcon: string | null;
+      professionCategory: string;
       ssd: number;
     }>>`
       WITH user_scores AS (
@@ -302,14 +305,25 @@ export class QuizzesService {
       )
       SELECT
         sd."professionId" as "professionId",
-        p.name->>'en' as "professionName",
+        p.name::text as "professionName",
+        p.description::text as "professionDescription",
         p.code as "professionCode",
+        null as "professionIcon",
+        COALESCE(c.name->>'en', 'General') as "professionCategory",
         sd.ssd as ssd
       FROM squared_differences sd
       JOIN professions p ON sd."professionId" = p.id
+      LEFT JOIN categories c ON p."categoryId" = c.id
       ORDER BY sd.ssd ASC
       LIMIT 20
     `;
+
+    // Parse JSON strings into objects
+    const parsedProfessionMatches = professionMatches.map(match => ({
+      ...match,
+      professionName: JSON.parse(match.professionName),
+      professionDescription: JSON.parse(match.professionDescription),
+    }));
 
     // Step 5: Calculate Holland Code (top 3 scales) and determine primary/secondary interests
     const sortedScales = Object.entries(scalePercentages)
@@ -352,7 +366,7 @@ export class QuizzesService {
       }
 
       // 6.2: Upsert UserProfession records and UserProfessionArchetypeType for top 20 professions
-      for (const match of professionMatches) {
+      for (const match of parsedProfessionMatches) {
         // Create or get UserProfession
         const userProfession = await tx.userProfession.upsert({
           where: {
@@ -391,11 +405,14 @@ export class QuizzesService {
       }
 
       // 6.3: Create Result record with structured JSON
-      const topProfessionsForResult = professionMatches.map((match, index) => ({
+      const topProfessionsForResult = parsedProfessionMatches.map((match, index) => ({
         rank: index + 1,
         professionId: match.professionId,
-        professionName: match.professionName,
+        professionName: match.professionName, // Full JSON object with en, ru, kz
+        professionDescription: match.professionDescription, // Full JSON object with en, ru, kz
         professionCode: match.professionCode,
+        icon: match.professionIcon,
+        category: match.professionCategory,
         matchScore: Math.round((20000 - match.ssd) / 200),
       }));
 
@@ -434,11 +451,14 @@ export class QuizzesService {
       hollandCode,
       primaryInterest,
       secondaryInterest,
-      topProfessions: professionMatches.map((match, index) => ({
+      topProfessions: parsedProfessionMatches.map((match, index) => ({
         rank: index + 1,
         professionId: match.professionId,
-        professionName: match.professionName,
+        professionName: match.professionName, // Full JSON object with en, ru, kz
+        professionDescription: match.professionDescription, // Full JSON object with en, ru, kz
         professionCode: match.professionCode,
+        icon: match.professionIcon,
+        category: match.professionCategory,
         matchScore: match.ssd,
       })),
     };

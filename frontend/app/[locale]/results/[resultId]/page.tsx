@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getTestResult } from '@/lib/api/mock/results';
+import { getResultById } from '@/lib/api/results';
 import ResultsPageContent from './ResultsPageContent';
 
 interface ResultsPageProps {
@@ -13,8 +13,8 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
   const { resultId } = await params;
 
   try {
-    // Fetch result data server-side
-    const result = await getTestResult(resultId);
+    // Fetch result data from real API
+    const result = await getResultById(resultId);
 
     return <ResultsPageContent result={result} />;
   } catch (error) {

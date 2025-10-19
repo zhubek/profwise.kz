@@ -194,7 +194,8 @@ export default function ResultsPageContent({
             <div className="space-y-4">
               {Object.entries(result.scores).map(([code, score]) => {
                 const trait = getRIASECTrait(code);
-                const percentage = Math.round((score / 10) * 100);
+                // Scores are already percentages (0-100), no need to convert
+                const percentage = Math.round(score);
 
                 return (
                   <div key={code}>

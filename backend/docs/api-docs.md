@@ -788,15 +788,37 @@ Calculates profession recommendations for HOLAND (RIASEC) quiz based on user ans
     {
       "rank": 1,
       "professionId": "uuid",
-      "professionName": "Journalists",
+      "professionName": {
+        "en": "Journalists",
+        "ru": "Журналисты",
+        "kk": "Журналистер"
+      },
+      "professionDescription": {
+        "en": "Research, investigate, and write news stories for publication or broadcast",
+        "ru": "Исследование, расследование и написание новостных статей для публикации или вещания",
+        "kk": "Жаңалықтар хабарларын зерттеу, тергеу және жариялау немесе хабар тарату үшін жазу"
+      },
       "professionCode": "2642-1",
+      "icon": "📰",
+      "category": "Communication",
       "matchScore": 1676.22
     },
     {
       "rank": 2,
       "professionId": "uuid",
-      "professionName": "Urban planners",
+      "professionName": {
+        "en": "Urban planners",
+        "ru": "Градостроители",
+        "kk": "Қала жоспарлаушылар"
+      },
+      "professionDescription": {
+        "en": "Design and plan urban spaces and communities",
+        "ru": "Проектирование и планирование городских пространств и сообществ",
+        "kk": "Қалалық кеңістіктер мен қоғамдастықтарды жобалау және жоспарлау"
+      },
       "professionCode": "2164-1",
+      "icon": "🏙️",
+      "category": "Science",
       "matchScore": 1840.56
     }
   ]
@@ -809,7 +831,11 @@ Calculates profession recommendations for HOLAND (RIASEC) quiz based on user ans
 - `hollandCode`: Three-letter code representing top 3 RIASEC scales (e.g., "EIA" for Enterprising-Investigative-Artistic)
 - `primaryInterest`: Name of highest scoring RIASEC dimension
 - `secondaryInterest`: Name of second-highest scoring RIASEC dimension
-- `topProfessions`: Array of 20 best-matching professions ranked by match score (lower is better)
+- `topProfessions`: Array of 20 best-matching professions ranked by match score (lower is better). Each profession includes:
+  - `professionName`: Localized JSON object with `en`, `ru`, `kk` keys
+  - `professionDescription`: Localized JSON object with `en`, `ru`, `kk` keys
+  - `icon`: Emoji or icon representing the profession (optional)
+  - `category`: Category name (e.g., "Technology", "Healthcare", "General")
 
 **Database Records Created:**
 - `Result` record with structure matching frontend expectations (`/results/[resultId]`)
@@ -826,6 +852,7 @@ Calculates profession recommendations for HOLAND (RIASEC) quiz based on user ans
 - UserProfessionArchetypeType scores are transformed to 0-100 scale: `(20000 - matchScore) / 200`
 - Currently supports HOLAND quiz type only; other quiz types will require separate calculation methods
 - Idempotent: Running multiple times for same user updates existing records rather than creating duplicates
+- **Profession data is fully localized**: Both `professionName` and `professionDescription` are JSON objects with `en`, `ru`, `kk` keys, allowing frontend to display content in user's preferred language
 
 **Error Responses:**
 
@@ -987,6 +1014,71 @@ Retrieves all quiz results. Can be filtered by userId or quizId.
 - `quizId` (string, optional): Filter results by quiz ID
 
 **Response:** `200 OK`
+```json
+[
+  {
+    "id": "result-uuid",
+    "userId": "user-uuid",
+    "quizId": "quiz-uuid",
+    "answers": {
+      "question-uuid-1": {"answer": {"3": 1}, "parameters": {"type": "Interest", "scale": "R"}},
+      "question-uuid-2": {"answer": {"5": 5}, "parameters": {"type": "Interest", "scale": "I"}}
+    },
+    "results": {
+      "scores": {"R": 27, "I": 80, "A": 80, "S": 60, "E": 73, "C": 80},
+      "hollandCode": "IAC",
+      "primaryInterest": "Investigative",
+      "secondaryInterest": "Artistic",
+      "description": "Based on your responses, your primary interest is Investigative...",
+      "topProfessions": [
+        {
+          "rank": 1,
+          "professionId": "uuid",
+          "professionName": {
+            "en": "Organizational psychologists",
+            "ru": "Организационные психологи",
+            "kk": "Ұйымдық психологтар"
+          },
+          "professionDescription": {
+            "en": "Apply psychological principles to workplace productivity and employee well-being",
+            "ru": "Применение психологических принципов к производительности на рабочем месте и благополучию сотрудников",
+            "kk": "Психологиялық принциптерді жұмыс орнындағы өнімділікке және қызметкерлердің әл-ауқатына қолдану"
+          },
+          "professionCode": "2634-2",
+          "icon": "🧠",
+          "category": "Social",
+          "matchScore": 83
+        }
+      ]
+    },
+    "createdAt": "2025-10-19T19:18:41.296Z",
+    "user": {
+      "id": "user-uuid",
+      "name": "John",
+      "surname": "Doe",
+      "email": "john@example.com"
+    },
+    "quiz": {
+      "id": "quiz-uuid",
+      "quizName": {"en": "Holland Test", "ru": "Тест Голланда", "kz": "Голланд тесті"},
+      "quizType": "HOLAND"
+    }
+  }
+]
+```
+
+**Notes:**
+- For HOLAND quizzes, the `results` field contains a rich JSON structure with:
+  - `scores`: RIASEC percentage scores (0-100)
+  - `hollandCode`: Three-letter code (e.g., "IAC")
+  - `primaryInterest`: Name of highest scoring dimension
+  - `secondaryInterest`: Name of second-highest scoring dimension
+  - `topProfessions`: Array of 20 best-matching professions with match scores. Each profession includes localized `professionName` and `professionDescription` as JSON objects with `en`, `ru`, `kk` keys, plus `icon` and `category` fields
+  - `description`: Text summary of results
+- For other quiz types, `results` structure may vary
+- Results are ordered by `createdAt` descending (newest first)
+- When filtering by userId, only that user's results are returned
+- **Profession data is fully localized** to support multilingual display in the frontend
 
 ### Get Result by ID
 **GET** `/results/:id`

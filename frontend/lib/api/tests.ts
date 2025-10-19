@@ -299,3 +299,39 @@ export async function submitQuizResult(data: SubmitResultRequest): Promise<Submi
   const response = await api.post<SubmitResultResponse>('/results', data);
   return response;
 }
+
+// Calculate Holland/RIASEC result with profession matching
+interface CalculateHollandRequest {
+  answers: Record<string, {
+    answer: Record<string, number>;
+    parameters: {
+      type?: string;
+      scale?: string;
+      [key: string]: any;
+    };
+  }>;
+  userId: string;
+  quizId: string;
+}
+
+interface CalculateHollandResponse {
+  resultId: string;
+  userId: string;
+  quizId: string;
+  scalePercentages: Record<string, number>;
+  hollandCode: string;
+  primaryInterest: string;
+  secondaryInterest: string;
+  topProfessions: Array<{
+    rank: number;
+    professionId: string;
+    professionName: string;
+    professionCode: string;
+    matchScore: number;
+  }>;
+}
+
+export async function calculateHollandResult(data: CalculateHollandRequest): Promise<CalculateHollandResponse> {
+  const response = await api.post<CalculateHollandResponse>('/quizzes/calculate-holand', data);
+  return response;
+}

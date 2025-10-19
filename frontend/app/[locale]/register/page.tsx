@@ -143,14 +143,14 @@ export default function RegisterPage() {
                   {registrationMessage}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Check your inbox and click the verification link to activate your account.
+                  {t('emailVerificationInstructions')}
                 </p>
               </div>
               <Button
                 onClick={() => router.push('/login')}
                 className="w-full"
               >
-                Go to Login
+                {t('goToLogin')}
               </Button>
             </div>
           ) : (

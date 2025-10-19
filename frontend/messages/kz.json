@@ -117,7 +117,9 @@
       "nameRequired": "Аты міндетті",
       "surnameRequired": "Тегі міндетті",
       "licenseCodeInvalid": "Лицензиялық коды форматы қате"
-    }
+    },
+    "emailVerificationInstructions": "Пошта жәшігіңізді тексеріп, аккаунтыңызды белсендіру үшін растау сілтемесін басыңыз.",
+    "goToLogin": "Кіруге өту"
   },
   "dashboard": {
     "title": "Басқару тақтасы",
@@ -294,6 +296,7 @@
     },
     "category": {
       "all": "Барлығы",
+      "General": "Жалпы",
       "technology": "Технологиялар",
       "business": "Бизнес",
       "healthcare": "Денсаулық сақтау",

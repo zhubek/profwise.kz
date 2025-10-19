@@ -11,8 +11,8 @@ export default async function TestsPage({
   const { locale } = await params;
   const t = await getTranslations('tests');
 
-  // Real user ID - from test user in database
-  const userId = 'c3ed58fd-8d73-40ca-9ac6-468949b56af0';
+  // Real user ID - from logged in user (zhumirov@mail.ru)
+  const userId = '68a9ee49-0a22-44f1-91af-2943a15ce402';
 
   // Fetch data server-side
   // Using real API for quizzes, mock for user tests and license info
