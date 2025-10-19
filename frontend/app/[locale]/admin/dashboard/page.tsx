@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Eye, Search, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,22 +24,12 @@ export default function AdminDashboardPage() {
   const [filteredUsers, setFilteredUsers] = useState<AdminUserData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
   const t = useTranslations('admin');
 
   useEffect(() => {
-    // Check authentication
-    const authenticated = localStorage.getItem('admin_authenticated');
-    if (!authenticated) {
-      router.push('/admin');
-      return;
-    }
-    setIsAuthenticated(true);
-
-    // Load users
+    // Load users (no authentication check - freely accessible)
     loadUsers();
-  }, [router]);
+  }, []);
 
   const loadUsers = async () => {
     const data = await getAdminUsers();
@@ -90,10 +79,6 @@ export default function AdminDashboardPage() {
     a.download = `admin-users-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
