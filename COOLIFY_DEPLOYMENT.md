@@ -44,9 +44,12 @@ In Coolify's UI, set these environment variables:
 ### Required Variables
 
 ```env
+DATABASE_URL=postgres://postgres:IOjMrygG1nTG2sl8zbs292TygkerLFI5HCD2xEBRzxFIwGg8wUESY7jViB0p2Adw@gswoks40sccwssogc80o404k:5432/postgres
 JWT_SECRET=your-super-strong-random-secret-here-min-32-chars
 BREVO_API_KEY=your-brevo-api-key-from-dashboard
 ```
+
+**Important:** Replace the DATABASE_URL with your actual PostgreSQL connection string. The hostname should be accessible from within Coolify's Docker network.
 
 ### Optional Variables (with defaults)
 

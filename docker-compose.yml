@@ -25,8 +25,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      # Database connection (external PostgreSQL)
-      - DATABASE_URL=postgres://postgres:IOjMrygG1nTG2sl8zbs292TygkerLFI5HCD2xEBRzxFIwGg8wUESY7jViB0p2Adw@gswoks40sccwssogc80o404k:5432/postgres
+      # Database connection (configured in Coolify Environment Variables)
+      - DATABASE_URL=${DATABASE_URL:?}
       # Redis connection (internal Docker network)
       - REDIS_URL=redis://redis:6379
       # Security & Auth
