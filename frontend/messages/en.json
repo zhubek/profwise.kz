@@ -77,6 +77,37 @@
       "error": "Invalid license code. Please check and try again.",
       "skipWarning": "You can add a license code later in your profile settings."
     },
+    "onboarding": {
+      "licenseStep": {
+        "title": "Welcome to ProfWise!",
+        "subtitle": "Do you have a license code?",
+        "description": "Your school or organization may have provided you with a license code to unlock additional tests and features.",
+        "label": "License Code",
+        "submit": "Activate License",
+        "skip": "Skip for Now",
+        "success": "License code activated successfully!",
+        "error": "Invalid license code. Please check and try again.",
+        "skipWarning": "You can add a license code later in your profile settings."
+      },
+      "instructionsStep": {
+        "title": "Welcome to ProfWise!",
+        "subtitle": "Let's get you started on your career journey",
+        "step1": {
+          "title": "Take Career Tests",
+          "description": "Complete our scientifically validated assessments to discover your interests, personality traits, and strengths."
+        },
+        "step2": {
+          "title": "Get Matched",
+          "description": "Receive personalized profession recommendations based on your unique profile and test results."
+        },
+        "step3": {
+          "title": "Explore Careers",
+          "description": "Browse detailed career information, education requirements, and market insights for your matched professions."
+        },
+        "tip": "Ready to discover your perfect career path? Start by taking your first career test to see which professions match your unique profile!",
+        "getStarted": "Get Started"
+      }
+    },
     "validation": {
       "emailRequired": "Email is required",
       "emailInvalid": "Please enter a valid email address",

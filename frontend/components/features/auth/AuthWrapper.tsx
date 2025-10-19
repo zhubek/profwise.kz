@@ -4,12 +4,13 @@ import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import OnboardingModal from './OnboardingModal';
 
 // Routes that don't require authentication
 const PUBLIC_ROUTES = ['/login', '/register', '/verify-email'];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, showOnboarding, setShowOnboarding } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -51,7 +52,17 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
 
   // Show children only if authenticated or on public route
   if (isAuthenticated || isPublicRoute) {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+        {isAuthenticated && (
+          <OnboardingModal
+            open={showOnboarding}
+            onOpenChange={setShowOnboarding}
+          />
+        )}
+      </>
+    );
   }
 
   // Return null while redirecting

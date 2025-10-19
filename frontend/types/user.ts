@@ -44,6 +44,7 @@ export interface UpdateUserDTO {
   grade?: string;
   age?: number;
   avatar?: string;
+  onboardingCompleted?: boolean;
 }
 
 export interface ChangePasswordDTO {

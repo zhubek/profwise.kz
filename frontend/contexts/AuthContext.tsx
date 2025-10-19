@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { User, LoginDTO, RegisterDTO } from '@/types/user';
 import * as authAPI from '@/lib/api/auth';
 import * as mockAuthAPI from '@/lib/api/mock/auth';
+import * as usersAPI from '@/lib/api/users';
 import { getAuthToken } from '@/lib/api/client';
 
 // Toggle between mock and real API
@@ -17,12 +18,15 @@ interface AuthContextType {
   isAuthenticated: boolean;
   needsEmailVerification: boolean;
   registrationMessage: string | null;
+  showOnboarding: boolean;
   login: (credentials: LoginDTO) => Promise<void>;
   register: (data: RegisterDTO) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
   clearError: () => void;
   clearRegistrationMessage: () => void;
+  completeOnboarding: () => Promise<void>;
+  setShowOnboarding: (value: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [needsEmailVerification, setNeedsEmailVerification] = useState(false);
   const [registrationMessage, setRegistrationMessage] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const router = useRouter();
 
   // Load user on mount if token exists
@@ -72,6 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(response.user);
+
+      // Check if onboarding is needed
+      if (!response.user.onboardingCompleted) {
+        setShowOnboarding(true);
+      }
 
       // Redirect to tests page after successful login
       router.push('/tests');
@@ -149,6 +159,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setNeedsEmailVerification(false);
   }, []);
 
+  const completeOnboarding = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      await usersAPI.updateUser(user.id, { onboardingCompleted: true });
+      await refreshUser();
+      setShowOnboarding(false);
+    } catch (err) {
+      console.error('Failed to complete onboarding:', err);
+    }
+  }, [user, refreshUser]);
+
   const value: AuthContextType = {
     user,
     loading,
@@ -156,12 +178,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: !!user,
     needsEmailVerification,
     registrationMessage,
+    showOnboarding,
     login,
     register,
     logout,
     refreshUser,
     clearError,
     clearRegistrationMessage,
+    completeOnboarding,
+    setShowOnboarding,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

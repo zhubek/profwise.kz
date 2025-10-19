@@ -103,7 +103,9 @@
       "Bash([ -f docker-compose.yml ])",
       "WebFetch(domain:coolify.io)",
       "Bash(kill:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(docker build:*)",
+      "Bash([ -f \"/home/bex/projects/profwise.kz/backend/.env.local\" ])"
     ]
   },
   "enableAllProjectMcpServers": true,
