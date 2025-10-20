@@ -19,11 +19,12 @@ import { likeProfession } from '@/lib/api/professions';
 
 interface ProfessionsListProps {
   professions: ProfessionMatch[];
+  userId: string;
 }
 
 type LikedFilter = 'all' | 'liked';
 
-export default function ProfessionsList({ professions: initialProfessions }: ProfessionsListProps) {
+export default function ProfessionsList({ professions: initialProfessions, userId }: ProfessionsListProps) {
   const [professions, setProfessions] = useState(initialProfessions);
   const [sortBy, setSortBy] = useState<'matchScore' | 'title' | 'popularity'>('matchScore');
   const [categoryFilter, setCategoryFilter] = useState<ProfessionCategory | 'all'>('all');
@@ -33,7 +34,7 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
 
   const handleLike = async (professionId: string, isLiked: boolean) => {
     try {
-      await likeProfession(professionId, !isLiked);
+      await likeProfession(userId, professionId, !isLiked);
       // Optimistic update
       setProfessions(prev =>
         prev.map(p => (p.id === professionId ? { ...p, isLiked: !isLiked } : p))

@@ -183,6 +183,27 @@ export class LicensesService {
       throw new ConflictException('This license has already been activated by another user');
     }
 
+    // Check if user already has an active license with the same licenseClassId
+    const existingLicense = await this.prisma.license.findFirst({
+      where: {
+        userId: activateLicenseDto.userId,
+        licenseClassId: license.licenseClassId,
+        activated: true,
+        expireDate: {
+          gte: new Date(), // Not expired
+        },
+      },
+      include: {
+        licenseClass: true,
+      },
+    });
+
+    if (existingLicense) {
+      throw new ConflictException(
+        `You already have an active license of type "${existingLicense.licenseClass.name}". Please wait until it expires before activating a similar license.`,
+      );
+    }
+
     // Then check if license dates are valid
     const now = new Date();
     const isExpired = license.expireDate < now;

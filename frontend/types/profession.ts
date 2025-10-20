@@ -2,7 +2,7 @@
 export interface MultilingualText {
   en: string;
   ru: string;
-  kz: string;
+  kk: string;
 }
 
 export type ProfessionCategory =

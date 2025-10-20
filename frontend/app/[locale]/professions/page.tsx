@@ -66,7 +66,7 @@ export default function ProfessionsPage() {
             <p className="text-sm text-muted-foreground">{t('completeTakeTestsToGetMatches')}</p>
           </div>
         ) : (
-          <ProfessionsList professions={professions} />
+          <ProfessionsList professions={professions} userId={user?.id || ''} />
         )}
       </div>
     </main>

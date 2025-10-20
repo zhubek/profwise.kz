@@ -236,7 +236,10 @@
     "enterLicenseCode": "Enter License Code",
     "activate": "Activate",
     "licenseActivationSuccess": "License activated successfully! Refreshing tests...",
-    "licenseActivationError": "Failed to activate license. Please check your code and try again."
+    "licenseActivationError": "Failed to activate license. Please check your code and try again.",
+    "cooldown": {
+      "message": "You can retake this test in {time}. Please wait before starting a new attempt."
+    }
   },
   "archetypes": {
     "title": "My Archetypes Profile",
@@ -681,6 +684,7 @@
         "notFound": "License with code {code} not found",
         "alreadyActivated": "This license has already been activated",
         "alreadyActivatedByAnotherUser": "This license has already been activated by another user",
+        "alreadyHaveSimilar": "You already have an active license of this type. Please wait until it expires before activating a similar license.",
         "expired": "This license has expired",
         "invalidCode": "Invalid license code format",
         "serverError": "Server error. Please try again later"

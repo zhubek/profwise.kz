@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import type { Test, Question, LocalizedText } from '@/types/test';
 import { calculateHollandResult } from '@/lib/api/tests';
+import { setQuizCooldown } from '@/lib/utils/quizCooldown';
 
 interface TestTakingContentProps {
   quiz: Test;
@@ -208,6 +209,9 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
         secondaryInterest: response.secondaryInterest,
         topProfessions: response.topProfessions.length,
       });
+
+      // Set cooldown for 2 minutes (change to 60 minutes for production)
+      setQuizCooldown(quiz.id);
 
       // Clear localStorage
       const storageKey = `profwise_test_${quiz.id}`;

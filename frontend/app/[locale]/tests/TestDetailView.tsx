@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
-import { Clock, FileText, Play, CheckCircle2, Award, RotateCcw } from 'lucide-react';
+import { Clock, FileText, Play, CheckCircle2, Award, RotateCcw, TimerOff } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ import { HOLLAND_TEST_ID } from '@/lib/api/mock/holland';
 import ResultsDrawer from './ResultsDrawer';
 import ContentBlockRenderer from '@/components/features/tests/ContentBlockRenderer';
 import { useQuizInstructions } from '@/lib/hooks/useQuizInstructions';
+import { isQuizOnCooldown, getFormattedCooldownTime, getCooldownEndTime } from '@/lib/utils/quizCooldown';
 
 interface TestDetailViewProps {
   test: Test;
@@ -25,6 +26,10 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
   const locale = useLocale();
   const [localStorageProgress, setLocalStorageProgress] = useState<number | null>(null);
   const [hasLocalTest, setHasLocalTest] = useState(false);
+
+  // Cooldown state
+  const [isOnCooldown, setIsOnCooldown] = useState(false);
+  const [cooldownTimeRemaining, setCooldownTimeRemaining] = useState('');
 
   // Fetch quiz instructions with caching (pass test?.id to handle undefined test)
   const { instructions, loading: instructionsLoading } = useQuizInstructions(test?.id);
@@ -39,6 +44,37 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
       setLocalStorageProgress(getTestProgress(test.id, test.totalQuestions));
     }
   }, [test?.id, test?.totalQuestions]);
+
+  // Check and update cooldown status
+  useEffect(() => {
+    if (!test?.id) return;
+
+    // Initial check
+    const checkCooldown = () => {
+      const onCooldown = isQuizOnCooldown(test.id);
+      setIsOnCooldown(onCooldown);
+
+      if (onCooldown) {
+        const timeRemaining = getFormattedCooldownTime(test.id);
+        setCooldownTimeRemaining(timeRemaining);
+      }
+    };
+
+    checkCooldown();
+
+    // Update every second if on cooldown
+    const interval = setInterval(() => {
+      if (isQuizOnCooldown(test.id)) {
+        const timeRemaining = getFormattedCooldownTime(test.id);
+        setCooldownTimeRemaining(timeRemaining);
+      } else {
+        setIsOnCooldown(false);
+        setCooldownTimeRemaining('');
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [test?.id]);
 
   // Get status badge
   const getStatusBadge = () => {
@@ -112,11 +148,20 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
               variant="outline"
               className="flex-1"
               onClick={handleStartNewTest}
+              disabled={isOnCooldown}
             >
               <RotateCcw className="mr-2 h-4 w-4" />
               {t('common.buttons.startNewTest')}
             </Button>
           </div>
+          {isOnCooldown && (
+            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 p-3 rounded-md">
+              <TimerOff className="h-4 w-4 shrink-0" />
+              <span>
+                {t('cooldown.message', { time: cooldownTimeRemaining })}
+              </span>
+            </div>
+          )}
         </div>
       );
     }
@@ -128,6 +173,10 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
       ? t('common.buttons.retakeTest')
       : t('common.buttons.startTest');
 
+    // Check if "Start New Test" should be disabled due to cooldown OR license
+    // Disable if: license required OR quiz is on cooldown (regardless of userTest status)
+    const isStartNewDisabled = isDisabled || isOnCooldown;
+
     // Always show ResultsDrawer in a flex layout
     return (
       <div className="space-y-3">
@@ -135,7 +184,7 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
           <div className="flex-1">
             <ResultsDrawer />
           </div>
-          {isDisabled ? (
+          {isStartNewDisabled ? (
             <Button className="w-full flex-1" disabled>
               <Play className="mr-2 h-4 w-4" />
               {buttonText}
@@ -152,6 +201,14 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
         {isDisabled && (
           <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
             {t('licenseRequiredDescription')}
+          </div>
+        )}
+        {!isDisabled && isOnCooldown && (
+          <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 p-3 rounded-md">
+            <TimerOff className="h-4 w-4 shrink-0" />
+            <span>
+              {t('cooldown.message', { time: cooldownTimeRemaining })}
+            </span>
           </div>
         )}
       </div>

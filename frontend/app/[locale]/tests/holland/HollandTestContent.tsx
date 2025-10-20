@@ -16,6 +16,7 @@ import {
   clearHollandTestState,
 } from '@/lib/utils/testStorage';
 import { submitHollandTest, HOLLAND_TEST_ID } from '@/lib/api/mock/holland';
+import { setQuizCooldown } from '@/lib/utils/quizCooldown';
 
 interface HollandTestContentProps {
   userId: string;
@@ -102,6 +103,9 @@ export default function HollandTestContent({ userId, sections }: HollandTestCont
     try {
       // Submit test results
       await submitHollandTest(userId, HOLLAND_TEST_ID, answers);
+
+      // Set cooldown for 1 hour
+      setQuizCooldown(HOLLAND_TEST_ID);
 
       // Clear localStorage
       clearHollandTestState();

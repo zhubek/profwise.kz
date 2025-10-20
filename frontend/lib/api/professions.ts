@@ -199,9 +199,9 @@ export async function getProfessionArchetypes(professionId: string): Promise<Pro
   };
 }
 
-export async function likeProfession(professionId: string, isLiked: boolean): Promise<void> {
+export async function likeProfession(userId: string, professionId: string, isLiked: boolean): Promise<void> {
   if (USE_MOCK) {
     return mockAPI.likeProfession(professionId, isLiked);
   }
-  await api.post(`/professions/${professionId}/like`, { isLiked });
+  await api.patch(`/users/${userId}/professions/like`, { professionId, isLiked });
 }

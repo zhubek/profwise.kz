@@ -1,0 +1,35 @@
+config:
+  target: "http://172.26.195.243:4000"
+  phases:
+    # Baseline test: Start with 10 users
+    - duration: 60
+      arrivalRate: 10
+      name: "Baseline - 10 users"
+
+  http:
+    timeout: 30
+
+scenarios:
+  - name: "Basic Health Check"
+    weight: 30
+    flow:
+      - get:
+          url: "/health"
+
+  - name: "Get Quizzes"
+    weight: 25
+    flow:
+      - get:
+          url: "/quizzes"
+
+  - name: "Get Professions"
+    weight: 25
+    flow:
+      - get:
+          url: "/professions"
+
+  - name: "Get Archetype Types"
+    weight: 20
+    flow:
+      - get:
+          url: "/archetypes/types/all"

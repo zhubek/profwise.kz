@@ -10,7 +10,7 @@ export function getLocalizedText(
   text: MultilingualText,
   locale: string
 ): string {
-  const lang = (locale as 'en' | 'ru' | "kz") || 'en';
+  const lang = (locale as 'en' | 'ru' | 'kz') || 'en';
   return text[lang] || text.en; // Fallback to English if translation is missing
 }
 

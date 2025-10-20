@@ -1,0 +1,152 @@
+config:
+  target: "http://172.26.195.243:4000"
+  phases:
+    # Phase 1: Warm up - 10 users over 30 seconds
+    - duration: 30
+      arrivalRate: 10
+      name: "Warm up"
+
+    # Phase 2: Ramp up - gradually increase to 100 users
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 100
+      name: "Ramp up to 100 users"
+
+    # Phase 3: Sustain 100 users for 2 minutes
+    - duration: 120
+      arrivalRate: 100
+      name: "Sustained load - 100 users"
+
+    # Phase 4: Spike to 500 users
+    - duration: 60
+      arrivalRate: 500
+      name: "Spike test - 500 users"
+
+    # Phase 5: Maximum load - 1000 users
+    - duration: 120
+      arrivalRate: 1000
+      name: "Maximum load - 1000 users"
+
+    # Phase 6: Cool down
+    - duration: 30
+      arrivalRate: 10
+      name: "Cool down"
+
+  # HTTP configuration
+  http:
+    timeout: 30
+
+  # Performance thresholds
+  ensure:
+    maxErrorRate: 1      # Max 1% error rate
+    p95: 2000            # 95th percentile response time < 2s
+    p99: 5000            # 99th percentile response time < 5s
+
+# Define realistic user scenarios
+scenarios:
+  - name: "Complete User Journey"
+    weight: 40
+    flow:
+      # 1. Check health
+      - get:
+          url: "/health"
+          capture:
+            - json: "$.status"
+              as: "healthStatus"
+
+      # 2. Get all quizzes (guest user)
+      - get:
+          url: "/quizzes"
+          capture:
+            - json: "$[0].id"
+              as: "quizId"
+
+      # 3. Get quiz instructions
+      - get:
+          url: "/quizzes/{{ quizId }}/instructions"
+
+      # 4. Get archetype types
+      - get:
+          url: "/archetypes/types/all"
+
+      # 5. Get all professions
+      - get:
+          url: "/professions"
+          capture:
+            - json: "$[0].id"
+              as: "professionId"
+
+  - name: "Authenticated User Journey"
+    weight: 30
+    flow:
+      # 1. Register new user
+      - post:
+          url: "/auth/register"
+          json:
+            name: "LoadTest{{ $randomString() }}"
+            surname: "User"
+            email: "loadtest{{ $randomNumber(1, 999999) }}@test.com"
+            password: "TestPass123"
+            language: "RU"
+          capture:
+            - json: "$.accessToken"
+              as: "token"
+            - json: "$.user.id"
+              as: "userId"
+
+      # 2. Get user-specific quizzes
+      - get:
+          url: "/quizzes/user/{{ userId }}"
+          headers:
+            Authorization: "Bearer {{ token }}"
+
+      # 3. Get user archetype profile
+      - get:
+          url: "/users/{{ userId }}/archetype-profile"
+          headers:
+            Authorization: "Bearer {{ token }}"
+
+      # 4. Get user professions
+      - get:
+          url: "/users/{{ userId }}/professions"
+          headers:
+            Authorization: "Bearer {{ token }}"
+
+  - name: "Quiz Taking Flow"
+    weight: 20
+    flow:
+      # 1. Get quiz
+      - get:
+          url: "/quizzes"
+          capture:
+            - json: "$[0].id"
+              as: "quizId"
+
+      # 2. Get quiz questions
+      - get:
+          url: "/quizzes/{{ quizId }}"
+          capture:
+            - json: "$.questions[0].id"
+              as: "questionId"
+
+      # 3. Submit quiz result (simulated)
+      # Note: This would need a valid user and proper answer format
+      - think: 5  # User takes 5 seconds to answer
+
+  - name: "Browse Professions"
+    weight: 10
+    flow:
+      # 1. Get all professions
+      - get:
+          url: "/professions"
+          capture:
+            - json: "$[0].id"
+              as: "professionId"
+
+      # 2. Get specific profession details
+      - get:
+          url: "/professions/{{ professionId }}"
+
+      # 3. Get categories
+      - get:
+          url: "/categories"

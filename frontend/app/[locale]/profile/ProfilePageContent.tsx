@@ -121,6 +121,10 @@ export default function ProfilePageContent({ profile: initialProfile }: ProfileP
     if (errorMessage.includes('not found') || errorMessage.includes('не найдена')) {
       return t('licenses.errors.notFound', { code });
     }
+    // Check for "already have an active license" - must come before "already activated"
+    if (errorMessage.includes('already have an active license') || errorMessage.includes('уже есть активная лицензия')) {
+      return t('licenses.errors.alreadyHaveSimilar');
+    }
     // Check for "already activated by another user" before checking just "already activated"
     if (errorMessage.includes('another user') || errorMessage.includes('другим пользователем')) {
       return t('licenses.errors.alreadyActivatedByAnotherUser');
