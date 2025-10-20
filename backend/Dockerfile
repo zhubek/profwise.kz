@@ -1,10 +1,7 @@
 # Stage 1: Build
-FROM quay.io/bedrock/alpine:3.19 AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
-
-# Install Node.js 20
-RUN apk add --no-cache nodejs npm
 
 # Copy package files
 COPY package*.json ./
@@ -23,12 +20,12 @@ RUN npx prisma generate
 RUN npm run build
 
 # Stage 2: Production
-FROM quay.io/bedrock/alpine:3.19
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Install Node.js 20 and curl
-RUN apk add --no-cache nodejs npm curl
+# Install curl for healthcheck
+RUN apk add --no-cache curl
 
 # Copy package files
 COPY package*.json ./

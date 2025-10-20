@@ -1,10 +1,7 @@
 # Stage 1: Dependencies
-FROM quay.io/bedrock/alpine:3.19 AS deps
+FROM node:20-alpine AS deps
 
 WORKDIR /app
-
-# Install Node.js 20
-RUN apk add --no-cache nodejs npm
 
 # Copy package files
 COPY package*.json ./
@@ -13,12 +10,9 @@ COPY package*.json ./
 RUN npm ci
 
 # Stage 2: Builder
-FROM quay.io/bedrock/alpine:3.19 AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
-
-# Install Node.js 20
-RUN apk add --no-cache nodejs npm
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
@@ -34,12 +28,12 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN npm run build
 
 # Stage 3: Production
-FROM quay.io/bedrock/alpine:3.19 AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install Node.js 20 and curl
-RUN apk add --no-cache nodejs npm curl
+# Install curl for healthcheck
+RUN apk add --no-cache curl
 
 ENV NODE_ENV=production
 
