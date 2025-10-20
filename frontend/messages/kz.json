@@ -325,7 +325,14 @@
       "design": "Дизайн",
       "communication": "Коммуникациялар",
       "education": "Білім",
-      "arts": "Өнер"
+      "arts": "Өнер",
+      "Education & Training": "Білім және оқыту",
+      "Science, Technology, Engineering & Mathematics": "Ғылым, технология, инженерия және математика",
+      "Health Science": "Денсаулық сақтау ғылымдары",
+      "Human Services": "Әлеуметтік қызметтер",
+      "Government & Public Administration": "Мемлекеттік және муниципалдық басқару",
+      "Arts, Audio/Video Technology & Communications": "Өнер, аудио/бейне технологиялар және коммуникациялар",
+      "Architecture & Construction": "Сәулет және құрылыс"
     },
     "tabs": {
       "general": "Жалпы",
