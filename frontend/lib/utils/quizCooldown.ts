@@ -3,8 +3,8 @@
  * Manages cooldown period after quiz completion using localStorage
  */
 
-// Cooldown duration: 2 minutes for testing, change to 60 for production (1 hour)
-const COOLDOWN_DURATION_MS = 2 * 60 * 1000; // 2 minutes in milliseconds (change to 60 * 60 * 1000 for 1 hour)
+// Cooldown duration: 2 hours
+const COOLDOWN_DURATION_MS = 120 * 60 * 1000; // 2 hours in milliseconds
 const COOLDOWN_KEY_PREFIX = 'quiz_cooldown_';
 
 /**
