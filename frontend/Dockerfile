@@ -1,5 +1,5 @@
 # Stage 1: Dependencies
-FROM node:20-alpine AS deps
+FROM ghcr.io/library/node:20-alpine AS deps
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm ci
 
 # Stage 2: Builder
-FROM node:20-alpine AS builder
+FROM ghcr.io/library/node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -28,7 +28,7 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN npm run build
 
 # Stage 3: Production
-FROM node:20-alpine AS runner
+FROM ghcr.io/library/node:20-alpine AS runner
 
 WORKDIR /app
 
