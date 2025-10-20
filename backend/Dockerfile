@@ -10,9 +10,8 @@ RUN apk add --no-cache nodejs npm
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci --only=production && \
-    npm install -g @nestjs/cli
+# Install ALL dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy source code
 COPY . .
