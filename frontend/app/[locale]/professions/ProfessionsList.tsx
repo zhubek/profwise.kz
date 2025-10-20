@@ -218,6 +218,13 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
               {/* Description */}
               <CardDescription className="line-clamp-2">{getLocalizedText(profession.description, locale)}</CardDescription>
 
+              {/* Profession Code */}
+              {profession.code && (
+                <div className="text-xs text-muted-foreground">
+                  {t('code')}: <span className="font-mono">{profession.code}</span>
+                </div>
+              )}
+
               {/* Match Breakdown */}
               <div>
                 <h4 className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">
@@ -226,19 +233,27 @@ export default function ProfessionsList({ professions: initialProfessions }: Pro
                 <div className="grid grid-cols-4 gap-2 text-center">
                   <div>
                     <div className="text-xs text-muted-foreground mb-1">{t('interests')}</div>
-                    <div className="text-sm font-semibold">{profession.matchBreakdown.interests}%</div>
+                    <div className="text-sm font-semibold">
+                      {profession.matchBreakdown.interests === 0 ? '-' : `${profession.matchBreakdown.interests}%`}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground mb-1">{t('skills')}</div>
-                    <div className="text-sm font-semibold">{profession.matchBreakdown.skills}%</div>
+                    <div className="text-sm font-semibold">
+                      {profession.matchBreakdown.skills === 0 ? '-' : `${profession.matchBreakdown.skills}%`}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground mb-1">{t('personality')}</div>
-                    <div className="text-sm font-semibold">{profession.matchBreakdown.personality}%</div>
+                    <div className="text-sm font-semibold">
+                      {profession.matchBreakdown.personality === 0 ? '-' : `${profession.matchBreakdown.personality}%`}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground mb-1">{t('values')}</div>
-                    <div className="text-sm font-semibold">{profession.matchBreakdown.values}%</div>
+                    <div className="text-sm font-semibold">
+                      {profession.matchBreakdown.values === 0 ? '-' : `${profession.matchBreakdown.values}%`}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -184,7 +184,8 @@
         "viewResults": "Результаты",
         "retakeTest": "Пройти снова",
         "startTest": "Начать тест",
-        "continueTest": "Продолжить тест"
+        "continueTest": "Продолжить тест",
+        "startNewTest": "Начать заново"
       }
     },
     "holland": {
@@ -619,7 +620,8 @@
           "veryHigh": "Очень высокий спрос"
         }
       }
-    }
+    },
+    "code": "Код"
   },
   "activity": {
     "testCompleted": "Завершен тест {testName}",
@@ -661,7 +663,7 @@
     "updateSuccess": "Профиль успешно обновлен",
     "updateError": "Ошибка при обновлении профиля",
     "deleteAccount": "Удалить аккаунт",
-    "deleteAccountWarning": "Удаление вашей учетной записи приведет к безвозвратному удалению всей вашей информации из Edunavigator, и ее невозможно будет восстановить.",
+    "deleteAccountWarning": "Удаление вашей учетной записи приведет к безвозвратному удалению всей вашей информации из ProfWise, и ее невозможно будет восстановить.",
     "deleteAccountConfirm": "Вы уверены, что хотите удалить свой аккаунт?",
     "deleteAccountSuccess": "Аккаунт успешно удален",
     "deleteAccountError": "Ошибка при удалении аккаунта",
@@ -801,20 +803,40 @@
       "hint": "Демо учетные данные: admin / admin123"
     },
     "dashboard": {
-      "title": "Управление пользователями",
-      "description": "Показано {count} пользователей",
-      "searchPlaceholder": "Поиск по имени, email или лицензионному коду...",
+      "title": "Управление лицензиями",
+      "description": "Найдено {count} {count, plural, one {лицензия} few {лицензии} other {лицензий}}",
+      "searchPlaceholder": "Поиск по лицензионному коду, названию или пользователю...",
       "exportCSV": "Экспорт CSV",
-      "noResults": "Пользователи не найдены",
+      "noResults": "Лицензии не найдены",
+      "loadingLicenses": "Загрузка лицензий...",
+      "tryAgain": "Попробовать снова",
+      "type": "Тип",
+      "licenses": "Лицензии",
+      "activated": "активировано",
       "table": {
         "licenseCode": "Лицензионный код",
+        "licenseName": "Название лицензии",
+        "user": "Пользователь",
         "name": "Имя",
         "email": "Email",
         "grade": "Класс",
-        "gender": "Пол",
+        "status": "Статус",
+        "expires": "Истекает",
+        "results": "Результаты",
+        "notActivated": "Не активирована",
+        "activated": "Активирована",
+        "available": "Доступна",
         "testResults": "Результаты тестов",
         "viewResults": "Просмотр результатов",
         "noTests": "Нет тестов"
+      },
+      "userResults": {
+        "title": "Результаты тестов",
+        "description": "Завершенные тесты и результаты пользователя {name}",
+        "loadingResults": "Загрузка результатов...",
+        "noResults": "Результаты тестов не найдены",
+        "primaryInterest": "Основной интерес:",
+        "viewFullResult": "Полный результат"
       }
     }
   }

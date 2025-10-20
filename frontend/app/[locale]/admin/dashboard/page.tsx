@@ -18,13 +18,17 @@ import { Badge } from '@/components/ui/badge';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import type { AdminUserData } from '@/types/admin';
 import ResultModal from '../ResultModal';
+import UserResultsDrawer from './UserResultsDrawer';
 
 interface License {
   id: string;
-  name: string;
   licenseCode: string;
   startDate: string;
   expireDate: string;
+  licenseClass: {
+    id: string;
+    name: string;
+  };
   user: {
     id: string;
     name: string;
@@ -40,6 +44,9 @@ export default function AdminDashboardPage() {
   const [filteredLicenses, setFilteredLicenses] = useState<License[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string } | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { organization } = useAdminAuth();
@@ -92,7 +99,7 @@ export default function AdminDashboardPage() {
     const filtered = licenses.filter(
       (license) =>
         license.licenseCode.toLowerCase().includes(lowerQuery) ||
-        license.name.toLowerCase().includes(lowerQuery) ||
+        license.licenseClass.name.toLowerCase().includes(lowerQuery) ||
         (license.user?.name.toLowerCase().includes(lowerQuery)) ||
         (license.user?.surname.toLowerCase().includes(lowerQuery)) ||
         (license.user?.email.toLowerCase().includes(lowerQuery))
@@ -104,7 +111,7 @@ export default function AdminDashboardPage() {
     const headers = ['License Code', 'License Name', 'User Name', 'Email', 'Grade', 'Status', 'Expires'];
     const rows = filteredLicenses.map((license) => [
       license.licenseCode,
-      license.name,
+      license.licenseClass.name,
       license.user ? `${license.user.name} ${license.user.surname}` : 'Not Activated',
       license.user?.email || '-',
       license.user?.grade || '-',
@@ -125,6 +132,29 @@ export default function AdminDashboardPage() {
     a.click();
   };
 
+  const handleViewResults = (user: { id: string; name: string; surname: string }) => {
+    setSelectedUser({
+      id: user.id,
+      name: `${user.name} ${user.surname}`,
+    });
+    setIsDrawerOpen(true);
+  };
+
+  const handleViewResult = (resultId: string) => {
+    setSelectedResultId(resultId);
+    setIsResultModalOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleCloseResultModal = () => {
+    setIsResultModalOpen(false);
+    setSelectedResultId(null);
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
@@ -132,7 +162,7 @@ export default function AdminDashboardPage() {
           <CardContent className="py-12">
             <div className="flex flex-col items-center justify-center gap-4">
               <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
-              <p className="text-muted-foreground">Loading licenses...</p>
+              <p className="text-muted-foreground">{t('dashboard.loadingLicenses')}</p>
             </div>
           </CardContent>
         </Card>
@@ -147,7 +177,7 @@ export default function AdminDashboardPage() {
           <CardContent className="py-12">
             <div className="text-center">
               <p className="text-red-600 mb-4">{error}</p>
-              <Button onClick={loadLicenses}>Try Again</Button>
+              <Button onClick={loadLicenses}>{t('dashboard.tryAgain')}</Button>
             </div>
           </CardContent>
         </Card>
@@ -166,9 +196,9 @@ export default function AdminDashboardPage() {
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-2">{organization.name}</h2>
             <div className="flex gap-4 text-sm opacity-90">
-              <span>Type: {organization.type}</span>
+              <span>{t('dashboard.type')}: {organization.type}</span>
               <span>•</span>
-              <span>Licenses: {activatedCount} / {totalCount} activated</span>
+              <span>{t('dashboard.licenses')}: {activatedCount} / {totalCount} {t('dashboard.activated')}</span>
             </div>
           </CardContent>
         </Card>
@@ -178,14 +208,14 @@ export default function AdminDashboardPage() {
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <CardTitle className="text-2xl">License Management</CardTitle>
+              <CardTitle className="text-2xl">{t('dashboard.title')}</CardTitle>
               <CardDescription>
-                {filteredLicenses.length} {filteredLicenses.length === 1 ? 'license' : 'licenses'} found
+                {t('dashboard.description', { count: filteredLicenses.length })}
               </CardDescription>
             </div>
             <Button onClick={handleExportCSV} variant="outline" className="w-full md:w-auto">
               <Download className="w-4 h-4 mr-2" />
-              Export CSV
+              {t('dashboard.exportCSV')}
             </Button>
           </div>
         </CardHeader>
@@ -195,7 +225,7 @@ export default function AdminDashboardPage() {
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by license code, name, or user..."
+                placeholder={t('dashboard.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="pl-10"
@@ -208,20 +238,21 @@ export default function AdminDashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>License Code</TableHead>
-                  <TableHead>License Name</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead className="text-center">Grade</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
-                  <TableHead>Expires</TableHead>
+                  <TableHead>{t('dashboard.table.licenseCode')}</TableHead>
+                  <TableHead>{t('dashboard.table.licenseName')}</TableHead>
+                  <TableHead>{t('dashboard.table.user')}</TableHead>
+                  <TableHead>{t('dashboard.table.email')}</TableHead>
+                  <TableHead className="text-center">{t('dashboard.table.grade')}</TableHead>
+                  <TableHead className="text-center">{t('dashboard.table.status')}</TableHead>
+                  <TableHead>{t('dashboard.table.expires')}</TableHead>
+                  <TableHead className="text-center">{t('dashboard.table.results')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredLicenses.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                      No licenses found
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                      {t('dashboard.noResults')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -230,24 +261,37 @@ export default function AdminDashboardPage() {
                       <TableCell className="font-medium">
                         <Badge variant="outline">{license.licenseCode}</Badge>
                       </TableCell>
-                      <TableCell className="font-medium">{license.name}</TableCell>
+                      <TableCell className="font-medium">{license.licenseClass.name}</TableCell>
                       <TableCell>
                         {license.user ? (
                           `${license.user.name} ${license.user.surname}`
                         ) : (
-                          <span className="text-muted-foreground italic">Not activated</span>
+                          <span className="text-muted-foreground italic">{t('dashboard.table.notActivated')}</span>
                         )}
                       </TableCell>
                       <TableCell>{license.user?.email || '-'}</TableCell>
                       <TableCell className="text-center">{license.user?.grade || '-'}</TableCell>
                       <TableCell className="text-center">
                         {license.user ? (
-                          <Badge className="bg-green-500">Activated</Badge>
+                          <Badge className="bg-green-500">{t('dashboard.table.activated')}</Badge>
                         ) : (
-                          <Badge variant="secondary">Available</Badge>
+                          <Badge variant="secondary">{t('dashboard.table.available')}</Badge>
                         )}
                       </TableCell>
                       <TableCell>{new Date(license.expireDate).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-center">
+                        {license.user ? (
+                          <Button
+                            onClick={() => handleViewResults(license.user!)}
+                            variant="ghost"
+                            size="sm"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -259,7 +303,7 @@ export default function AdminDashboardPage() {
           <div className="md:hidden space-y-4">
             {filteredLicenses.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">
-                No licenses found
+                {t('dashboard.noResults')}
               </div>
             ) : (
               filteredLicenses.map((license) => (
@@ -267,13 +311,13 @@ export default function AdminDashboardPage() {
                   <CardContent className="p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="font-semibold">{license.name}</p>
+                        <p className="font-semibold">{license.licenseClass.name}</p>
                         <Badge variant="outline" className="mt-1">{license.licenseCode}</Badge>
                       </div>
                       {license.user ? (
-                        <Badge className="bg-green-500">Activated</Badge>
+                        <Badge className="bg-green-500">{t('dashboard.table.activated')}</Badge>
                       ) : (
-                        <Badge variant="secondary">Available</Badge>
+                        <Badge variant="secondary">{t('dashboard.table.available')}</Badge>
                       )}
                     </div>
 
@@ -284,14 +328,26 @@ export default function AdminDashboardPage() {
                         </p>
                         <p className="text-sm text-muted-foreground">{license.user.email}</p>
                         {license.user.grade && (
-                          <p className="text-sm">Grade: {license.user.grade}</p>
+                          <p className="text-sm">{t('dashboard.table.grade')}: {license.user.grade}</p>
                         )}
                       </div>
                     )}
 
                     <div className="text-sm text-muted-foreground">
-                      Expires: {new Date(license.expireDate).toLocaleDateString()}
+                      {t('dashboard.table.expires')}: {new Date(license.expireDate).toLocaleDateString()}
                     </div>
+
+                    {license.user && (
+                      <Button
+                        onClick={() => handleViewResults(license.user!)}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        {t('dashboard.table.viewResults')}
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               ))
@@ -299,6 +355,22 @@ export default function AdminDashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* User Results Drawer */}
+      <UserResultsDrawer
+        userId={selectedUser?.id || null}
+        userName={selectedUser?.name || ''}
+        isOpen={isDrawerOpen}
+        onClose={handleCloseDrawer}
+        onViewResult={handleViewResult}
+      />
+
+      {/* Result Modal */}
+      <ResultModal
+        resultId={selectedResultId}
+        isOpen={isResultModalOpen}
+        onClose={handleCloseResultModal}
+      />
     </div>
   );
 }

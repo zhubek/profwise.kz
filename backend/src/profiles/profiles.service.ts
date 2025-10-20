@@ -199,13 +199,73 @@ export class ProfilesService {
         id: up.profession.id,
         title: up.profession.name,
         description: up.profession.description,
+        code: up.profession.code,
         category: up.profession.category?.name || { en: 'Other', ru: 'Другое', kk: 'Басқа' },
         matchScore,
         matchBreakdown,
         popular: up.profession.featured || false,
-        isLiked: false, // TODO: Add isLiked functionality later
+        isLiked: up.isLiked,
         icon: null, // Can be added later
       };
     });
+  }
+
+  async toggleProfessionLike(userId: string, professionId: string, isLiked: boolean) {
+    // Verify user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Verify profession exists
+    const profession = await this.prisma.profession.findUnique({
+      where: { id: professionId },
+    });
+
+    if (!profession) {
+      throw new NotFoundException(`Profession with ID ${professionId} not found`);
+    }
+
+    // Check if UserProfession record exists
+    const existingUserProfession = await this.prisma.userProfession.findUnique({
+      where: {
+        userId_professionId: {
+          userId,
+          professionId,
+        },
+      },
+    });
+
+    if (!existingUserProfession) {
+      throw new NotFoundException(
+        `User profession relationship not found. User must complete a quiz that matches with this profession first.`,
+      );
+    }
+
+    // Update isLiked status
+    const updatedUserProfession = await this.prisma.userProfession.update({
+      where: {
+        userId_professionId: {
+          userId,
+          professionId,
+        },
+      },
+      data: {
+        isLiked,
+      },
+      include: {
+        profession: true,
+      },
+    });
+
+    return {
+      id: updatedUserProfession.profession.id,
+      title: updatedUserProfession.profession.name,
+      isLiked: updatedUserProfession.isLiked,
+      message: isLiked ? 'Profession liked successfully' : 'Profession unliked successfully',
+    };
   }
 }

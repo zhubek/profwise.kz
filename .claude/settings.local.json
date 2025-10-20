@@ -105,7 +105,8 @@
       "Bash(kill:*)",
       "Bash(git commit:*)",
       "Bash(docker build:*)",
-      "Bash([ -f \"/home/bex/projects/profwise.kz/backend/.env.local\" ])"
+      "Bash([ -f \"/home/bex/projects/profwise.kz/backend/.env.local\" ])",
+      "Bash(pgrep:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

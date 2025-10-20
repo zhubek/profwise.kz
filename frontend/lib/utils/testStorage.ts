@@ -161,3 +161,17 @@ export function getTestProgress(testId: string, totalQuestions: number = 36): nu
     return 0;
   }
 }
+
+/**
+ * Generic function to clear test state from localStorage
+ */
+export function clearTestState(testId: string): void {
+  try {
+    if (typeof window === 'undefined') return;
+
+    const storageKey = `profwise_test_${testId}`;
+    localStorage.removeItem(storageKey);
+  } catch (error) {
+    console.error('Failed to clear test state:', error);
+  }
+}

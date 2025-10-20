@@ -184,7 +184,8 @@
         "viewResults": "View Results",
         "retakeTest": "Retake Test",
         "startTest": "Start Test",
-        "continueTest": "Continue Test"
+        "continueTest": "Continue Test",
+        "startNewTest": "Start New Test"
       }
     },
     "holland": {
@@ -612,7 +613,8 @@
           "veryHigh": "Very High Demand"
         }
       }
-    }
+    },
+    "code": "Code"
   },
   "activity": {
     "testCompleted": "Completed {testName}",
@@ -654,7 +656,7 @@
     "updateSuccess": "Profile updated successfully",
     "updateError": "Failed to update profile",
     "deleteAccount": "Delete Account",
-    "deleteAccountWarning": "Deleting your account will permanently remove all your information from Edunavigator and cannot be recovered.",
+    "deleteAccountWarning": "Deleting your account will permanently remove all your information from ProfWise and cannot be recovered.",
     "deleteAccountConfirm": "Are you sure you want to delete your account?",
     "deleteAccountSuccess": "Account successfully deleted",
     "deleteAccountError": "Failed to delete account",
@@ -794,20 +796,40 @@
       "hint": "Demo credentials: admin / admin123"
     },
     "dashboard": {
-      "title": "User Management",
-      "description": "Showing {count} users",
-      "searchPlaceholder": "Search by name, email, or license code...",
+      "title": "License Management",
+      "description": "{count} {count, plural, one {license} other {licenses}} found",
+      "searchPlaceholder": "Search by license code, name, or user...",
       "exportCSV": "Export CSV",
-      "noResults": "No users found",
+      "noResults": "No licenses found",
+      "loadingLicenses": "Loading licenses...",
+      "tryAgain": "Try Again",
+      "type": "Type",
+      "licenses": "Licenses",
+      "activated": "activated",
       "table": {
         "licenseCode": "License Code",
+        "licenseName": "License Name",
+        "user": "User",
         "name": "Name",
         "email": "Email",
         "grade": "Grade",
-        "gender": "Gender",
+        "status": "Status",
+        "expires": "Expires",
+        "results": "Results",
+        "notActivated": "Not activated",
+        "activated": "Activated",
+        "available": "Available",
         "testResults": "Test Results",
         "viewResults": "View Results",
         "noTests": "No tests"
+      },
+      "userResults": {
+        "title": "Test Results",
+        "description": "{name}'s completed tests and results",
+        "loadingResults": "Loading results...",
+        "noResults": "No test results found",
+        "primaryInterest": "Primary Interest:",
+        "viewFullResult": "View Full Result"
       }
     }
   }

@@ -136,6 +136,42 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
     setAnswers((prev) => ({ ...prev, [questionId]: enrichedAnswer }));
   };
 
+  // Handler for multiple choice questions (multi-select)
+  const handleMultipleChoiceChange = (questionId: string, selectedValue: number) => {
+    const question = questions.find(q => q.id === questionId);
+    if (!question) return;
+
+    setAnswers((prev) => {
+      const currentAnswer = prev[questionId];
+      const currentSelections = currentAnswer?.answer || {};
+      const valueKey = String(selectedValue);
+
+      // Toggle the selection
+      const newSelections = { ...currentSelections };
+      if (newSelections[valueKey] !== undefined) {
+        // Remove if already selected
+        delete newSelections[valueKey];
+      } else {
+        // Add if not selected
+        newSelections[valueKey] = question.backendAnswers?.[valueKey] ?? selectedValue;
+      }
+
+      // If no selections remain, remove the answer entirely
+      if (Object.keys(newSelections).length === 0) {
+        const { [questionId]: _, ...rest } = prev;
+        return rest;
+      }
+
+      return {
+        ...prev,
+        [questionId]: {
+          answer: newSelections,
+          parameters: question.parameters || {}
+        }
+      };
+    });
+  };
+
   const handleNext = () => {
     if (currentSectionIndex < totalSections - 1) {
       setCurrentSectionIndex((prev) => prev + 1);
@@ -245,6 +281,7 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
                 questionNumber={currentSectionIndex * 6 + index + 1}
                 answer={answers[question.id]}
                 onAnswerChange={handleAnswerChange}
+                onMultipleChoiceChange={handleMultipleChoiceChange}
                 locale={locale}
               />
             ))}
@@ -300,12 +337,16 @@ interface QuestionItemProps {
   questionNumber: number;
   answer: EnrichedAnswer | undefined;
   onAnswerChange: (questionId: string, answer: number) => void;
+  onMultipleChoiceChange: (questionId: string, answer: number) => void;
   locale: string;
 }
 
-function QuestionItem({ question, questionNumber, answer, onAnswerChange, locale }: QuestionItemProps) {
+function QuestionItem({ question, questionNumber, answer, onAnswerChange, onMultipleChoiceChange, locale }: QuestionItemProps) {
   // Extract the selected value from the enriched answer (e.g., {"3": 1} => "3")
   const selectedValue = answer ? Number(Object.keys(answer.answer)[0]) : undefined;
+
+  // For multiple choice, extract array of selected values
+  const selectedValues = answer ? Object.keys(answer.answer).map(Number) : [];
 
   if (question.type === 'likert') {
     const firstOption = question.options?.[0];
@@ -380,6 +421,52 @@ function QuestionItem({ question, questionNumber, answer, onAnswerChange, locale
               <span>{getLocalizedText(option.text, locale)}</span>
             </button>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (question.type === 'multiple_choice') {
+    return (
+      <div className="space-y-3">
+        <p className="font-medium">
+          {questionNumber}. {getLocalizedText(question.text, locale)}
+          {question.required && <span className="text-destructive ml-1">*</span>}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {locale === 'ru' ? 'Выберите все подходящие варианты' :
+           locale === 'kz' ? 'Барлық қолайлы нұсқаларды таңдаңыз' :
+           'Select all that apply'}
+        </p>
+
+        <div className="space-y-2">
+          {question.options?.map((option) => {
+            const isSelected = selectedValues.includes(option.value);
+            return (
+              <button
+                key={option.id}
+                onClick={() => onMultipleChoiceChange(question.id, Number(option.value))}
+                className={`w-full rounded-lg border-2 px-4 py-3 text-left transition-all flex items-center gap-3 ${
+                  isSelected
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
+                    isSelected
+                      ? 'border-primary bg-primary'
+                      : 'border-muted-foreground'
+                  }`}
+                >
+                  {isSelected && (
+                    <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+                  )}
+                </div>
+                <span>{getLocalizedText(option.text, locale)}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     );

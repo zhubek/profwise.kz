@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
-import { Clock, FileText, Play, CheckCircle2, Award } from 'lucide-react';
+import { Clock, FileText, Play, CheckCircle2, Award, RotateCcw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Test, UserTest } from '@/types/test';
-import { hasTestInProgress, getTestProgress } from '@/lib/utils/testStorage';
+import { hasTestInProgress, getTestProgress, clearTestState } from '@/lib/utils/testStorage';
 import { HOLLAND_TEST_ID } from '@/lib/api/mock/holland';
 import ResultsDrawer from './ResultsDrawer';
 import ContentBlockRenderer from '@/components/features/tests/ContentBlockRenderer';
@@ -83,22 +83,77 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
     // Get the correct test URL - Holland test has special route
     const testUrl = test.id === HOLLAND_TEST_ID ? '/tests/holland' : `/tests/${test.id}`;
 
+    // Check if license is required but user doesn't have one
+    const requiresLicense = !test.isFree && test.source !== 'license';
+    const isDisabled = requiresLicense;
+
+    // Handler to clear local storage and start new test
+    const handleStartNewTest = () => {
+      clearTestState(test.id);
+      // Force a page reload to refresh the component state
+      window.location.href = testUrl;
+    };
+
+    // Show both buttons if test is in progress locally
+    if (hasLocalTest && !isDisabled) {
+      return (
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <ResultsDrawer />
+            </div>
+            <Link href={testUrl} className="flex-1">
+              <Button className="w-full">
+                <Play className="mr-2 h-4 w-4" />
+                {t('common.buttons.continueTest')}
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={handleStartNewTest}
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              {t('common.buttons.startNewTest')}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Original single button logic for other cases
+    const buttonText = userTest?.status === 'in_progress'
+      ? t('common.buttons.continueTest')
+      : userTest?.status === 'completed'
+      ? t('common.buttons.retakeTest')
+      : t('common.buttons.startTest');
+
     // Always show ResultsDrawer in a flex layout
     return (
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1">
-          <ResultsDrawer />
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
+            <ResultsDrawer />
+          </div>
+          {isDisabled ? (
+            <Button className="w-full flex-1" disabled>
+              <Play className="mr-2 h-4 w-4" />
+              {buttonText}
+            </Button>
+          ) : (
+            <Link href={testUrl} className="flex-1">
+              <Button className="w-full">
+                <Play className="mr-2 h-4 w-4" />
+                {buttonText}
+              </Button>
+            </Link>
+          )}
         </div>
-        <Link href={testUrl} className="flex-1">
-          <Button className="w-full">
-            <Play className="mr-2 h-4 w-4" />
-            {hasLocalTest || userTest?.status === 'in_progress'
-              ? t('common.buttons.continueTest')
-              : userTest?.status === 'completed'
-              ? t('common.buttons.retakeTest')
-              : t('common.buttons.startTest')}
-          </Button>
-        </Link>
+        {isDisabled && (
+          <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
+            {t('licenseRequiredDescription')}
+          </div>
+        )}
       </div>
     );
   };

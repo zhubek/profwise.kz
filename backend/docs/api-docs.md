@@ -405,6 +405,126 @@ Retrieves a user's complete archetype profile with scores grouped by archetype t
 - Empty objects indicate no archetypes recorded for the user yet
 - Use `GET /archetypes/types/all` to fetch available archetype types and their names
 
+### Get User Professions
+**GET** `/users/:id/professions`
+
+Retrieves all professions matched to a user based on their quiz results, with match scores and like status.
+
+**Parameters:**
+- `id` (string, required): User ID
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "profession-uuid",
+    "title": {
+      "en": "Software Developer",
+      "ru": "Разработчик ПО",
+      "kk": "Бағдарлама әзірлеуші"
+    },
+    "description": {
+      "en": "Creates computer programs and applications",
+      "ru": "Создает компьютерные программы и приложения",
+      "kk": "Компьютерлік бағдарламалар мен қосымшаларды жасайды"
+    },
+    "code": "2512-1",
+    "category": {
+      "en": "Technology",
+      "ru": "Технологии",
+      "kk": "Технология"
+    },
+    "matchScore": 85,
+    "matchBreakdown": {
+      "interests": 88,
+      "skills": 82,
+      "personality": 85,
+      "values": 0
+    },
+    "popular": true,
+    "isLiked": false,
+    "icon": null
+  }
+]
+```
+
+**Response Fields:**
+- `matchScore`: Overall match score (0-100) - average of all archetype type scores
+- `matchBreakdown`: Breakdown by archetype type (interests, skills, personality, values)
+- `popular`: Whether this is a featured/popular profession
+- `isLiked`: User's like status for this profession (can be toggled via PATCH endpoint)
+- `code`: Official profession code for reference
+
+**Error Response:** `404 Not Found`
+```json
+{
+  "statusCode": 404,
+  "message": "User with ID {id} not found"
+}
+```
+
+### Toggle Profession Like
+**PATCH** `/users/:id/professions/like`
+
+Toggles the like status for a specific profession for a user. User must have been matched with this profession first (via quiz results).
+
+**Parameters:**
+- `id` (string, required): User ID
+
+**Request Body:**
+```json
+{
+  "professionId": "profession-uuid",
+  "isLiked": true
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": "profession-uuid",
+  "title": {
+    "en": "Software Developer",
+    "ru": "Разработчик ПО",
+    "kk": "Бағдарлама әзірлеуші"
+  },
+  "isLiked": true,
+  "message": "Profession liked successfully"
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` - User not found
+```json
+{
+  "statusCode": 404,
+  "message": "User with ID {userId} not found"
+}
+```
+
+`404 Not Found` - Profession not found
+```json
+{
+  "statusCode": 404,
+  "message": "Profession with ID {professionId} not found"
+}
+```
+
+`404 Not Found` - User-profession relationship doesn't exist
+```json
+{
+  "statusCode": 404,
+  "message": "User profession relationship not found. User must complete a quiz that matches with this profession first."
+}
+```
+
+**Notes:**
+- User must have completed a quiz that matched them with this profession before they can like/unlike it
+- The `isLiked` field is persisted in the `user_professions` table
+- Setting `isLiked: false` unlikes the profession
+- This endpoint is idempotent - calling it multiple times with the same value has no additional effect
+
 ---
 
 ## Quizzes Module

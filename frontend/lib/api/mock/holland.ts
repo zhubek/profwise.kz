@@ -464,9 +464,57 @@ export const hollandTestSections: TestSection[] = [
   },
 ];
 
+// Helper function to chunk array into groups of specified size
+function chunkArray<T>(array: T[], chunkSize: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunks.push(array.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+
 // API functions
 export async function getHollandTestSections(): Promise<TestSection[]> {
+  // For now, return mock sections
+  // TODO: Replace with API call to fetch questions from database
   return hollandTestSections;
+}
+
+// Function to create dynamic sections from flat question list
+export function createDynamicSections(
+  questions: Question[],
+  questionsPerSection: number = 6
+): TestSection[] {
+  // Sort questions by ID
+  const sortedQuestions = [...questions].sort((a, b) => a.id.localeCompare(b.id));
+
+  // Group into chunks of questionsPerSection
+  const questionChunks = chunkArray(sortedQuestions, questionsPerSection);
+
+  // Create sections
+  return questionChunks.map((chunk, index) => {
+    const sectionNumber = index + 1;
+    return {
+      id: `section-${sectionNumber}`,
+      testId: HOLLAND_TEST_ID,
+      title: {
+        en: `Section ${sectionNumber}`,
+        ru: `Раздел ${sectionNumber}`,
+        kz: `Бөлім ${sectionNumber}`,
+      },
+      description: {
+        en: `Answer ${chunk.length} questions`,
+        ru: `Ответьте на ${chunk.length} вопросов`,
+        kz: `${chunk.length} сұраққа жауап беріңіз`,
+      },
+      order: sectionNumber,
+      questions: chunk.map((q, qIndex) => ({
+        ...q,
+        sectionId: `section-${sectionNumber}`,
+        order: qIndex + 1,
+      })),
+    };
+  });
 }
 
 export async function submitHollandTest(

@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { getTestResult } from '@/lib/api/mock/results';
+import { getResultById } from '@/lib/api/results';
 import type { RIASECResultDisplay } from '@/types/test';
 import { getArchetypeDescription, getRIASECTrait, getLocalizedText } from '@/lib/riasec-descriptions-localized';
 
@@ -26,6 +26,7 @@ interface ResultModalProps {
 export default function ResultModal({ resultId, isOpen, onClose }: ResultModalProps) {
   const [result, setResult] = useState<RIASECResultDisplay | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const t = useTranslations('results');
   const locale = useLocale();
 
@@ -37,31 +38,17 @@ export default function ResultModal({ resultId, isOpen, onClose }: ResultModalPr
 
   const loadResult = async (id: string) => {
     setIsLoading(true);
+    setError(null);
     try {
-      const data = await getTestResult(id);
+      const data = await getResultById(id);
       setResult(data);
     } catch (error) {
       console.error('Error loading result:', error);
+      setError('Failed to load result');
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (!result) {
-    return null;
-  }
-
-  // Get top 2 RIASEC codes
-  const sortedScores = Object.entries(result.scores)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 2);
-
-  const primaryCode = sortedScores[0][0];
-  const secondaryCode = sortedScores[1][0];
-
-  const archetypeDesc = getArchetypeDescription(primaryCode, secondaryCode);
-  const primaryTrait = getRIASECTrait(primaryCode);
-  const secondaryTrait = getRIASECTrait(secondaryCode);
 
   const getLocalized = (text: any) => getLocalizedText(text, locale);
 
@@ -74,7 +61,36 @@ export default function ResultModal({ resultId, isOpen, onClose }: ResultModalPr
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading result...</p>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex items-center justify-center py-12">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+
+        {result && !isLoading && !error && (() => {
+          // Get top 2 RIASEC codes
+          const sortedScores = Object.entries(result.scores)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 2);
+
+          const primaryCode = sortedScores[0][0];
+          const secondaryCode = sortedScores[1][0];
+
+          const archetypeDesc = getArchetypeDescription(primaryCode, secondaryCode);
+          const primaryTrait = getRIASECTrait(primaryCode);
+          const secondaryTrait = getRIASECTrait(secondaryCode);
+
+          return (
+            <div className="space-y-6">
           {/* Archetype Section */}
           {archetypeDesc && (
             <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border p-6">
@@ -208,7 +224,7 @@ export default function ResultModal({ resultId, isOpen, onClose }: ResultModalPr
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{getLocalized(profession.name)}</span>
+                      <span className="text-sm font-medium">{getLocalized(profession.title)}</span>
                     </div>
                     <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
                       {profession.matchScore}%
@@ -218,7 +234,9 @@ export default function ResultModal({ resultId, isOpen, onClose }: ResultModalPr
               </div>
             </div>
           )}
-        </div>
+            </div>
+          );
+        })()}
       </DialogContent>
     </Dialog>
   );

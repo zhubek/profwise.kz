@@ -225,9 +225,9 @@ function transformBackendQuestion(question: BackendQuestion, locale: string = 'e
     }));
   } else {
     // For other question types, use options from answers
-    if (!question.answers?.options || !Array.isArray(question.answers.options)) {
-      options = [];
-    } else {
+    // Check if using old array format or new object format with numeric keys
+    if (question.answers?.options && Array.isArray(question.answers.options)) {
+      // Old array format: {options: [{en, ru, kz}, ...]}
       options = question.answers.options.map((option, index) => ({
         id: `${question.id}-option-${index}`,
         text: {
@@ -238,7 +238,48 @@ function transformBackendQuestion(question: BackendQuestion, locale: string = 'e
         value: index + 1,
         order: index,
       }));
+    } else {
+      // New object format: {"1": {en, ru, kz}, "2": {en, ru, kz}, ...}
+      const numericKeys = Object.keys(question.answers || {})
+        .filter(key => !isNaN(Number(key)))
+        .sort((a, b) => Number(a) - Number(b));
+
+      if (numericKeys.length > 0) {
+        options = numericKeys.map((key, index) => {
+          const value = Number(key);
+          const optionText = question.answers[key];
+          return {
+            id: `${question.id}-option-${index}`,
+            text: {
+              en: optionText.en,
+              ru: optionText.ru,
+              kz: optionText.kz,
+            },
+            value: value,
+            order: index,
+          };
+        });
+      } else {
+        options = [];
+      }
     }
+  }
+
+  // Create backendAnswers mapping
+  let backendAnswers: Record<string, number> = {};
+
+  if (question.questionType === 'LIKERT' || question.questionType === 'SCALE') {
+    // For LIKERT/SCALE, use the scoring values from backend (e.g., {"1": 0, "2": 0, "3": 1, "4": 3, "5": 5})
+    backendAnswers = question.answers as Record<string, number>;
+  } else {
+    // For MULTIPLE_CHOICE and SINGLE_CHOICE, just map keys to their numeric value
+    // This ensures we only store {"1": 1, "3": 1} instead of {"1": {en, ru, kz}, "3": {en, ru, kz}}
+    const numericKeys = Object.keys(question.answers || {})
+      .filter(key => !isNaN(Number(key)));
+
+    numericKeys.forEach(key => {
+      backendAnswers[key] = Number(key);
+    });
   }
 
   return {
@@ -254,7 +295,7 @@ function transformBackendQuestion(question: BackendQuestion, locale: string = 'e
     required: true,
     options,
     archetypeCode: question.parameters?.archetype || question.parameters?.scale,
-    backendAnswers: question.answers as Record<string, number>, // Preserve backend scoring map
+    backendAnswers: backendAnswers,
     parameters: question.parameters || undefined,
   };
 }

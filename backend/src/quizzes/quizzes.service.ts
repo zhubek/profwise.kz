@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
@@ -60,115 +61,113 @@ export class QuizzesService {
   }
 
   async getUserQuizzes(userId: string) {
-    // Get all public quizzes (active and inactive)
-    const publicQuizzes = await this.prisma.quiz.findMany({
-      where: {
-        isPublic: true,
+    // Optimized approach: Use raw SQL with UNION to get both public and license quizzes efficiently
+    const quizzes = await this.prisma.$queryRawUnsafe<Array<{
+      id: string;
+      quizName: any;
+      quizType: string;
+      isFree: boolean;
+      description: any;
+      parameters: any;
+      instructionsContent: any;
+      isActive: boolean;
+      startDate: Date | null;
+      isPublic: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+      questionCount: number;
+      resultCount: number;
+      source: string;
+      licenseCode: string | null;
+      expireDate: Date | null;
+      organizationName: string | null;
+      activationDate: Date | null;
+      sortPriority: number;
+      sortDate: Date | null;
+    }>>(`
+      WITH user_license_quizzes AS (
+        SELECT DISTINCT ON (q."quizType")
+          q.*,
+          'license' as source,
+          l."licenseCode",
+          l."expireDate",
+          org.name as "organizationName",
+          l."activatedAt" as "activationDate",
+          1 as "sortPriority",
+          l."activatedAt" as "sortDate"
+        FROM quizzes q
+        INNER JOIN license_class_quizzes lcq ON q.id = lcq."quizId"
+        INNER JOIN license_classes lc ON lcq."licenseClassId" = lc.id
+        INNER JOIN licenses l ON lc.id = l."licenseClassId"
+        INNER JOIN organizations org ON l."organizationId" = org.id
+        WHERE l."userId"::uuid = $1::uuid
+          AND l.activated = true
+          AND q."isActive" = true
+        ORDER BY q."quizType", l."activatedAt" DESC
+      ),
+      public_quizzes AS (
+        SELECT
+          q.*,
+          'public' as source,
+          NULL::text as "licenseCode",
+          NULL::timestamp as "expireDate",
+          NULL::text as "organizationName",
+          NULL::timestamp as "activationDate",
+          CASE
+            WHEN q."isActive" = true THEN 2
+            ELSE 3
+          END as "sortPriority",
+          q."startDate" as "sortDate"
+        FROM quizzes q
+        WHERE q."isPublic" = true
+          AND q."quizType" NOT IN (
+            SELECT "quizType" FROM user_license_quizzes
+          )
+      ),
+      combined_quizzes AS (
+        SELECT * FROM user_license_quizzes
+        UNION ALL
+        SELECT * FROM public_quizzes
+      )
+      SELECT
+        cq.*,
+        (SELECT COUNT(*) FROM questions WHERE "quizId" = cq.id)::int as "questionCount",
+        (SELECT COUNT(*) FROM results WHERE "quizId" = cq.id)::int as "resultCount"
+      FROM combined_quizzes cq
+      ORDER BY
+        cq."sortPriority" ASC,
+        cq."sortDate" DESC NULLS LAST,
+        cq."createdAt" DESC
+    `, userId);
+
+    // Transform the results to match the expected format
+    return quizzes.map((quiz) => ({
+      id: quiz.id,
+      quizName: quiz.quizName,
+      quizType: quiz.quizType,
+      isFree: quiz.isFree,
+      description: quiz.description,
+      parameters: quiz.parameters,
+      instructionsContent: quiz.instructionsContent,
+      isActive: quiz.isActive,
+      startDate: quiz.startDate,
+      isPublic: quiz.isPublic,
+      createdAt: quiz.createdAt,
+      updatedAt: quiz.updatedAt,
+      source: quiz.source,
+      _count: {
+        questions: quiz.questionCount,
+        results: quiz.resultCount,
       },
-      include: {
-        _count: {
-          select: { questions: true, results: true },
+      ...(quiz.source === 'license' && {
+        licenseInfo: {
+          licenseCode: quiz.licenseCode,
+          expireDate: quiz.expireDate,
+          organizationName: quiz.organizationName,
+          activationDate: quiz.activationDate,
         },
-      },
-    });
-
-    // Get all active licenses for the user
-    const userLicenses = await this.prisma.license.findMany({
-      where: {
-        userId,
-        activated: true,
-      },
-      include: {
-        organization: true,
-        licenseClass: {
-          include: {
-            licenseClassQuizzes: {
-              include: {
-                quiz: {
-                  include: {
-                    _count: {
-                      select: { questions: true, results: true },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    // Extract quizzes from licenses with license information
-    const licenseQuizzes: any[] = [];
-    userLicenses.forEach((license) => {
-      license.licenseClass.licenseClassQuizzes.forEach((lcq) => {
-        if (lcq.quiz.isActive) {
-          licenseQuizzes.push({
-            ...lcq.quiz,
-            licenseInfo: {
-              licenseCode: license.licenseCode,
-              expireDate: license.expireDate,
-              organizationName: license.organization.name,
-              activationDate: license.activatedAt,
-            },
-          });
-        }
-      });
-    });
-
-    // Create a map to track quizzes by quizType
-    // License quizzes will override public ones if they have the same quizType
-    const quizMap = new Map();
-
-    // First add public quizzes
-    publicQuizzes.forEach((quiz) => {
-      quizMap.set(`${quiz.quizType}`, { ...quiz, source: 'public' });
-    });
-
-    // Then override with license quizzes if they have the same quizType
-    licenseQuizzes.forEach((quiz) => {
-      quizMap.set(`${quiz.quizType}`, { ...quiz, source: 'license' });
-    });
-
-    // Convert to array for sorting
-    const allQuizzes = Array.from(quizMap.values());
-
-    // Sort quizzes:
-    // 1. License-based first (sorted by activationDate DESC - latest first)
-    // 2. Then public active quizzes
-    // 3. Then inactive quizzes (sorted by startDate ASC)
-    allQuizzes.sort((a, b) => {
-      // License quizzes come first
-      if (a.source === 'license' && b.source !== 'license') return -1;
-      if (a.source !== 'license' && b.source === 'license') return 1;
-
-      // Both are license quizzes - sort by activationDate DESC (latest first)
-      if (a.source === 'license' && b.source === 'license') {
-        const dateA = new Date(a.licenseInfo.activationDate).getTime();
-        const dateB = new Date(b.licenseInfo.activationDate).getTime();
-        return dateB - dateA; // DESC order
-      }
-
-      // Both are public quizzes - active ones first
-      if (a.isActive && !b.isActive) return -1;
-      if (!a.isActive && b.isActive) return 1;
-
-      // Both are inactive - sort by startDate ASC
-      if (!a.isActive && !b.isActive) {
-        // Handle null startDates - put them last
-        if (!a.startDate && b.startDate) return 1;
-        if (a.startDate && !b.startDate) return -1;
-        if (!a.startDate && !b.startDate) return 0;
-
-        const dateA = new Date(a.startDate).getTime();
-        const dateB = new Date(b.startDate).getTime();
-        return dateA - dateB; // ASC order
-      }
-
-      return 0;
-    });
-
-    return allQuizzes;
+      }),
+    }));
   }
 
   async getInstructions(id: string) {
@@ -342,74 +341,82 @@ export class QuizzesService {
     const primaryInterest = scaleNameMap[sortedScales[0]];
     const secondaryInterest = scaleNameMap[sortedScales[1]];
 
-    // Step 6: Persist results to database using transaction
+    // Step 6: Persist results to database using transaction with batch operations
     const result = await this.prisma.$transaction(async (tx) => {
-      // 6.1: Upsert UserArchetype records for all 6 RIASEC scales
       const archetypeTypeId = 'interest';
-      for (const [scale, archetypeId] of Object.entries(archetypeMap)) {
-        await tx.userArchetype.upsert({
-          where: {
-            userId_archetypeId: {
-              userId: data.userId,
-              archetypeId: archetypeId,
-            },
-          },
-          create: {
-            userId: data.userId,
-            archetypeId: archetypeId,
-            score: Math.round(scalePercentages[scale]),
-          },
-          update: {
-            score: Math.round(scalePercentages[scale]),
-          },
-        });
-      }
 
-      // 6.2: Upsert UserProfession records and UserProfessionArchetypeType for top 20 professions
-      for (const match of parsedProfessionMatches) {
-        // Create or get UserProfession
-        const userProfession = await tx.userProfession.upsert({
-          where: {
-            userId_professionId: {
-              userId: data.userId,
-              professionId: match.professionId,
-            },
-          },
-          create: {
-            userId: data.userId,
-            professionId: match.professionId,
-          },
-          update: {},
-        });
+      // 6.1: Batch upsert UserArchetype records using raw SQL for better performance
+      const archetypeValues = Object.entries(archetypeMap).map(([scale, archetypeId]) => ({
+        userId: data.userId,
+        archetypeId,
+        score: Math.round(scalePercentages[scale]),
+      }));
 
-        // Calculate score: (20000 - matchScore) / 200
-        const matchScoreValue = Math.round((20000 - match.ssd) / 200);
+      await tx.$executeRaw`
+        INSERT INTO user_archetypes ("id", "userId", "archetypeId", "score", "createdAt")
+        SELECT gen_random_uuid(), "userId"::uuid, "archetypeId"::text, "score"::int, NOW()
+        FROM json_to_recordset(${JSON.stringify(archetypeValues)}::json)
+        AS t("userId" text, "archetypeId" text, "score" int)
+        ON CONFLICT ("userId", "archetypeId")
+        DO UPDATE SET "score" = EXCLUDED."score"
+      `;
 
-        // Upsert UserProfessionArchetypeType
-        await tx.userProfessionArchetypeType.upsert({
-          where: {
-            userProfessionId_archetypeTypeId: {
-              userProfessionId: userProfession.id,
-              archetypeTypeId: archetypeTypeId,
-            },
-          },
-          create: {
-            userProfessionId: userProfession.id,
-            archetypeTypeId: archetypeTypeId,
-            score: matchScoreValue,
-          },
-          update: {
-            score: matchScoreValue,
-          },
-        });
-      }
+      // 6.2: Batch upsert UserProfession and UserProfessionArchetypeType
+      const professionValues = parsedProfessionMatches.map((match) => ({
+        userId: data.userId,
+        professionId: match.professionId,
+        score: Math.round((20000 - match.ssd) / 200),
+      }));
 
-      // 6.3: Create Result record with structured JSON
+      // First, upsert user professions and get their IDs
+      await tx.$executeRaw`
+        INSERT INTO user_professions ("id", "userId", "professionId", "createdAt")
+        SELECT gen_random_uuid(), "userId"::uuid, "professionId"::uuid, NOW()
+        FROM json_to_recordset(${JSON.stringify(professionValues)}::json)
+        AS t("userId" text, "professionId" text, "score" int)
+        ON CONFLICT ("userId", "professionId") DO NOTHING
+      `;
+
+      // Then, upsert archetype types with scores
+      await tx.$executeRaw`
+        INSERT INTO user_profession_archetype_types ("id", "userProfessionId", "archetypeTypeId", "score", "createdAt")
+        SELECT
+          gen_random_uuid(),
+          up.id,
+          ${archetypeTypeId}::text,
+          t."score"::int,
+          NOW()
+        FROM json_to_recordset(${JSON.stringify(professionValues)}::json)
+        AS t("userId" text, "professionId" text, "score" int)
+        INNER JOIN user_professions up
+          ON up."userId"::text = t."userId"
+          AND up."professionId"::text = t."professionId"
+        ON CONFLICT ("userProfessionId", "archetypeTypeId")
+        DO UPDATE SET "score" = EXCLUDED."score"
+      `;
+
+      // 6.3: Batch upsert user questions
+      const questionValues = Object.entries(data.answers).map(([questionId, answerData]) => ({
+        userId: data.userId,
+        questionId,
+        answers: JSON.stringify(answerData.answer),
+      }));
+
+      await tx.$executeRaw`
+        INSERT INTO user_questions ("id", "userId", "questionId", "answers", "createdAt")
+        SELECT gen_random_uuid(), "userId"::uuid, "questionId"::text, "answers"::jsonb, NOW()
+        FROM json_to_recordset(${JSON.stringify(questionValues)}::json)
+        AS t("userId" text, "questionId" text, "answers" text)
+        ON CONFLICT ("userId", "questionId")
+        DO UPDATE SET "answers" = EXCLUDED."answers"
+      `;
+
+      // 6.4: Create Result record with structured JSON
       const topProfessionsForResult = parsedProfessionMatches.map((match, index) => ({
         rank: index + 1,
         professionId: match.professionId,
-        professionName: match.professionName, // Full JSON object with en, ru, kz
-        professionDescription: match.professionDescription, // Full JSON object with en, ru, kz
+        professionName: match.professionName,
+        professionDescription: match.professionDescription,
         professionCode: match.professionCode,
         icon: match.professionIcon,
         category: match.professionCategory,

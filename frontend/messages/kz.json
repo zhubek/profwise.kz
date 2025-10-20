@@ -184,7 +184,8 @@
         "viewResults": "Нәтижелер",
         "retakeTest": "Қайта өту",
         "startTest": "Тестті бастау",
-        "continueTest": "Жалғастыру"
+        "continueTest": "Жалғастыру",
+        "startNewTest": "Жаңадан бастау"
       }
     },
     "holland": {
@@ -619,7 +620,8 @@
           "veryHigh": "Өте жоғары сұраныс"
         }
       }
-    }
+    },
+    "code": "Код"
   },
   "activity": {
     "testCompleted": "{testName} тесті аяқталды",
@@ -661,7 +663,7 @@
     "updateSuccess": "Профиль сәтті жаңартылды",
     "updateError": "Профильді жаңарту кезінде қате",
     "deleteAccount": "Аккаунтты жою",
-    "deleteAccountWarning": "Аккаунтыңызды жою Edunavigator-дан барлық ақпаратыңызды мәңгілікке жояды және оны қалпына келтіру мүмкін болмайды.",
+    "deleteAccountWarning": "Аккаунтыңызды жою ProfWise-дан барлық ақпаратыңызды мәңгілікке жояды және оны қалпына келтіру мүмкін болмайды.",
     "deleteAccountConfirm": "Аккаунтыңызды жойғыңыз келетініне сенімдісіз бе?",
     "deleteAccountSuccess": "Аккаунт сәтті жойылды",
     "deleteAccountError": "Аккаунтты жою кезінде қате",
@@ -801,20 +803,40 @@
       "hint": "Демо тіркелгі деректері: admin / admin123"
     },
     "dashboard": {
-      "title": "Пайдаланушыларды басқару",
-      "description": "{count} пайдаланушы көрсетілген",
-      "searchPlaceholder": "Аты, email немесе лицензиялық код бойынша іздеу...",
+      "title": "Лицензияларды басқару",
+      "description": "{count} {count, plural, one {лицензия} other {лицензия}} табылды",
+      "searchPlaceholder": "Лицензиялық код, атауы немесе пайдаланушы бойынша іздеу...",
       "exportCSV": "CSV экспорттау",
-      "noResults": "Пайдаланушылар табылмады",
+      "noResults": "Лицензиялар табылмады",
+      "loadingLicenses": "Лицензиялар жүктелуде...",
+      "tryAgain": "Қайта көріңіз",
+      "type": "Түрі",
+      "licenses": "Лицензиялар",
+      "activated": "белсендірілді",
       "table": {
         "licenseCode": "Лицензиялық код",
+        "licenseName": "Лицензия атауы",
+        "user": "Пайдаланушы",
         "name": "Аты-жөні",
         "email": "Email",
         "grade": "Сынып",
-        "gender": "Жынысы",
+        "status": "Мәртебесі",
+        "expires": "Аяқталады",
+        "results": "Нәтижелер",
+        "notActivated": "Белсендірілмеген",
+        "activated": "Белсендірілген",
+        "available": "Қолжетімді",
         "testResults": "Тест нәтижелері",
         "viewResults": "Нәтижелерді көру",
         "noTests": "Тесттер жоқ"
+      },
+      "userResults": {
+        "title": "Тест нәтижелері",
+        "description": "{name} пайдаланушының аяқталған тесттері мен нәтижелері",
+        "loadingResults": "Нәтижелер жүктелуде...",
+        "noResults": "Тест нәтижелері табылмады",
+        "primaryInterest": "Негізгі қызығушылық:",
+        "viewFullResult": "Толық нәтиже"
       }
     }
   }

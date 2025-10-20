@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { getHollandTestSections } from '@/lib/api/mock/holland';
+import { getQuizSections } from '@/lib/api/quizzes';
 import HollandTestContent from './HollandTestContent';
 
 export default async function HollandTestPage() {
@@ -8,8 +8,11 @@ export default async function HollandTestPage() {
   // Mock user ID - in production, get from auth session
   const userId = '1';
 
-  // Fetch test sections server-side
-  const sections = await getHollandTestSections();
+  // Quiz ID for Holland test
+  const quizId = 'holand-1';
+
+  // Fetch test sections from backend API (dynamically split into sections of 6)
+  const sections = await getQuizSections(quizId, 6);
 
   return (
     <main className="min-h-screen bg-background">

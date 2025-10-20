@@ -101,6 +101,12 @@ model License {
   user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   userLicenses UserLicense[] // Deprecated: kept for backward compatibility
 
+  // Indexes for performance
+  @@index([userId])
+  @@index([organizationId])
+  @@index([activated])
+  @@index([userId, activated])
+  @@index([createdAt])
   @@map("licenses")
 }
 
@@ -167,6 +173,11 @@ model Quiz {
   results             Result[]
   licenseClassQuizzes LicenseClassQuiz[]
 
+  // Indexes for performance
+  @@index([isPublic])
+  @@index([isActive])
+  @@index([quizType])
+  @@index([isPublic, isActive])
   @@map("quizzes")
 }
 
@@ -192,6 +203,8 @@ model Question {
   quiz          Quiz           @relation(fields: [quizId], references: [id], onDelete: Cascade)
   userQuestions UserQuestion[]
 
+  // Indexes for performance
+  @@index([quizId])
   @@map("questions")
 }
 
@@ -217,6 +230,11 @@ model Result {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
+  // Indexes for performance
+  @@index([userId])
+  @@index([quizId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
   @@map("results")
 }
 
@@ -231,6 +249,9 @@ model UserQuestion {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
+  // Indexes for performance
+  @@index([userId])
+  @@index([questionId])
   @@unique([userId, questionId])
   @@map("user_questions")
 }
@@ -430,6 +451,9 @@ model ProfessionArchetype {
   profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
   archetype  Archetype  @relation(fields: [archetypeId], references: [id], onDelete: Cascade)
 
+  // Indexes for performance
+  @@index([professionId])
+  @@index([archetypeId])
   @@unique([professionId, archetypeId])
   @@map("profession_archetypes")
 }
@@ -445,6 +469,9 @@ model UserArchetype {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   archetype Archetype @relation(fields: [archetypeId], references: [id], onDelete: Cascade)
 
+  // Indexes for performance
+  @@index([userId])
+  @@index([archetypeId])
   @@unique([userId, archetypeId])
   @@map("user_archetypes")
 }
@@ -453,6 +480,7 @@ model UserProfession {
   id           String   @id @default(uuid())
   userId       String
   professionId String
+  isLiked      Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   // Relations
@@ -460,6 +488,10 @@ model UserProfession {
   profession                   Profession                    @relation(fields: [professionId], references: [id], onDelete: Cascade)
   userProfessionArchetypeTypes UserProfessionArchetypeType[]
 
+  // Indexes for performance
+  @@index([userId])
+  @@index([professionId])
+  @@index([userId, createdAt])
   @@unique([userId, professionId])
   @@map("user_professions")
 }
