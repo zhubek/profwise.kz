@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Globe, User, LogOut, School } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,10 +16,19 @@ import {
 
 export default function AdminHeader() {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
   const t = useTranslations();
 
   const handleLogout = async () => {
     await logout();
+  };
+
+  // Function to get language-switched URL
+  const getLocalizedPath = (newLocale: string) => {
+    if (!pathname) return `/${newLocale}/admin`;
+    // Remove current locale from pathname and add new locale
+    const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(\/|$)/, '/');
+    return `/${newLocale}${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`;
   };
 
   return (
@@ -47,13 +57,13 @@ export default function AdminHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link href="/en/admin">English</Link>
+                <Link href={getLocalizedPath('en')}>English</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/ru/admin">Русский</Link>
+                <Link href={getLocalizedPath('ru')}>Русский</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/kz/admin">Қазақша</Link>
+                <Link href={getLocalizedPath('kz')}>Қазақша</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
