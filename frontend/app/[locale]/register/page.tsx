@@ -140,7 +140,7 @@ export default function RegisterPage() {
             <div className="space-y-4 text-center">
               <div className="p-4 rounded-md bg-primary/10 border border-primary/20">
                 <p className="text-sm text-primary font-medium mb-2">
-                  {registrationMessage}
+                  {t('registrationSuccess')}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {t('emailVerificationInstructions')}

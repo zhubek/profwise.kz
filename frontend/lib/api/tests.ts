@@ -64,8 +64,12 @@ function transformQuizToTest(quiz: BackendQuiz, locale: string = 'en'): Test {
   const duration = quiz.parameters?.duration || Math.ceil(quiz._count.questions / 4);
   const totalQuestions = quiz.parameters?.problemsCount || quiz._count.questions;
 
-  // Check if quiz is available (active and either public or from license)
-  const isAvailableNow = quiz.isActive && (quiz.source === 'license' || quiz.isPublic);
+  // Check if quiz is available
+  // For free quizzes: must be active and public
+  // For non-free quizzes: must have active license (source === 'license')
+  const isAvailableNow = quiz.isFree
+    ? (quiz.isActive && quiz.isPublic)
+    : (quiz.source === 'license' && quiz.isActive);
 
   return {
     id: quiz.id,
@@ -76,6 +80,7 @@ function transformQuizToTest(quiz: BackendQuiz, locale: string = 'en'): Test {
     totalQuestions,
     totalSections: Math.ceil(totalQuestions / 10), // Estimate 10 questions per section
     available: isAvailableNow,
+    isFree: quiz.isFree,
     createdAt: quiz.createdAt,
     updatedAt: quiz.updatedAt,
     source: quiz.source,

@@ -12,13 +12,15 @@ interface TestWithProgress extends Test {
 
 interface TestsPageContentProps {
   tests: TestWithProgress[];
-  licenseInfo: UserLicenseInfo;
+  licenseInfo: UserLicenseInfo | null;
+  userId: string;
+  onRefreshTests: () => void;
 }
 
-export default function TestsPageContent({ tests, licenseInfo }: TestsPageContentProps) {
+export default function TestsPageContent({ tests, licenseInfo, userId, onRefreshTests }: TestsPageContentProps) {
   // Default to the first available test (Holland Test)
   const firstAvailableTest = tests.find(t => t.available) || tests[0];
-  const [selectedTestId, setSelectedTestId] = useState(firstAvailableTest.id);
+  const [selectedTestId, setSelectedTestId] = useState(firstAvailableTest?.id);
 
   const selectedTest = useMemo(() => {
     return tests.find(t => t.id === selectedTestId) || firstAvailableTest;
@@ -31,8 +33,10 @@ export default function TestsPageContent({ tests, licenseInfo }: TestsPageConten
         selectedTestId={selectedTestId}
         onTestSelect={setSelectedTestId}
         licenseInfo={licenseInfo}
+        userId={userId}
+        onLicenseActivated={onRefreshTests}
       />
-      <TestDetailView test={selectedTest} userTest={selectedTest.userTest} />
+      <TestDetailView test={selectedTest} userTest={selectedTest?.userTest} />
     </>
   );
 }

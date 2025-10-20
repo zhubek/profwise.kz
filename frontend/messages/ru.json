@@ -119,7 +119,20 @@
       "licenseCodeInvalid": "Неверный формат лицензионного кода"
     },
     "emailVerificationInstructions": "Проверьте вашу почту и нажмите на ссылку подтверждения, чтобы активировать ваш аккаунт.",
-    "goToLogin": "Перейти к входу"
+    "goToLogin": "Перейти к входу",
+    "registrationSuccess": "Регистрация успешна. Пожалуйста, проверьте вашу почту, чтобы подтвердить аккаунт.",
+    "emailVerification": {
+      "verifyingEmail": "Проверка Email",
+      "emailVerified": "Email подтвержден!",
+      "verificationFailed": "Ошибка подтверждения",
+      "verifyingMessage": "Пожалуйста, подождите, пока мы проверяем ваш email адрес...",
+      "successMessage": "Ваш email успешно подтвержден. Теперь вы можете войти.",
+      "invalidLink": "Неверная ссылка подтверждения",
+      "verificationError": "Ошибка подтверждения",
+      "tryAgain": "Попробовать снова",
+      "needHelp": "Нужна помощь? ",
+      "contactSupport": "Связаться с поддержкой"
+    }
   },
   "dashboard": {
     "title": "Панель управления",
@@ -214,7 +227,14 @@
     },
     "noLicenseRequired": "Тест можно пройти без лицензии",
     "availableFrom": "Доступен с {date}",
-    "soon": "Скоро"
+    "soon": "Скоро",
+    "licenseRequired": "Требуется лицензия",
+    "licenseRequiredTitle": "Для доступа к этому тесту требуется лицензия",
+    "licenseRequiredDescription": "Для этого теста требуется активная лицензия. Пожалуйста, введите код лицензии ниже, чтобы разблокировать доступ.",
+    "enterLicenseCode": "Введите код лицензии",
+    "activate": "Активировать",
+    "licenseActivationSuccess": "Лицензия успешно активирована! Обновление тестов...",
+    "licenseActivationError": "Не удалось активировать лицензию. Проверьте код и повторите попытку."
   },
   "archetypes": {
     "title": "Мой профиль архетипов",
@@ -379,7 +399,7 @@
       },
       "education": {
         "colleges": "Колледжи",
-        "universities": "Университеты",
+        "universities": "университетов",
         "courses": "Курсы",
         "tabColleges": "Колледжи",
         "tabCollegesMobile": "Колледж",
@@ -421,7 +441,6 @@
         "untTip4": "Более высокие баллы открывают лучшие возможности стипендий",
         "groupName": "Направление обучения",
         "university": "университет",
-        "universities": "университетов",
         "universitiesOffering": "Университеты, предлагающие эту специальность",
         "generalGrant": "Общий грант",
         "aulGrant": "Аульный грант",

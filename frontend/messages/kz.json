@@ -119,7 +119,20 @@
       "licenseCodeInvalid": "Лицензиялық коды форматы қате"
     },
     "emailVerificationInstructions": "Пошта жәшігіңізді тексеріп, аккаунтыңызды белсендіру үшін растау сілтемесін басыңыз.",
-    "goToLogin": "Кіруге өту"
+    "goToLogin": "Кіруге өту",
+    "registrationSuccess": "Тіркеу сәтті аяқталды. Аккаунтыңызды растау үшін поштаңызды тексеріңіз.",
+    "emailVerification": {
+      "verifyingEmail": "Email растау",
+      "emailVerified": "Email расталды!",
+      "verificationFailed": "Растау сәтсіз аяқталды",
+      "verifyingMessage": "Email мекенжайыңызды растау кезінде күте тұрыңыз...",
+      "successMessage": "Сіздің email мекенжайыңыз сәтті расталды. Енді кіре аласыз.",
+      "invalidLink": "Жарамсыз растау сілтемесі",
+      "verificationError": "Растау қатесі",
+      "tryAgain": "Қайталап көру",
+      "needHelp": "Көмек керек пе? ",
+      "contactSupport": "Қолдау қызметіне хабарласу"
+    }
   },
   "dashboard": {
     "title": "Басқару тақтасы",
@@ -214,7 +227,14 @@
     },
     "noLicenseRequired": "Тестті лицензиясыз тапсыруға болады",
     "availableFrom": "{date} бастап қол жетімді",
-    "soon": "Жақында"
+    "soon": "Жақында",
+    "licenseRequired": "Лицензия қажет",
+    "licenseRequiredTitle": "Бұл тестке қол жеткізу үшін лицензия қажет",
+    "licenseRequiredDescription": "Бұл тест үшін белсенді лицензия қажет. Қолжетімділікті ашу үшін төменде лицензия кодын енгізіңіз.",
+    "enterLicenseCode": "Лицензия кодын енгізіңіз",
+    "activate": "Белсендіру",
+    "licenseActivationSuccess": "Лицензия сәтті белсендірілді! Тестерді жаңарту...",
+    "licenseActivationError": "Лицензияны белсендіру сәтсіз аяқталды. Кодты тексеріп, қайта көріңіз."
   },
   "archetypes": {
     "title": "Менің архетиптер профилім",
@@ -379,7 +399,7 @@
       },
       "education": {
         "colleges": "Колледждер",
-        "universities": "Университеттер",
+        "universities": "университеттер",
         "courses": "Курстар",
         "tabColleges": "Колледждер",
         "tabCollegesMobile": "Колледж",
@@ -421,7 +441,6 @@
         "untTip4": "Жоғары ұпайлар жақсы стипендия мүмкіндіктерін ашады",
         "groupName": "Оқу бағыты",
         "university": "университет",
-        "universities": "университеттер",
         "universitiesOffering": "Осы мамандықты ұсынатын университеттер",
         "generalGrant": "Жалпы грант",
         "aulGrant": "Ауылдық грант",

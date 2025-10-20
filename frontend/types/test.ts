@@ -11,6 +11,7 @@ export interface Test {
   totalQuestions: number;
   totalSections: number;
   available?: boolean; // Whether the test is available to take
+  isFree: boolean; // Whether the test requires a license
   createdAt: string;
   updatedAt: string;
   source?: 'public' | 'license'; // Source of the quiz

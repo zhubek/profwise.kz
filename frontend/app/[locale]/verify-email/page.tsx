@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { verifyEmail } from '@/lib/api/auth';
+import { useTranslations } from 'next-intl';
 
 function VerifyEmailContent() {
+  const t = useTranslations('auth.emailVerification');
   const router = useRouter();
   const searchParams = useSearchParams();
   const [verifying, setVerifying] = useState(true);
@@ -19,7 +21,7 @@ function VerifyEmailContent() {
     const token = searchParams.get('token');
 
     if (!token) {
-      setError('Invalid verification link');
+      setError(t('invalidLink'));
       setVerifying(false);
       return;
     }
@@ -30,7 +32,7 @@ function VerifyEmailContent() {
         setSuccess(true);
         setError(null);
       } catch (err: any) {
-        setError(err.message || 'Verification failed');
+        setError(err.message || t('verificationError'));
         setSuccess(false);
       } finally {
         setVerifying(false);
@@ -38,7 +40,7 @@ function VerifyEmailContent() {
     };
 
     verify();
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
@@ -60,11 +62,11 @@ function VerifyEmailContent() {
             )}
           </div>
           <CardTitle className="text-2xl md:text-3xl text-center">
-            {verifying ? 'Verifying Email' : success ? 'Email Verified!' : 'Verification Failed'}
+            {verifying ? t('verifyingEmail') : success ? t('emailVerified') : t('verificationFailed')}
           </CardTitle>
           <CardDescription className="text-center">
-            {verifying && 'Please wait while we verify your email address...'}
-            {success && 'Your email has been successfully verified. You can now log in.'}
+            {verifying && t('verifyingMessage')}
+            {success && t('successMessage')}
             {error && error}
           </CardDescription>
         </CardHeader>
@@ -77,7 +79,7 @@ function VerifyEmailContent() {
                   className="w-full"
                   size="lg"
                 >
-                  Go to Login
+                  {t('goToLogin')}
                 </Button>
               ) : (
                 <>
@@ -86,12 +88,12 @@ function VerifyEmailContent() {
                     className="w-full"
                     size="lg"
                   >
-                    Try Again
+                    {t('tryAgain')}
                   </Button>
                   <div className="text-center text-sm">
-                    <span className="text-muted-foreground">Need help? </span>
+                    <span className="text-muted-foreground">{t('needHelp')}</span>
                     <Link href="/login" className="text-primary hover:underline font-medium">
-                      Contact Support
+                      {t('contactSupport')}
                     </Link>
                   </div>
                 </>

@@ -119,7 +119,20 @@
       "licenseCodeInvalid": "Invalid license code format"
     },
     "emailVerificationInstructions": "Check your inbox and click the verification link to activate your account.",
-    "goToLogin": "Go to Login"
+    "goToLogin": "Go to Login",
+    "registrationSuccess": "Registration successful. Please check your email to verify your account.",
+    "emailVerification": {
+      "verifyingEmail": "Verifying Email",
+      "emailVerified": "Email Verified!",
+      "verificationFailed": "Verification Failed",
+      "verifyingMessage": "Please wait while we verify your email address...",
+      "successMessage": "Your email has been successfully verified. You can now log in.",
+      "invalidLink": "Invalid verification link",
+      "verificationError": "Verification failed",
+      "tryAgain": "Try Again",
+      "needHelp": "Need help? ",
+      "contactSupport": "Contact Support"
+    }
   },
   "dashboard": {
     "title": "Dashboard",
@@ -214,7 +227,14 @@
     },
     "noLicenseRequired": "Test can be taken without a license",
     "availableFrom": "Available from {date}",
-    "soon": "Soon"
+    "soon": "Soon",
+    "licenseRequired": "License Required",
+    "licenseRequiredTitle": "License Required to Access This Test",
+    "licenseRequiredDescription": "This test requires an active license. Please enter your license code below to unlock access.",
+    "enterLicenseCode": "Enter License Code",
+    "activate": "Activate",
+    "licenseActivationSuccess": "License activated successfully! Refreshing tests...",
+    "licenseActivationError": "Failed to activate license. Please check your code and try again."
   },
   "archetypes": {
     "title": "My Archetypes Profile",
@@ -379,7 +399,7 @@
       },
       "education": {
         "colleges": "Colleges",
-        "universities": "Universities",
+        "universities": "universities",
         "courses": "Courses",
         "tabColleges": "Colleges",
         "tabCollegesMobile": "College",
@@ -421,7 +441,6 @@
         "untTip4": "Higher scores unlock better scholarship opportunities",
         "groupName": "Field of Study",
         "university": "university",
-        "universities": "universities",
         "universitiesOffering": "Universities Offering This Specialization",
         "generalGrant": "General Grant",
         "aulGrant": "Rural Grant",
