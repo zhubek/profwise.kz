@@ -132,7 +132,8 @@
       "tryAgain": "Try Again",
       "needHelp": "Need help? ",
       "contactSupport": "Contact Support"
-    }
+    },
+    "privacyConsent": "I agree to the processing of my personal data for career guidance purposes (in accordance with the Law of the Republic of Kazakhstan \"On Personal Data and their Protection\")."
   },
   "dashboard": {
     "title": "Dashboard",

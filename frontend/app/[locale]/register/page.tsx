@@ -41,6 +41,7 @@ export default function RegisterPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [privacyConsent, setPrivacyConsent] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -288,12 +289,30 @@ export default function RegisterPage() {
               </Select>
             </div>
 
+            {/* Privacy Consent Checkbox */}
+            <div className="flex items-start space-x-2">
+              <input
+                type="checkbox"
+                id="privacyConsent"
+                checked={privacyConsent}
+                onChange={(e) => setPrivacyConsent(e.target.checked)}
+                disabled={isLoading}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <label
+                htmlFor="privacyConsent"
+                className="text-sm text-muted-foreground leading-tight cursor-pointer"
+              >
+                {t('privacyConsent')}
+              </label>
+            </div>
+
             {/* Submit button */}
             <Button
               type="submit"
               className="w-full"
               size="lg"
-              disabled={isLoading}
+              disabled={isLoading || !privacyConsent}
             >
               {isLoading ? (
                 <>
