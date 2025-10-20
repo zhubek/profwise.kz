@@ -1,7 +1,10 @@
 # Stage 1: Build
-FROM ghcr.io/library/node:20-alpine AS builder
+FROM alpine:3.19 AS builder
 
 WORKDIR /app
+
+# Install Node.js 20
+RUN apk add --no-cache nodejs npm
 
 # Copy package files
 COPY package*.json ./
@@ -21,12 +24,12 @@ RUN npx prisma generate
 RUN npm run build
 
 # Stage 2: Production
-FROM ghcr.io/library/node:20-alpine
+FROM alpine:3.19
 
 WORKDIR /app
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
+# Install Node.js 20 and curl
+RUN apk add --no-cache nodejs npm curl
 
 # Copy package files
 COPY package*.json ./

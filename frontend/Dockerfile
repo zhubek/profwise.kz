@@ -1,7 +1,10 @@
 # Stage 1: Dependencies
-FROM ghcr.io/library/node:20-alpine AS deps
+FROM alpine:3.19 AS deps
 
 WORKDIR /app
+
+# Install Node.js 20
+RUN apk add --no-cache nodejs npm
 
 # Copy package files
 COPY package*.json ./
@@ -10,9 +13,12 @@ COPY package*.json ./
 RUN npm ci
 
 # Stage 2: Builder
-FROM ghcr.io/library/node:20-alpine AS builder
+FROM alpine:3.19 AS builder
 
 WORKDIR /app
+
+# Install Node.js 20
+RUN apk add --no-cache nodejs npm
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
@@ -28,12 +34,12 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN npm run build
 
 # Stage 3: Production
-FROM ghcr.io/library/node:20-alpine AS runner
+FROM alpine:3.19 AS runner
 
 WORKDIR /app
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
+# Install Node.js 20 and curl
+RUN apk add --no-cache nodejs npm curl
 
 ENV NODE_ENV=production
 
