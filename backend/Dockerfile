@@ -17,7 +17,7 @@ COPY . .
 RUN npx prisma generate
 
 # Build the application
-RUN npm run build && ls -la && ls -la dist/
+RUN npm run build
 
 # Stage 2: Production
 FROM node:20-alpine
@@ -45,4 +45,4 @@ COPY --from=builder /app/dist ./dist
 EXPOSE 4000
 
 # Run migrations and start the application
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main"]
