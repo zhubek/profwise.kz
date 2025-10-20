@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Eye, Search, Download } from 'lucide-react';
+import { Eye, Search, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,56 +15,101 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getAdminUsers } from '@/lib/api/mock/admin';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import type { AdminUserData } from '@/types/admin';
 import ResultModal from '../ResultModal';
 
+interface License {
+  id: string;
+  name: string;
+  licenseCode: string;
+  startDate: string;
+  expireDate: string;
+  user: {
+    id: string;
+    name: string;
+    surname: string;
+    email: string;
+    grade: string | null;
+    age: number | null;
+  } | null;
+}
+
 export default function AdminDashboardPage() {
-  const [users, setUsers] = useState<AdminUserData[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<AdminUserData[]>([]);
+  const [licenses, setLicenses] = useState<License[]>([]);
+  const [filteredLicenses, setFilteredLicenses] = useState<License[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { organization } = useAdminAuth();
   const t = useTranslations('admin');
 
   useEffect(() => {
-    // Load users (no authentication check - freely accessible)
-    loadUsers();
+    loadLicenses();
   }, []);
 
-  const loadUsers = async () => {
-    const data = await getAdminUsers();
-    setUsers(data);
-    setFilteredUsers(data);
+  const loadLicenses = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('adminToken');
+
+      if (!token) {
+        setError('No admin token found');
+        return;
+      }
+
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://172.26.195.243:4000';
+      const response = await fetch(`${API_URL}/admin-auth/licenses`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch licenses');
+      }
+
+      const data = await response.json();
+      setLicenses(data);
+      setFilteredLicenses(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load licenses');
+      console.error('Error loading licenses:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (!query.trim()) {
-      setFilteredUsers(users);
+      setFilteredLicenses(licenses);
       return;
     }
 
     const lowerQuery = query.toLowerCase();
-    const filtered = users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(lowerQuery) ||
-        user.surname.toLowerCase().includes(lowerQuery) ||
-        user.email.toLowerCase().includes(lowerQuery) ||
-        user.licenseCode.toLowerCase().includes(lowerQuery)
+    const filtered = licenses.filter(
+      (license) =>
+        license.licenseCode.toLowerCase().includes(lowerQuery) ||
+        license.name.toLowerCase().includes(lowerQuery) ||
+        (license.user?.name.toLowerCase().includes(lowerQuery)) ||
+        (license.user?.surname.toLowerCase().includes(lowerQuery)) ||
+        (license.user?.email.toLowerCase().includes(lowerQuery))
     );
-    setFilteredUsers(filtered);
+    setFilteredLicenses(filtered);
   };
 
   const handleExportCSV = () => {
-    const headers = ['License Code', 'Name', 'Surname', 'Email', 'Grade', 'Gender', 'Test Count'];
-    const rows = filteredUsers.map((user) => [
-      user.licenseCode,
-      user.name,
-      user.surname,
-      user.email,
-      user.grade || '-',
-      user.gender || '-',
-      user.results.length,
+    const headers = ['License Code', 'License Name', 'User Name', 'Email', 'Grade', 'Status', 'Expires'];
+    const rows = filteredLicenses.map((license) => [
+      license.licenseCode,
+      license.name,
+      license.user ? `${license.user.name} ${license.user.surname}` : 'Not Activated',
+      license.user?.email || '-',
+      license.user?.grade || '-',
+      license.user ? 'Activated' : 'Available',
+      new Date(license.expireDate).toLocaleDateString(),
     ]);
 
     const csvContent = [
@@ -76,22 +121,71 @@ export default function AdminDashboardPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `admin-users-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `licenses-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
+        <Card>
+          <CardContent className="py-12">
+            <div className="flex flex-col items-center justify-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
+              <p className="text-muted-foreground">Loading licenses...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center">
+              <p className="text-red-600 mb-4">{error}</p>
+              <Button onClick={loadLicenses}>Try Again</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const activatedCount = licenses.filter(l => l.user !== null).length;
+  const totalCount = licenses.length;
+
   return (
     <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
+      {/* Organization Info */}
+      {organization && (
+        <Card className="mb-6 bg-gradient-to-r from-amber-500 to-amber-600 text-white">
+          <CardContent className="p-6">
+            <h2 className="text-2xl font-bold mb-2">{organization.name}</h2>
+            <div className="flex gap-4 text-sm opacity-90">
+              <span>Type: {organization.type}</span>
+              <span>•</span>
+              <span>Licenses: {activatedCount} / {totalCount} activated</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <CardTitle className="text-2xl">{t('dashboard.title')}</CardTitle>
-              <CardDescription>{t('dashboard.description', { count: filteredUsers.length })}</CardDescription>
+              <CardTitle className="text-2xl">License Management</CardTitle>
+              <CardDescription>
+                {filteredLicenses.length} {filteredLicenses.length === 1 ? 'license' : 'licenses'} found
+              </CardDescription>
             </div>
             <Button onClick={handleExportCSV} variant="outline" className="w-full md:w-auto">
               <Download className="w-4 h-4 mr-2" />
-              {t('dashboard.exportCSV')}
+              Export CSV
             </Button>
           </div>
         </CardHeader>
@@ -101,7 +195,7 @@ export default function AdminDashboardPage() {
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={t('dashboard.searchPlaceholder')}
+                placeholder="Search by license code, name, or user..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="pl-10"
@@ -114,47 +208,46 @@ export default function AdminDashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('dashboard.table.licenseCode')}</TableHead>
-                  <TableHead>{t('dashboard.table.name')}</TableHead>
-                  <TableHead>{t('dashboard.table.email')}</TableHead>
-                  <TableHead className="text-center">{t('dashboard.table.grade')}</TableHead>
-                  <TableHead className="text-center">{t('dashboard.table.gender')}</TableHead>
-                  <TableHead className="text-center">{t('dashboard.table.testResults')}</TableHead>
+                  <TableHead>License Code</TableHead>
+                  <TableHead>License Name</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead className="text-center">Grade</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
+                  <TableHead>Expires</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.length === 0 ? (
+                {filteredLicenses.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                      {t('dashboard.noResults')}
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                      No licenses found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
+                  filteredLicenses.map((license) => (
+                    <TableRow key={license.id}>
                       <TableCell className="font-medium">
-                        <Badge variant="outline">{user.licenseCode}</Badge>
+                        <Badge variant="outline">{license.licenseCode}</Badge>
                       </TableCell>
+                      <TableCell className="font-medium">{license.name}</TableCell>
                       <TableCell>
-                        {user.name} {user.surname}
-                      </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell className="text-center">{user.grade || '-'}</TableCell>
-                      <TableCell className="text-center">{user.gender || '-'}</TableCell>
-                      <TableCell className="text-center">
-                        {user.results.length > 0 ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedResultId(user.results[0].id)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            {t('dashboard.table.viewResults')} ({user.results.length})
-                          </Button>
+                        {license.user ? (
+                          `${license.user.name} ${license.user.surname}`
                         ) : (
-                          <span className="text-muted-foreground text-sm">{t('dashboard.table.noTests')}</span>
+                          <span className="text-muted-foreground italic">Not activated</span>
                         )}
                       </TableCell>
+                      <TableCell>{license.user?.email || '-'}</TableCell>
+                      <TableCell className="text-center">{license.user?.grade || '-'}</TableCell>
+                      <TableCell className="text-center">
+                        {license.user ? (
+                          <Badge className="bg-green-500">Activated</Badge>
+                        ) : (
+                          <Badge variant="secondary">Available</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>{new Date(license.expireDate).toLocaleDateString()}</TableCell>
                     </TableRow>
                   ))
                 )}
@@ -164,46 +257,41 @@ export default function AdminDashboardPage() {
 
           {/* Cards - Mobile */}
           <div className="md:hidden space-y-4">
-            {filteredUsers.length === 0 ? (
+            {filteredLicenses.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">
-                {t('dashboard.noResults')}
+                No licenses found
               </div>
             ) : (
-              filteredUsers.map((user) => (
-                <Card key={user.id}>
+              filteredLicenses.map((license) => (
+                <Card key={license.id}>
                   <CardContent className="p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="font-semibold">
-                          {user.name} {user.surname}
+                        <p className="font-semibold">{license.name}</p>
+                        <Badge variant="outline" className="mt-1">{license.licenseCode}</Badge>
+                      </div>
+                      {license.user ? (
+                        <Badge className="bg-green-500">Activated</Badge>
+                      ) : (
+                        <Badge variant="secondary">Available</Badge>
+                      )}
+                    </div>
+
+                    {license.user && (
+                      <div className="space-y-1">
+                        <p className="font-medium">
+                          {license.user.name} {license.user.surname}
                         </p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                        <p className="text-sm text-muted-foreground">{license.user.email}</p>
+                        {license.user.grade && (
+                          <p className="text-sm">Grade: {license.user.grade}</p>
+                        )}
                       </div>
-                      <Badge variant="outline">{user.licenseCode}</Badge>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">{t('dashboard.table.grade')}:</span>{' '}
-                        <span className="font-medium">{user.grade || '-'}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">{t('dashboard.table.gender')}:</span>{' '}
-                        <span className="font-medium">{user.gender || '-'}</span>
-                      </div>
-                    </div>
-
-                    {user.results.length > 0 && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => setSelectedResultId(user.results[0].id)}
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        {t('dashboard.table.viewResults')} ({user.results.length})
-                      </Button>
                     )}
+
+                    <div className="text-sm text-muted-foreground">
+                      Expires: {new Date(license.expireDate).toLocaleDateString()}
+                    </div>
                   </CardContent>
                 </Card>
               ))
@@ -211,13 +299,6 @@ export default function AdminDashboardPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Result Modal */}
-      <ResultModal
-        resultId={selectedResultId}
-        isOpen={selectedResultId !== null}
-        onClose={() => setSelectedResultId(null)}
-      />
     </div>
   );
 }

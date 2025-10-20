@@ -13,6 +13,7 @@ import {
 import { ResultsService } from './results.service';
 import { CreateResultDto } from './dto/create-result.dto';
 import { UpdateResultDto } from './dto/update-result.dto';
+import { UpsertSurveyQuestionsDto } from './dto/upsert-user-question.dto';
 
 @Controller('results')
 export class ResultsController {
@@ -48,5 +49,11 @@ export class ResultsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.resultsService.remove(id);
+  }
+
+  @Post('survey-questions')
+  @HttpCode(HttpStatus.OK)
+  upsertSurveyQuestions(@Body() dto: UpsertSurveyQuestionsDto) {
+    return this.resultsService.upsertSurveyQuestions(dto);
   }
 }

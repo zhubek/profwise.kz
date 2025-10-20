@@ -475,7 +475,13 @@ export async function submitHollandTest(
   answers: Record<string, number | string | string[]>
 ): Promise<TestResults> {
 
-  // Calculate RIASEC scores
+  // Get all questions
+  const allQuestions = hollandTestSections.flatMap(section => section.questions);
+
+  // Separate survey questions from RIASEC scoring questions
+  const surveyQuestions: Array<{ questionId: string; answers: any }> = [];
+
+  // Calculate RIASEC scores (only for non-survey questions)
   const riasecScores = {
     realistic: 0,
     investigative: 0,
@@ -485,22 +491,42 @@ export async function submitHollandTest(
     conventional: 0,
   };
 
-  // Sum up scores for each category
+  // Process each answer
   Object.entries(answers).forEach(([questionId, answer]) => {
-    const question = hollandTestSections
-      .flatMap(section => section.questions)
-      .find(q => q.id === questionId);
+    const question = allQuestions.find(q => q.id === questionId);
 
-    if (question && question.archetypeCode && typeof answer === 'number') {
-      const code = question.archetypeCode.toLowerCase();
-      if (code === 'r') riasecScores.realistic += answer;
-      else if (code === 'i') riasecScores.investigative += answer;
-      else if (code === 'a') riasecScores.artistic += answer;
-      else if (code === 's') riasecScores.social += answer;
-      else if (code === 'e') riasecScores.enterprising += answer;
-      else if (code === 'c') riasecScores.conventional += answer;
+    if (question) {
+      // Check if this is a survey question
+      const parameters = question.parameters as any;
+      const isSurveyQuestion = parameters?.type === 'survey';
+
+      if (isSurveyQuestion) {
+        // Store survey question answer separately
+        surveyQuestions.push({
+          questionId,
+          answers: answer,
+        });
+      } else if (question.archetypeCode && typeof answer === 'number') {
+        // Calculate RIASEC score for regular questions
+        const code = question.archetypeCode.toLowerCase();
+        if (code === 'r') riasecScores.realistic += answer;
+        else if (code === 'i') riasecScores.investigative += answer;
+        else if (code === 'a') riasecScores.artistic += answer;
+        else if (code === 's') riasecScores.social += answer;
+        else if (code === 'e') riasecScores.enterprising += answer;
+        else if (code === 'c') riasecScores.conventional += answer;
+      }
     }
   });
+
+  // TODO: Call backend API to save survey questions
+  // if (surveyQuestions.length > 0) {
+  //   await fetch(`${API_BASE_URL}/results/survey-questions`, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({ userId, questions: surveyQuestions }),
+  //   });
+  // }
 
   return {
     id: `result-${Date.now()}`,

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateResultDto } from './dto/create-result.dto';
 import { UpdateResultDto } from './dto/update-result.dto';
+import { UpsertSurveyQuestionsDto } from './dto/upsert-user-question.dto';
 
 @Injectable()
 export class ResultsService {
@@ -156,5 +157,31 @@ export class ResultsService {
     } catch (error) {
       throw new NotFoundException(`Result with ID ${id} not found`);
     }
+  }
+
+  async upsertSurveyQuestions(dto: UpsertSurveyQuestionsDto) {
+    const { userId, questions } = dto;
+
+    // Upsert each survey question answer
+    const upsertPromises = questions.map((q) =>
+      this.prisma.userQuestion.upsert({
+        where: {
+          userId_questionId: {
+            userId,
+            questionId: q.questionId,
+          },
+        },
+        create: {
+          userId,
+          questionId: q.questionId,
+          answers: q.answers,
+        },
+        update: {
+          answers: q.answers,
+        },
+      }),
+    );
+
+    return await Promise.all(upsertPromises);
   }
 }

@@ -1109,6 +1109,72 @@ Deletes a result.
 
 **Response:** `204 No Content`
 
+### Upsert Survey Questions
+**POST** `/results/survey-questions`
+
+Upserts (inserts or updates) user answers to survey questions. Survey questions are questions marked with `parameters.type === "survey"` that don't affect quiz scoring but collect additional data for analysis. Uses `userId` and `questionId` as unique constraint for upsert operations.
+
+**Request Body:**
+```json
+{
+  "userId": "user-uuid",
+  "questions": [
+    {
+      "questionId": "holandsurvey-1-1",
+      "answers": "b"
+    },
+    {
+      "questionId": "holandsurvey-1-2",
+      "answers": ["b", "c"]
+    }
+  ]
+}
+```
+
+**Notes on Request:**
+- `answers` field can be a string (single choice), array (multiple choice), or number (Likert scale)
+- Survey questions are identified by `parameters.type === "survey"` in the Question record
+- Each question answer is upserted individually based on userId + questionId unique constraint
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "uuid",
+    "userId": "user-uuid",
+    "questionId": "holandsurvey-1-1",
+    "answers": "b",
+    "createdAt": "2025-10-20T12:00:00.000Z"
+  },
+  {
+    "id": "uuid",
+    "userId": "user-uuid",
+    "questionId": "holandsurvey-1-2",
+    "answers": ["b", "c"],
+    "createdAt": "2025-10-20T12:00:00.000Z"
+  }
+]
+```
+
+**Use Case:**
+- Collecting demographic information during quiz
+- Gathering additional preferences that don't affect scoring
+- Research data collection alongside test results
+
+**Database Behavior:**
+- If `userId` + `questionId` combination exists: updates `answers` field
+- If `userId` + `questionId` combination doesn't exist: creates new record
+- Idempotent: Safe to call multiple times with same data
+
+**Error Response:** `400 Bad Request`
+```json
+{
+  "statusCode": 400,
+  "message": ["userId should not be empty", "questions should not be empty"],
+  "error": "Bad Request"
+}
+```
+
 ---
 
 ## Licenses Module
