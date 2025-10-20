@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM alpine:3.19 AS builder
+FROM quay.io/bedrock/alpine:3.19 AS builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Stage 2: Production
-FROM alpine:3.19
+FROM quay.io/bedrock/alpine:3.19
 
 WORKDIR /app
 
