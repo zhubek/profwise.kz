@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 import OnboardingModal from './OnboardingModal';
 
 // Routes that don't require authentication
-const PUBLIC_ROUTES = ['/login', '/register', '/verify-email'];
+const PUBLIC_ROUTES = ['/', '/login', '/register', '/verify-email', '/admin'];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading, showOnboarding, setShowOnboarding } = useAuth();
