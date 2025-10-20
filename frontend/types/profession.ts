@@ -68,6 +68,8 @@ export interface ProfessionMatch extends Profession {
     values: number;
   };
   isLiked?: boolean;
+  // Category can be either a Category object or a plain string (backward compatibility)
+  category?: Category | string;
 }
 
 export interface ProfessionLaborMarket {

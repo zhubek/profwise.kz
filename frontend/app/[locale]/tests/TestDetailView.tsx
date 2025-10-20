@@ -26,17 +26,19 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
   const [localStorageProgress, setLocalStorageProgress] = useState<number | null>(null);
   const [hasLocalTest, setHasLocalTest] = useState(false);
 
-  // Fetch quiz instructions with caching
-  const { instructions, loading: instructionsLoading } = useQuizInstructions(test.id);
+  // Fetch quiz instructions with caching (pass test?.id to handle undefined test)
+  const { instructions, loading: instructionsLoading } = useQuizInstructions(test?.id);
 
   // Check localStorage for any test on mount
   useEffect(() => {
+    if (!test?.id) return;
+
     const inProgress = hasTestInProgress(test.id);
     setHasLocalTest(inProgress);
     if (inProgress) {
       setLocalStorageProgress(getTestProgress(test.id, test.totalQuestions));
     }
-  }, [test.id, test.totalQuestions]);
+  }, [test?.id, test?.totalQuestions]);
 
   // Get status badge
   const getStatusBadge = () => {
@@ -66,6 +68,15 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
     }
     return <Badge variant="outline">{t('notStarted')}</Badge>;
   };
+
+  // Early return if no test (defensive check)
+  if (!test) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">No test selected</p>
+      </div>
+    );
+  }
 
   // Get action button
   const getActionButton = () => {

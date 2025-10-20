@@ -108,6 +108,18 @@ export default function TestsPage() {
     );
   }
 
+  // Safety check: ensure user exists before rendering
+  if (!user) {
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </main>
+    );
+  }
+
   // Merge tests with user progress
   const testsWithProgress = tests.map((test) => {
     const userTest = userTests.find((ut) => ut.testId === test.id);

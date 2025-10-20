@@ -34,6 +34,14 @@ export default function Header() {
     await logout();
   };
 
+  // Function to get language-switched URL
+  const getLocalizedPath = (newLocale: string) => {
+    if (!pathname) return `/${newLocale}`;
+    // Remove current locale from pathname and add new locale
+    const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(\/|$)/, '/');
+    return `/${newLocale}${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`;
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -71,13 +79,13 @@ export default function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link href="/en">English</Link>
+                <Link href={getLocalizedPath('en')}>English</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/ru">Русский</Link>
+                <Link href={getLocalizedPath('ru')}>Русский</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/kz">Қазақша</Link>
+                <Link href={getLocalizedPath('kz')}>Қазақша</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

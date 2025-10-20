@@ -26,11 +26,20 @@ export default function TestsPageContent({ tests, licenseInfo, userId, onRefresh
     return tests.find(t => t.id === selectedTestId) || firstAvailableTest;
   }, [selectedTestId, tests, firstAvailableTest]);
 
+  // Don't render if no tests available
+  if (!selectedTest) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">No tests available</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <TestSelector
         tests={tests}
-        selectedTestId={selectedTestId}
+        selectedTestId={selectedTestId || ''}
         onTestSelect={setSelectedTestId}
         licenseInfo={licenseInfo}
         userId={userId}

@@ -259,7 +259,9 @@ export default function ResultsPageContent({
                             variant="outline"
                             className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
                           >
-                            {t(`professions.category.${profession.category}`)}
+                            {typeof profession.category === 'object' && profession.category?.name
+                              ? getLocalized(profession.category.name)
+                              : t(`professions.category.${profession.category}`, profession.category as string)}
                           </Badge>
                         </div>
                       </div>
