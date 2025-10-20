@@ -2,18 +2,28 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { Loader2 } from 'lucide-react';
 
 export default function AdminPage() {
   const router = useRouter();
+  const { isAuthenticated, loading } = useAdminAuth();
 
   useEffect(() => {
-    // Redirect directly to dashboard - no authentication required
-    router.push('/admin/dashboard');
-  }, [router]);
+    if (loading) return;
+
+    if (isAuthenticated) {
+      // Redirect to dashboard if authenticated
+      router.push('/admin/dashboard');
+    } else {
+      // Redirect to login if not authenticated
+      router.push('/admin/login');
+    }
+  }, [isAuthenticated, loading, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-muted-foreground">Redirecting to admin dashboard...</div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
     </div>
   );
 }

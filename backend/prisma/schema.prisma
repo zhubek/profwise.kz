@@ -53,6 +53,8 @@ model Organization {
   name      String
   regionId  String
   type      OrganizationType
+  login     String?          @unique
+  password  String?
   createdAt DateTime         @default(now())
 
   // Relations
