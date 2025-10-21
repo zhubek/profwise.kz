@@ -30,20 +30,40 @@ export class CacheInvalidationService {
     if (!isEnabled) return;
 
     try {
-      // Access the underlying store
+      // Access the underlying store (Keyv instance)
       const store: any = (this.cacheManager as any).store;
 
-      if (store && store.client) {
-        // Get all keys matching pattern
-        const keys = await store.client.keys(`profwise:${pattern}`);
+      // Try to get Redis client from Keyv's nested structure
+      // @keyv/redis stores the client in different places depending on version
+      let redisClient: any = null;
+
+      // Method 1: Direct access to Keyv's store
+      if (store && store.opts && store.opts.store && store.opts.store.redis) {
+        redisClient = store.opts.store.redis;
+      }
+      // Method 2: Check if store itself has redis property
+      else if (store && store.redis) {
+        redisClient = store.redis;
+      }
+      // Method 3: Check if store has client property
+      else if (store && store.client) {
+        redisClient = store.client;
+      }
+
+      if (redisClient) {
+        // Get all keys matching pattern with profwise namespace
+        const keys = await redisClient.keys(`profwise:${pattern}`);
 
         if (keys && keys.length > 0) {
           // Delete all matching keys
-          await Promise.all(keys.map((key: string) => store.client.del(key)));
-          console.log(`[Cache INVALIDATE PATTERN] ${pattern} (${keys.length} keys)`);
+          await Promise.all(keys.map((key: string) => redisClient.del(key)));
+          console.log(`[Cache INVALIDATE PATTERN] ${pattern} (${keys.length} keys deleted)`);
+        } else {
+          console.log(`[Cache INVALIDATE PATTERN] ${pattern} (0 keys matched)`);
         }
       } else {
-        console.warn('[Cache WARNING] Cannot invalidate pattern - Redis client not available');
+        console.warn('[Cache WARNING] Cannot invalidate pattern - Redis client not accessible from Keyv store');
+        console.warn('[Cache DEBUG] Store structure:', JSON.stringify(Object.keys(store || {})));
       }
     } catch (error) {
       console.error(`[Cache ERROR] Failed to invalidate pattern ${pattern}:`, error.message);
