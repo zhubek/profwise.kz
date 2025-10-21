@@ -90,11 +90,19 @@ async function fetcher<T>(
     // Handle 401 - Unauthorized
     if (response.status === 401) {
       clearAuthToken();
+
+      // Only redirect if not already on login/register pages
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        const currentPath = window.location.pathname;
+        const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register');
+
+        if (!isAuthPage) {
+          window.location.href = '/login';
+        }
       }
+
       throw new APIErrorClass(
-        'Unauthorized. Please log in again.',
+        'Invalid credentials',
         'UNAUTHORIZED',
         401
       );

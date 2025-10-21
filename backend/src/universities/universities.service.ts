@@ -2,16 +2,23 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { PrismaService } from '../prisma.service';
 import { CreateUniversityDto } from './dto/create-university.dto';
 import { UpdateUniversityDto } from './dto/update-university.dto';
+import { CacheInvalidationService } from '../redis/cache-invalidation.service';
 
 @Injectable()
 export class UniversitiesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cacheInvalidation: CacheInvalidationService,
+  ) {}
 
   async create(createUniversityDto: CreateUniversityDto) {
     try {
-      return await this.prisma.university.create({
+      const university = await this.prisma.university.create({
         data: createUniversityDto,
       });
+      // Invalidate all university caches
+      await this.cacheInvalidation.invalidateUniversities();
+      return university;
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ConflictException(
@@ -71,10 +78,13 @@ export class UniversitiesService {
 
   async update(id: string, updateUniversityDto: UpdateUniversityDto) {
     try {
-      return await this.prisma.university.update({
+      const university = await this.prisma.university.update({
         where: { id },
         data: updateUniversityDto,
       });
+      // Invalidate this university and all university lists
+      await this.cacheInvalidation.invalidateUniversities(id);
+      return university;
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ConflictException(
@@ -93,6 +103,8 @@ export class UniversitiesService {
       await this.prisma.university.delete({
         where: { id },
       });
+      // Invalidate this university and all university lists
+      await this.cacheInvalidation.invalidateUniversities(id);
     } catch (error) {
       throw new NotFoundException(`University with ID ${id} not found`);
     }

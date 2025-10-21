@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseInterceptors } from '@nestjs/common';
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { CalculateResultDto } from './dto/calculate-result.dto';
+import { CacheInterceptor } from '../redis/cache.interceptor';
+import { CacheResponse } from '../redis/cache.decorator';
 
 @Controller('quizzes')
+@UseInterceptors(CacheInterceptor)
 export class QuizzesController {
   constructor(private readonly quizzesService: QuizzesService) {}
 
@@ -14,21 +17,25 @@ export class QuizzesController {
   }
 
   @Get()
+  @CacheResponse(3600) // Cache for 1 hour
   findAll() {
     return this.quizzesService.findAll();
   }
 
   @Get('user/:userId')
+  @CacheResponse(1800) // Cache for 30 minutes
   getUserQuizzes(@Param('userId') userId: string) {
     return this.quizzesService.getUserQuizzes(userId);
   }
 
   @Get(':id')
+  @CacheResponse(3600) // Cache for 1 hour
   findOne(@Param('id') id: string) {
     return this.quizzesService.findOne(id);
   }
 
   @Get(':id/instructions')
+  @CacheResponse(86400) // Cache for 24 hours
   getInstructions(@Param('id') id: string) {
     return this.quizzesService.getInstructions(id);
   }

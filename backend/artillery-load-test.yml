@@ -1,0 +1,46 @@
+config:
+  target: "http://172.26.195.243:4000"
+  phases:
+    - duration: 60
+      arrivalRate: 20
+      name: "Ramp up to 1000 users"
+    - duration: 120
+      arrivalRate: 50
+      name: "Sustained load - 1000 concurrent users"
+
+scenarios:
+  - name: "Read-heavy workload on cached endpoints"
+    weight: 100
+    flow:
+      # Test quizzes endpoint (heavily cached)
+      - get:
+          url: "/quizzes"
+          name: "GET /quizzes"
+
+      # Test professions endpoint (heavily cached)
+      - get:
+          url: "/professions"
+          name: "GET /professions"
+
+      # Test categories endpoint (cached)
+      - get:
+          url: "/categories"
+          name: "GET /categories"
+
+      # Test archetypes endpoint (cached)
+      - get:
+          url: "/archetypes"
+          name: "GET /archetypes"
+
+      # Test universities endpoint (cached)
+      - get:
+          url: "/universities"
+          name: "GET /universities"
+
+      # Test specs endpoint (cached)
+      - get:
+          url: "/specs"
+          name: "GET /specs"
+
+      # Add some think time to simulate real user behavior
+      - think: 1

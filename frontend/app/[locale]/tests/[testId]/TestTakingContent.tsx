@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/AuthContext';
@@ -77,12 +77,25 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
   const [answers, setAnswers] = useState<Record<string, EnrichedAnswer>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const sectionCardRef = useRef<HTMLDivElement>(null);
 
   // Group questions into sections
   const sections = groupQuestionsIntoSections(questions, 6);
   const currentSection = sections[currentSectionIndex];
   const totalSections = sections.length;
   const progress = ((currentSectionIndex + 1) / totalSections) * 100;
+
+  // Auto-scroll to section when navigating between sections
+  useEffect(() => {
+    if (sectionCardRef.current && !isLoading) {
+      // Scroll to the section card with some offset for better visibility
+      const yOffset = -20; // 20px offset from top
+      const element = sectionCardRef.current;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }, [currentSectionIndex, isLoading]);
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -262,7 +275,7 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
       </Card>
 
       {/* Section Content */}
-      <Card className="p-6">
+      <Card ref={sectionCardRef} className="p-6">
         <div className="space-y-6">
           {/* Section Header */}
           <div>

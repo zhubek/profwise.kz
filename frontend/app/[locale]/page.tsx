@@ -1,12 +1,10 @@
-'use client';
-
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function LandingPage() {
-  const t = useTranslations('landing');
+export default async function LandingPage() {
+  const t = await getTranslations('landing');
 
   return (
     <div className="flex flex-col">

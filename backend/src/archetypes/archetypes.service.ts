@@ -2,18 +2,25 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateArchetypeDto } from './dto/create-archetype.dto';
 import { UpdateArchetypeDto } from './dto/update-archetype.dto';
+import { CacheInvalidationService } from '../redis/cache-invalidation.service';
 
 @Injectable()
 export class ArchetypesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cacheInvalidation: CacheInvalidationService,
+  ) {}
 
   async create(createArchetypeDto: CreateArchetypeDto) {
-    return this.prisma.archetype.create({
+    const archetype = await this.prisma.archetype.create({
       data: createArchetypeDto,
       include: {
         archetypeType: true,
       },
     });
+    // Invalidate all archetype caches
+    await this.cacheInvalidation.invalidateArchetypes();
+    return archetype;
   }
 
   async findAll() {
@@ -63,13 +70,16 @@ export class ArchetypesService {
 
   async update(id: string, updateArchetypeDto: UpdateArchetypeDto) {
     try {
-      return await this.prisma.archetype.update({
+      const archetype = await this.prisma.archetype.update({
         where: { id },
         data: updateArchetypeDto,
         include: {
           archetypeType: true,
         },
       });
+      // Invalidate this archetype and all archetype lists
+      await this.cacheInvalidation.invalidateArchetypes(id);
+      return archetype;
     } catch (error) {
       throw new NotFoundException(`Archetype with ID ${id} not found`);
     }
@@ -80,6 +90,8 @@ export class ArchetypesService {
       await this.prisma.archetype.delete({
         where: { id },
       });
+      // Invalidate this archetype and all archetype lists
+      await this.cacheInvalidation.invalidateArchetypes(id);
     } catch (error) {
       throw new NotFoundException(`Archetype with ID ${id} not found`);
     }

@@ -109,7 +109,10 @@
       "Bash(pgrep:*)",
       "WebFetch(domain:status.docker.io)",
       "Bash(sudo gpg:*)",
-      "Bash(npx artillery:*)"
+      "Bash(npx artillery:*)",
+      "Bash([ -f .env.example ])",
+      "Bash(redis-cli -h localhost -p 6379 ping)",
+      "Bash(chmod +x /home/bex/projects/profwise.kz/backend/setup-redis.sh)"
     ]
   },
   "enableAllProjectMcpServers": true,

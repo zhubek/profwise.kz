@@ -59,6 +59,7 @@
     "loginSubtitle": "Enter your credentials to access your account",
     "registerSubtitle": "Create an account to start your career journey",
     "loginError": "Invalid email or password",
+    "invalidCredentials": "Invalid email or password. Please try again.",
     "registerError": "Registration failed. Please try again.",
     "emailPlaceholder": "name@example.com",
     "passwordPlaceholder": "Enter your password",
@@ -563,7 +564,12 @@
         "creativity": "Creativity",
         "self-expression": "Self-expression",
         "security": "Security",
-        "order": "Order"
+        "order": "Order",
+        "helping": "Helping",
+        "empathy": "Empathy",
+        "collaboration": "Collaboration",
+        "empathetic": "Empathetic",
+        "cooperative": "Cooperative"
       },
       "market": {
         "laborMarketOverview": "Labor Market Overview",
@@ -785,7 +791,9 @@
   },
   "admin": {
     "header": {
-      "subtitle": "Management Dashboard"
+      "subtitle": "Management Dashboard",
+      "backToHome": "Back to Home",
+      "signOut": "Sign Out"
     },
     "login": {
       "title": "Admin Login",

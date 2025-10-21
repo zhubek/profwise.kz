@@ -3,19 +3,26 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
+import { CacheInvalidationService } from '../redis/cache-invalidation.service';
 
 @Injectable()
 export class QuizzesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cacheInvalidation: CacheInvalidationService,
+  ) {}
 
   async create(createQuizDto: CreateQuizDto) {
     const data: any = { ...createQuizDto };
     if (createQuizDto.startDate) {
       data.startDate = new Date(createQuizDto.startDate);
     }
-    return this.prisma.quiz.create({
+    const quiz = await this.prisma.quiz.create({
       data,
     });
+    // Invalidate all quiz caches
+    await this.cacheInvalidation.invalidateQuizzes();
+    return quiz;
   }
 
   async findAll() {
@@ -51,10 +58,13 @@ export class QuizzesService {
       if (updateQuizDto.startDate) {
         data.startDate = new Date(updateQuizDto.startDate);
       }
-      return await this.prisma.quiz.update({
+      const quiz = await this.prisma.quiz.update({
         where: { id },
         data,
       });
+      // Invalidate this quiz and all quiz lists
+      await this.cacheInvalidation.invalidateQuizzes(id);
+      return quiz;
     } catch (error) {
       throw new NotFoundException(`Quiz with ID ${id} not found`);
     }
@@ -194,6 +204,8 @@ export class QuizzesService {
       await this.prisma.quiz.delete({
         where: { id },
       });
+      // Invalidate this quiz and all quiz lists
+      await this.cacheInvalidation.invalidateQuizzes(id);
     } catch (error) {
       throw new NotFoundException(`Quiz with ID ${id} not found`);
     }
@@ -448,6 +460,9 @@ export class QuizzesService {
 
       return resultRecord;
     });
+
+    // Invalidate user-specific caches after quiz completion
+    await this.cacheInvalidation.invalidateUserCaches(data.userId);
 
     // Return the results with resultId
     return {

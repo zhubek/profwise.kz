@@ -2,16 +2,23 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { PrismaService } from '../prisma.service';
 import { CreateSpecDto } from './dto/create-spec.dto';
 import { UpdateSpecDto } from './dto/update-spec.dto';
+import { CacheInvalidationService } from '../redis/cache-invalidation.service';
 
 @Injectable()
 export class SpecsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cacheInvalidation: CacheInvalidationService,
+  ) {}
 
   async create(createSpecDto: CreateSpecDto) {
     try {
-      return await this.prisma.spec.create({
+      const spec = await this.prisma.spec.create({
         data: createSpecDto,
       });
+      // Invalidate all spec caches
+      await this.cacheInvalidation.invalidateSpecs();
+      return spec;
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ConflictException(
@@ -86,10 +93,13 @@ export class SpecsService {
 
   async update(id: string, updateSpecDto: UpdateSpecDto) {
     try {
-      return await this.prisma.spec.update({
+      const spec = await this.prisma.spec.update({
         where: { id },
         data: updateSpecDto,
       });
+      // Invalidate this spec and all spec lists
+      await this.cacheInvalidation.invalidateSpecs(id);
+      return spec;
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ConflictException(
@@ -108,6 +118,8 @@ export class SpecsService {
       await this.prisma.spec.delete({
         where: { id },
       });
+      // Invalidate this spec and all spec lists
+      await this.cacheInvalidation.invalidateSpecs(id);
     } catch (error) {
       throw new NotFoundException(`Spec with ID ${id} not found`);
     }

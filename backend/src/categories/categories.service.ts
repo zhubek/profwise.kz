@@ -2,15 +2,22 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CacheInvalidationService } from '../redis/cache-invalidation.service';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cacheInvalidation: CacheInvalidationService,
+  ) {}
 
   async create(createCategoryDto: CreateCategoryDto) {
-    return this.prisma.category.create({
+    const category = await this.prisma.category.create({
       data: createCategoryDto,
     });
+    // Invalidate all category caches
+    await this.cacheInvalidation.invalidateCategories();
+    return category;
   }
 
   async findAll() {
@@ -51,10 +58,13 @@ export class CategoriesService {
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     try {
-      return await this.prisma.category.update({
+      const category = await this.prisma.category.update({
         where: { id },
         data: updateCategoryDto,
       });
+      // Invalidate this category and all category lists
+      await this.cacheInvalidation.invalidateCategories(id);
+      return category;
     } catch (error) {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
@@ -65,6 +75,8 @@ export class CategoriesService {
       await this.prisma.category.delete({
         where: { id },
       });
+      // Invalidate this category and all category lists
+      await this.cacheInvalidation.invalidateCategories(id);
     } catch (error) {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }

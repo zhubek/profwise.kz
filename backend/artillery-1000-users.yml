@@ -1,0 +1,185 @@
+config:
+  target: "http://172.26.195.243:4000"
+  phases:
+    # Phase 1: Ramp up from 0 to 500 users over 5 minutes
+    - duration: 300
+      arrivalRate: 10
+      name: "Ramp-up: 0 to 500 users (5 min)"
+
+    # Phase 2: Ramp up from 500 to 1000 users over 5 minutes
+    - duration: 300
+      arrivalRate: 20
+      name: "Ramp-up: 500 to 1000 users (5 min)"
+
+    # Phase 3: Sustained 1000 concurrent users for 10 minutes
+    - duration: 600
+      arrivalRate: 50
+      name: "Sustained: 1000 concurrent users (10 min)"
+
+  # Capture metrics
+  plugins:
+    metrics-by-endpoint:
+      {}
+
+  # Timeout settings
+  timeout: 30
+
+  # Custom variables
+  variables:
+    quizId:
+      - "holand-1"
+      - "94dc3c68-342f-40eb-b159-388e409851f5"
+      - "2265a1b4-04ab-4610-843d-cf2363ab6545"
+
+    userId:
+      - "0a68c2f0-2f24-48e3-a207-dc2bb8e88c30"
+      - "29507840-27ba-4ae9-a12d-7ee7df1c1332"
+      - "1e141c70-a0dc-4a32-ae77-a3fa4f3a7a04"
+      - "0e9bbe96-934e-4009-ba72-bc69a0aa7419"
+      - "487a054f-674c-4f00-95f4-f33ca7f37d56"
+
+scenarios:
+  # Scenario 1: Browsing Users (70% of traffic)
+  - name: "Browsing user - exploring professions and careers"
+    weight: 70
+    flow:
+      # Browse professions list
+      - get:
+          url: "/professions"
+          name: "GET /professions (list all)"
+
+      - think: 2
+
+      # View random profession details
+      - get:
+          url: "/professions/{{ $randomString() }}"
+          name: "GET /professions/:id"
+          expect:
+            - statusCode:
+                - 200
+                - 404  # Some random IDs won't exist
+
+      - think: 3
+
+      # Browse categories
+      - get:
+          url: "/categories"
+          name: "GET /categories"
+
+      - think: 2
+
+      # Browse universities
+      - get:
+          url: "/universities"
+          name: "GET /universities"
+
+      - think: 3
+
+      # Browse archetypes
+      - get:
+          url: "/archetypes"
+          name: "GET /archetypes"
+
+      - think: 2
+
+      # Browse specs (specializations)
+      - get:
+          url: "/specs"
+          name: "GET /specs"
+
+      - think: 4
+
+      # View specific category
+      - get:
+          url: "/categories/{{ $randomString() }}"
+          name: "GET /categories/:id"
+          expect:
+            - statusCode:
+                - 200
+                - 404
+
+      - think: 2
+
+  # Scenario 2: Quiz Takers (30% of traffic)
+  - name: "Quiz taker - taking career assessment"
+    weight: 30
+    flow:
+      # Get available quizzes for user
+      - get:
+          url: "/quizzes/user/{{ userId }}"
+          name: "GET /quizzes/user/:userId"
+
+      - think: 3
+
+      # View all quizzes
+      - get:
+          url: "/quizzes"
+          name: "GET /quizzes"
+
+      - think: 2
+
+      # Get specific quiz
+      - get:
+          url: "/quizzes/{{ quizId }}"
+          name: "GET /quizzes/:id"
+
+      - think: 3
+
+      # Get quiz instructions
+      - get:
+          url: "/quizzes/{{ quizId }}/instructions"
+          name: "GET /quizzes/:id/instructions"
+
+      - think: 5
+
+      # Get questions (simulate quiz taking)
+      - get:
+          url: "/questions?quizId={{ quizId }}"
+          name: "GET /questions?quizId=:id"
+
+      - think: 8
+
+      # Submit quiz result
+      - post:
+          url: "/results"
+          name: "POST /results (submit quiz)"
+          json:
+            userId: "{{ userId }}"
+            quizId: "{{ quizId }}"
+            answers:
+              "holand-1-1":
+                answer:
+                  "3": 3
+                parameters:
+                  type: "Interest"
+                  scale: "R"
+            results:
+              R: 20
+              I: 40
+              A: 35
+              S: 30
+              E: 50
+              C: 25
+
+      - think: 3
+
+      # View user profession matches
+      - get:
+          url: "/users/{{ userId }}/professions"
+          name: "GET /users/:userId/professions"
+
+      - think: 4
+
+      # View user archetype profile
+      - get:
+          url: "/users/{{ userId }}/archetype-profile"
+          name: "GET /users/:userId/archetype-profile"
+
+      - think: 3
+
+      # Browse results
+      - get:
+          url: "/results?userId={{ userId }}"
+          name: "GET /results?userId=:id"
+
+      - think: 2

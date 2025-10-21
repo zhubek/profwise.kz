@@ -2,18 +2,25 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateProfessionDto } from './dto/create-profession.dto';
 import { UpdateProfessionDto } from './dto/update-profession.dto';
+import { CacheInvalidationService } from '../redis/cache-invalidation.service';
 
 @Injectable()
 export class ProfessionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cacheInvalidation: CacheInvalidationService,
+  ) {}
 
   async create(createProfessionDto: CreateProfessionDto) {
-    return this.prisma.profession.create({
+    const profession = await this.prisma.profession.create({
       data: createProfessionDto,
       include: {
         category: true,
       },
     });
+    // Invalidate all profession caches
+    await this.cacheInvalidation.invalidateProfessions();
+    return profession;
   }
 
   async findAll() {
@@ -77,13 +84,16 @@ export class ProfessionsService {
 
   async update(id: string, updateProfessionDto: UpdateProfessionDto) {
     try {
-      return await this.prisma.profession.update({
+      const profession = await this.prisma.profession.update({
         where: { id },
         data: updateProfessionDto,
         include: {
           category: true,
         },
       });
+      // Invalidate this profession and all profession lists
+      await this.cacheInvalidation.invalidateProfessions(id);
+      return profession;
     } catch (error) {
       throw new NotFoundException(`Profession with ID ${id} not found`);
     }
@@ -94,6 +104,8 @@ export class ProfessionsService {
       await this.prisma.profession.delete({
         where: { id },
       });
+      // Invalidate this profession and all profession lists
+      await this.cacheInvalidation.invalidateProfessions(id);
     } catch (error) {
       throw new NotFoundException(`Profession with ID ${id} not found`);
     }

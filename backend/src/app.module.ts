@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma.module';
+import { RedisModule } from './redis/redis.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { ProfessionsModule } from './professions/professions.module';
@@ -18,6 +19,7 @@ import { LicensesModule } from './licenses/licenses.module';
 @Module({
   imports: [
     PrismaModule,
+    RedisModule, // Add Redis module globally
     AuthModule,
     AdminAuthModule,
     ProfilesModule,

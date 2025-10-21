@@ -7,12 +7,16 @@ import {
   HttpCode,
   HttpStatus,
   Body,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ToggleProfessionLikeDto } from './dto/toggle-profession-like.dto';
+import { CacheInterceptor } from '../redis/cache.interceptor';
+import { CacheResponse } from '../redis/cache.decorator';
 
 @Controller('users')
+@UseInterceptors(CacheInterceptor)
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
@@ -38,11 +42,13 @@ export class ProfilesController {
   }
 
   @Get(':id/archetype-profile')
+  @CacheResponse(900) // Cache for 15 minutes
   getArchetypeProfile(@Param('id') id: string) {
     return this.profilesService.getArchetypeProfile(id);
   }
 
   @Get(':id/professions')
+  @CacheResponse(900) // Cache for 15 minutes
   getUserProfessions(@Param('id') id: string) {
     return this.profilesService.getUserProfessions(id);
   }

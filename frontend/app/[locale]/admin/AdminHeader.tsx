@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Globe, User, LogOut, School } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { Globe, LogOut, School, Home } from 'lucide-react';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export default function AdminHeader() {
-  const { user, logout } = useAuth();
+  const { organization, logout } = useAdminAuth();
   const pathname = usePathname();
   const t = useTranslations();
 
@@ -34,15 +34,27 @@ export default function AdminHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-slate-900 text-white shadow-lg">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-        {/* Logo */}
-        <div className="flex items-center space-x-3">
-          <div className="bg-amber-500 p-2 rounded-lg">
-            <School className="w-5 h-5 text-slate-900" />
+        {/* Logo and Back Button */}
+        <div className="flex items-center space-x-3 md:space-x-4">
+          {/* Logo */}
+          <div className="flex items-center space-x-3">
+            <div className="bg-amber-500 p-2 rounded-lg">
+              <School className="w-5 h-5 text-slate-900" />
+            </div>
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-bold">ProfWise Admin</h1>
+              <p className="text-xs text-slate-400">{t('admin.header.subtitle')}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg font-bold">ProfWise Admin</h1>
-            <p className="text-xs text-slate-400">{t('admin.header.subtitle')}</p>
-          </div>
+
+          {/* Back to Home Button */}
+          <Link
+            href={`/${pathname?.split('/')[1]}`}
+            className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-slate-800 transition-colors border border-slate-700"
+          >
+            <Home className="w-4 h-4" />
+            <span className="hidden sm:inline">{t('admin.header.backToHome')}</span>
+          </Link>
         </div>
 
         {/* Right side actions */}
@@ -68,27 +80,23 @@ export default function AdminHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* User Profile */}
-          {user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-white hover:bg-slate-800">
-                  <User className="h-5 w-5" />
-                  <span className="sr-only">{t('navigation.profile')}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">{user.name}</p>
-                  <p className="text-xs text-muted-foreground">{user.email}</p>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  {t('auth.logout')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          {/* Organization Name & Sign Out */}
+          {organization && (
+            <div className="flex items-center space-x-3">
+              <div className="hidden md:block text-right">
+                <p className="text-sm font-medium text-white">{organization.name}</p>
+                <p className="text-xs text-slate-400">{organization.type}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-white hover:bg-slate-800 hover:text-white"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">{t('admin.header.signOut')}</span>
+              </Button>
+            </div>
           )}
         </div>
       </nav>
