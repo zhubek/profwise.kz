@@ -3,6 +3,10 @@ import { CacheModule } from '@nestjs/cache-manager';
 import Keyv from 'keyv';
 import KeyvRedis from '@keyv/redis';
 import { CacheInvalidationService } from './cache-invalidation.service';
+import Redis from 'ioredis';
+
+// Provider token for Redis client
+export const REDIS_CLIENT = 'REDIS_CLIENT';
 
 @Global()
 @Module({
@@ -59,7 +63,34 @@ import { CacheInvalidationService } from './cache-invalidation.service';
       },
     }),
   ],
-  providers: [CacheInvalidationService],
-  exports: [CacheModule, CacheInvalidationService],
+  providers: [
+    {
+      provide: REDIS_CLIENT,
+      useFactory: () => {
+        const isEnabled = process.env.ENABLE_REDIS_CACHE === 'true';
+
+        if (!isEnabled) {
+          return null;
+        }
+
+        const redisHost = process.env.REDIS_HOST || 'localhost';
+        const redisPort = parseInt(process.env.REDIS_PORT || '6379');
+        const redisPassword = process.env.REDIS_PASSWORD;
+
+        const redis = new Redis({
+          host: redisHost,
+          port: redisPort,
+          password: redisPassword || undefined,
+          keyPrefix: 'profwise:', // Same namespace as Keyv
+        });
+
+        console.log('[Redis] Direct Redis client initialized for cache invalidation');
+
+        return redis;
+      },
+    },
+    CacheInvalidationService,
+  ],
+  exports: [CacheModule, CacheInvalidationService, REDIS_CLIENT],
 })
 export class RedisModule {}
