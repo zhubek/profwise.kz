@@ -5,13 +5,17 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CacheInvalidationService } from '../redis/cache-invalidation.service';
 import { CreateLicenseDto } from './dto/create-license.dto';
 import { UpdateLicenseDto } from './dto/update-license.dto';
 import { ActivateLicenseDto } from './dto/activate-license.dto';
 
 @Injectable()
 export class LicensesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cacheInvalidation: CacheInvalidationService,
+  ) {}
 
   async create(createLicenseDto: CreateLicenseDto) {
     try {
@@ -246,6 +250,9 @@ export class LicensesService {
         },
       },
     });
+
+    // Invalidate user's quiz cache so they see new quizzes immediately
+    await this.cacheInvalidation.invalidateUserQuizzes(activateLicenseDto.userId);
 
     return {
       message: 'License activated successfully',

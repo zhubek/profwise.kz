@@ -141,4 +141,13 @@ export class CacheInvalidationService {
       await this.invalidatePattern(`*specs*`);
     }
   }
+
+  /**
+   * Invalidate user-specific quiz caches
+   * Used when user's license changes and quiz access is updated
+   */
+  async invalidateUserQuizzes(userId: string): Promise<void> {
+    await this.invalidatePattern(`*quizzes/user/${userId}*`);
+    console.log(`[Cache INVALIDATE] User ${userId} quiz cache cleared`);
+  }
 }
