@@ -82,6 +82,29 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
           port: redisPort,
           password: redisPassword || undefined,
           keyPrefix: 'profwise:', // Same namespace as Keyv
+          retryStrategy: (times) => {
+            if (times > 3) {
+              console.error('[Redis] Max reconnection attempts reached');
+              return null; // Stop retrying
+            }
+            const delay = Math.min(times * 200, 2000);
+            console.log(`[Redis] Reconnecting in ${delay}ms (attempt ${times})...`);
+            return delay;
+          },
+          maxRetriesPerRequest: 3,
+        });
+
+        // Handle connection errors
+        redis.on('error', (err) => {
+          console.error('[Redis Client ERROR]', err.message);
+        });
+
+        redis.on('connect', () => {
+          console.log(`[Redis] Client connected to ${redisHost}:${redisPort}`);
+        });
+
+        redis.on('ready', () => {
+          console.log('[Redis] Client ready for cache invalidation');
         });
 
         console.log('[Redis] Direct Redis client initialized for cache invalidation');

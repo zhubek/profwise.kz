@@ -130,7 +130,11 @@
       "Bash(/dev/null sleep 1 tail -3 /tmp/backend-fixed-invalidation.log)",
       "Bash(echo \"\" echo \"[3] Activating license (should invalidate cache)...\" curl -s -X POST http://localhost:4000/licenses/activate -H \"Content-Type: application/json\" -d \"{\"\"userId\"\":\"\"$USER_ID\"\",\"\"licenseCode\"\":\"\"$LICENSE\"\"}\")",
       "Bash(echo \"\" echo \"[5] Fetching quizzes again (should be MISS if invalidation worked)...\" curl -s \"http://localhost:4000/quizzes/user/$USER_ID\")",
-      "Bash(USER_ID=\"313271e4-53e5-4572-9c50-59b8b9836ea6\")"
+      "Bash(USER_ID=\"313271e4-53e5-4572-9c50-59b8b9836ea6\")",
+      "Bash(chmod +x test-cache-invalidation.sh)",
+      "Bash(./test-cache-invalidation.sh)",
+      "Bash(bash test-cache-invalidation.sh)",
+      "Bash(/dev/null tail -2 /tmp/backend-final-test.log)"
     ]
   },
   "enableAllProjectMcpServers": true,
