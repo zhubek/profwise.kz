@@ -1,10 +1,23 @@
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { setRequestLocale } from 'next-intl/server';
 
-export default async function LandingPage() {
-  const t = await getTranslations('landing');
+// Generate static params for all locales
+export function generateStaticParams() {
+  return [{ locale: 'en' }, { locale: 'ru' }, { locale: 'kz' }];
+}
+
+export default function LandingPage({
+  params: { locale }
+}: {
+  params: { locale: string }
+}) {
+  // Enable static rendering
+  setRequestLocale(locale);
+
+  const t = useTranslations('landing');
 
   return (
     <div className="flex flex-col">

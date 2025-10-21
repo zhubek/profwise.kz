@@ -112,7 +112,9 @@
       "Bash(npx artillery:*)",
       "Bash([ -f .env.example ])",
       "Bash(redis-cli -h localhost -p 6379 ping)",
-      "Bash(chmod +x /home/bex/projects/profwise.kz/backend/setup-redis.sh)"
+      "Bash(chmod +x /home/bex/projects/profwise.kz/backend/setup-redis.sh)",
+      "mcp__playwright__browser_navigate_back",
+      "Bash(timeout 10 curl -s http://localhost:3000/en)"
     ]
   },
   "enableAllProjectMcpServers": true,
