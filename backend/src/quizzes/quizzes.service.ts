@@ -461,8 +461,9 @@ export class QuizzesService {
       return resultRecord;
     });
 
-    // Invalidate user-specific caches after quiz completion
-    await this.cacheInvalidation.invalidateUserCaches(data.userId);
+    // TEMPORARILY DISABLED: Cache invalidation after quiz completion
+    // TODO: Re-enable after testing is complete
+    // await this.cacheInvalidation.invalidateUserCaches(data.userId);
 
     // Return the results with resultId
     return {

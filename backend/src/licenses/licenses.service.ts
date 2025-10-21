@@ -251,8 +251,9 @@ export class LicensesService {
       },
     });
 
-    // Invalidate user's quiz cache so they see new quizzes immediately
-    await this.cacheInvalidation.invalidateUserQuizzes(activateLicenseDto.userId);
+    // TEMPORARILY DISABLED: Cache invalidation
+    // TODO: Re-enable after fixing Redis pattern matching issue
+    // await this.cacheInvalidation.invalidateUserQuizzes(activateLicenseDto.userId);
 
     return {
       message: 'License activated successfully',
