@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseInterceptors, Header } from '@nestjs/common';
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
@@ -35,7 +35,8 @@ export class QuizzesController {
   }
 
   @Get(':id/instructions')
-  @CacheResponse(86400) // Cache for 24 hours
+  @CacheResponse(86400) // Cache for 24 hours (Redis)
+  @Header('Cache-Control', 's-maxage=86400, stale-while-revalidate') // Cache for 24 hours (Cloudflare)
   getInstructions(@Param('id') id: string) {
     return this.quizzesService.getInstructions(id);
   }

@@ -2,6 +2,10 @@ import { notFound } from 'next/navigation';
 import { getProfessionDetails } from '@/lib/api/professions';
 import ProfessionContent from './ProfessionContent';
 
+// Enable Cloudflare caching - cache for 24 hours
+export const revalidate = 86400;
+export const dynamicParams = true; // Allow new profession IDs
+
 interface ProfessionPageProps {
   params: Promise<{
     locale: string;

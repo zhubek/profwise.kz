@@ -9,6 +9,10 @@ export function generateStaticParams() {
   return [{ locale: 'en' }, { locale: 'ru' }, { locale: 'kz' }];
 }
 
+// Enable Cloudflare caching - cache for 24 hours
+export const revalidate = 86400;
+export const dynamic = 'force-static';
+
 export default function LandingPage({
   params: { locale }
 }: {
