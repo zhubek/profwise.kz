@@ -2,9 +2,6 @@ import { getTranslations } from 'next-intl/server';
 import { getCategories } from '@/lib/api/categories';
 import AllProfessionsContent from './AllProfessionsContent';
 
-// Enable Cloudflare caching - cache for 24 hours
-export const revalidate = 86400;
-
 export default async function AllProfessionsPage() {
   const t = await getTranslations('professions');
 

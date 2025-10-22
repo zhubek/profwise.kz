@@ -6,10 +6,6 @@ import { CheckCircle, Briefcase, Wrench } from 'lucide-react';
 import { getLocalizedText } from '@/lib/utils/i18n';
 import { getTranslations } from 'next-intl/server';
 
-// Enable Cloudflare caching - cache for 24 hours
-export const revalidate = 86400;
-export const dynamicParams = true;
-
 interface DescriptionPageProps {
   params: Promise<{
     locale: string;

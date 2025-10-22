@@ -2,10 +2,6 @@ import { notFound } from 'next/navigation';
 import { getProfessionEducation } from '@/lib/api/professions';
 import EducationContent from './EducationContent';
 
-// Enable Cloudflare caching - cache for 24 hours
-export const revalidate = 86400;
-export const dynamicParams = true;
-
 interface EducationPageProps {
   params: Promise<{
     locale: string;

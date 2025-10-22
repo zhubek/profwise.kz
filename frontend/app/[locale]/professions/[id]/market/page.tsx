@@ -15,10 +15,6 @@ import {
 import { getLocalizedText } from '@/lib/utils/i18n';
 import { getTranslations } from 'next-intl/server';
 
-// Enable Cloudflare caching - cache for 24 hours
-export const revalidate = 86400;
-export const dynamicParams = true;
-
 interface MarketPageProps {
   params: Promise<{
     locale: string;

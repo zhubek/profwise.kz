@@ -2,10 +2,6 @@ import { notFound } from 'next/navigation';
 import { getProfessionArchetypes } from '@/lib/api/professions';
 import ArchetypesContent from './ArchetypesContent';
 
-// Enable Cloudflare caching - cache for 24 hours
-export const revalidate = 86400;
-export const dynamicParams = true;
-
 interface ArchetypesPageProps {
   params: Promise<{
     locale: string;
