@@ -12,6 +12,10 @@ async function bootstrap() {
       'https://profwise.kz',
       'https://www.profwise.kz',
       'https://api.profwise.kz',
+      // Test/staging domains
+      'https://test.profwise.kz',
+      'https://www.test.profwise.kz',
+      'https://test-api.profwise.kz',
       // Development/staging
       'http://172.26.195.243:3000',
       'http://172.26.195.243:3001',

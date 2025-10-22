@@ -134,7 +134,8 @@
       "Bash(chmod +x test-cache-invalidation.sh)",
       "Bash(./test-cache-invalidation.sh)",
       "Bash(bash test-cache-invalidation.sh)",
-      "Bash(/dev/null tail -2 /tmp/backend-final-test.log)"
+      "Bash(/dev/null tail -2 /tmp/backend-final-test.log)",
+      "Bash(git revert HEAD --no-edit)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (Test)
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: profwise-postgres-test
+    restart: unless-stopped
+    ports:
+      - "5433:5432"  # Different port to avoid conflict with production
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=profwise2024_test
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres-test-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and sessions (Test)
+  redis-test:
+    image: redis:7-alpine
+    container_name: profwise-redis-test
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-test-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API (NestJS) - Test
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: profwise-backend-test
+    restart: unless-stopped
+    expose:
+      - "4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      # Database connection (internal Docker network, points to postgres-test)
+      - DATABASE_URL=postgresql://postgres:profwise2024_test@postgres-test:5432/postgres?schema=public&connection_limit=95&pool_timeout=30&connect_timeout=10
+      # Redis connection (internal Docker network, points to redis-test)
+      - REDIS_URL=redis://redis-test:6379
+      - ENABLE_REDIS_CACHE=${ENABLE_REDIS_CACHE}
+      - REDIS_HOST=redis-test
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DEFAULT_TTL=3600
+      # Security & Auth
+      - JWT_SECRET=${JWT_SECRET_TEST:-test-jwt-secret-change-this}
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - EMAIL_FROM=${EMAIL_FROM:-test@profwise.kz}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-Profwise Test}
+      - ENABLE_EMAIL_VERIFICATION=${ENABLE_EMAIL_VERIFICATION:-false}
+      # Frontend URL (Test domain)
+      - FRONTEND_URL=https://test.profwise.kz
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      # Coolify labels for domain routing
+      - "coolify.managed=true"
+
+  # Frontend (Next.js) - Test
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Test API URL (build-time variable)
+        - NEXT_PUBLIC_API_URL=https://test-api.profwise.kz
+    container_name: profwise-frontend-test
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      # Test API URL
+      - NEXT_PUBLIC_API_URL=https://test-api.profwise.kz
+    depends_on:
+      backend-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      # Coolify labels for domain routing
+      - "coolify.managed=true"
+
+volumes:
+  postgres-test-data:
+    driver: local
+  redis-test-data:
+    driver: local
