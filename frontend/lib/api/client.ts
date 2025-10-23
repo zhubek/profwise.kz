@@ -1,4 +1,4 @@
-import { API_CONFIG, AUTH_CONFIG } from '@/config/api';
+import { getBaseURL, API_CONFIG, AUTH_CONFIG } from '@/config/api';
 import type { APIError } from '@/types/api';
 
 // Custom API Error class
@@ -69,7 +69,9 @@ async function fetcher<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T> {
-  const url = `${API_CONFIG.baseURL}${endpoint}`;
+  // Get base URL dynamically at request time (not module load time)
+  const baseURL = getBaseURL();
+  const url = `${baseURL}${endpoint}`;
 
   const config: RequestInit = {
     ...options,

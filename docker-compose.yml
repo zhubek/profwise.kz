@@ -83,8 +83,10 @@ services:
       - "3000"
     environment:
       - NODE_ENV=production
-      # Hardcoded production URL
+      # Client-side API URL (public)
       - NEXT_PUBLIC_API_URL=https://api.profwise.kz
+      # Server-side API URL (internal Docker network)
+      - API_URL=http://backend:4000
     depends_on:
       backend:
         condition: service_healthy

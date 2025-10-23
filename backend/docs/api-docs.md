@@ -2636,3 +2636,74 @@ Caches are automatically invalidated when data changes:
 - **1 hour (3600s)**: Frequently accessed data with moderate change frequency (lists, individual records)
 - **24 hours (86400s)**: Rarely changing static content (instructions, descriptions, detailed info)
 - **15-30 minutes (900-1800s)**: User-specific data that updates with quiz completions
+
+---
+
+## Docker & Network Configuration
+
+### Internal vs External API URLs
+
+The backend API is accessible via two different URLs depending on the context:
+
+**External (Public) URL:**
+- URL: `https://api.profwise.kz`
+- Used by: Browser (client-side requests), external services
+- Example: User's browser making API calls
+
+**Internal (Docker Network) URL:**
+- URL: `http://backend:4000`
+- Used by: Frontend container (server-side rendering)
+- Example: Next.js SSR fetching data before sending HTML to browser
+
+### Why Two URLs?
+
+Next.js performs **Server-Side Rendering (SSR)** for pages with `async` components. When SSR happens:
+1. The frontend container needs to fetch data from backend
+2. This happens **before** sending HTML to the browser
+3. The frontend container is inside Docker network and must use internal URL
+4. Client-side requests from browser use the public URL
+
+### Environment Variables
+
+**Frontend (docker-compose.yml):**
+```yaml
+environment:
+  # Client-side API URL (browser)
+  - NEXT_PUBLIC_API_URL=https://api.profwise.kz
+  # Server-side API URL (SSR in container)
+  - API_URL=http://backend:4000
+```
+
+### Request Flow
+
+```
+1. User visits page → Next.js SSR starts
+2. SSR calls API using: http://backend:4000 (internal)
+3. Backend responds with data
+4. Next.js renders HTML and sends to browser
+5. Browser receives page
+6. Client-side JS calls API using: https://api.profwise.kz (external)
+```
+
+### Testing Internal Connectivity
+
+```bash
+# From frontend container to backend
+docker exec -it profwise-frontend curl http://backend:4000/health
+
+# Check environment variables
+docker exec -it profwise-frontend env | grep API
+```
+
+### Common Issues
+
+**Network Error during SSR:**
+```
+Error [APIError]: Network error. Please check your connection.
+code: 'NETWORK_ERROR', statusCode: 0
+```
+
+**Cause:** Frontend container trying to use external URL during SSR
+
+**Fix:** Ensure `API_URL=http://backend:4000` is set in docker-compose.yml
+
