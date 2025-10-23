@@ -18,9 +18,10 @@ import { isQuizOnCooldown, getFormattedCooldownTime, getCooldownEndTime } from '
 interface TestDetailViewProps {
   test: Test;
   userTest?: UserTest;
+  userId: string;
 }
 
-export default function TestDetailView({ test, userTest }: TestDetailViewProps) {
+export default function TestDetailView({ test, userTest, userId }: TestDetailViewProps) {
   const t = useTranslations('tests');
   const th = useTranslations('tests.holland');
   const locale = useLocale();
@@ -47,15 +48,15 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
 
   // Check and update cooldown status
   useEffect(() => {
-    if (!test?.id) return;
+    if (!test?.id || !userId) return;
 
     // Initial check
     const checkCooldown = () => {
-      const onCooldown = isQuizOnCooldown(test.id);
+      const onCooldown = isQuizOnCooldown(userId, test.id);
       setIsOnCooldown(onCooldown);
 
       if (onCooldown) {
-        const timeRemaining = getFormattedCooldownTime(test.id);
+        const timeRemaining = getFormattedCooldownTime(userId, test.id);
         setCooldownTimeRemaining(timeRemaining);
       }
     };
@@ -64,8 +65,8 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
 
     // Update every second if on cooldown
     const interval = setInterval(() => {
-      if (isQuizOnCooldown(test.id)) {
-        const timeRemaining = getFormattedCooldownTime(test.id);
+      if (isQuizOnCooldown(userId, test.id)) {
+        const timeRemaining = getFormattedCooldownTime(userId, test.id);
         setCooldownTimeRemaining(timeRemaining);
       } else {
         setIsOnCooldown(false);
@@ -74,7 +75,7 @@ export default function TestDetailView({ test, userTest }: TestDetailViewProps) 
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [test?.id]);
+  }, [test?.id, userId]);
 
   // Get status badge
   const getStatusBadge = () => {

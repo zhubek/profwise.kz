@@ -45,7 +45,7 @@ export default function TestsPageContent({ tests, licenseInfo, userId, onRefresh
         userId={userId}
         onLicenseActivated={onRefreshTests}
       />
-      <TestDetailView test={selectedTest} userTest={selectedTest?.userTest} />
+      <TestDetailView test={selectedTest} userTest={selectedTest?.userTest} userId={userId} />
     </>
   );
 }

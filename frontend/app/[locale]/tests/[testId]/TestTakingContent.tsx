@@ -223,8 +223,10 @@ export default function TestTakingContent({ quiz, questions, locale }: TestTakin
         topProfessions: response.topProfessions.length,
       });
 
-      // Set cooldown for 2 minutes (change to 60 minutes for production)
-      setQuizCooldown(quiz.id);
+      // Set cooldown for 2 hours
+      if (user?.id) {
+        setQuizCooldown(user.id, quiz.id);
+      }
 
       // Clear localStorage
       const storageKey = `profwise_test_${quiz.id}`;

@@ -104,8 +104,8 @@ export default function HollandTestContent({ userId, sections }: HollandTestCont
       // Submit test results
       await submitHollandTest(userId, HOLLAND_TEST_ID, answers);
 
-      // Set cooldown for 1 hour
-      setQuizCooldown(HOLLAND_TEST_ID);
+      // Set cooldown for 2 hours
+      setQuizCooldown(userId, HOLLAND_TEST_ID);
 
       // Clear localStorage
       clearHollandTestState();

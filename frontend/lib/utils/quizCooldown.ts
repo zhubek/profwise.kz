@@ -1,6 +1,7 @@
 /**
  * Quiz Cooldown Management
  * Manages cooldown period after quiz completion using localStorage
+ * Cooldowns are user-specific to prevent conflicts when multiple users use same device
  */
 
 // Cooldown duration: 2 hours
@@ -8,29 +9,34 @@ const COOLDOWN_DURATION_MS = 120 * 60 * 1000; // 2 hours in milliseconds
 const COOLDOWN_KEY_PREFIX = 'quiz_cooldown_';
 
 /**
- * Get the localStorage key for a specific quiz's cooldown
+ * Get the localStorage key for a specific user's quiz cooldown
+ * Format: quiz_cooldown_{userId}_{quizId}
  */
-function getCooldownKey(quizId: string): string {
-  return `${COOLDOWN_KEY_PREFIX}${quizId}`;
+function getCooldownKey(userId: string, quizId: string): string {
+  return `${COOLDOWN_KEY_PREFIX}${userId}_${quizId}`;
 }
 
 /**
  * Set cooldown for a quiz (called after quiz completion)
+ * @param userId - User ID to associate cooldown with specific user
+ * @param quizId - Quiz ID
  */
-export function setQuizCooldown(quizId: string): void {
+export function setQuizCooldown(userId: string, quizId: string): void {
   if (typeof window === 'undefined') return;
 
   const cooldownEndTime = Date.now() + COOLDOWN_DURATION_MS;
-  localStorage.setItem(getCooldownKey(quizId), cooldownEndTime.toString());
+  localStorage.setItem(getCooldownKey(userId, quizId), cooldownEndTime.toString());
 }
 
 /**
- * Check if a quiz is currently on cooldown
+ * Check if a quiz is currently on cooldown for specific user
+ * @param userId - User ID
+ * @param quizId - Quiz ID
  */
-export function isQuizOnCooldown(quizId: string): boolean {
+export function isQuizOnCooldown(userId: string, quizId: string): boolean {
   if (typeof window === 'undefined') return false;
 
-  const cooldownEndTime = localStorage.getItem(getCooldownKey(quizId));
+  const cooldownEndTime = localStorage.getItem(getCooldownKey(userId, quizId));
 
   if (!cooldownEndTime) return false;
 
@@ -39,7 +45,7 @@ export function isQuizOnCooldown(quizId: string): boolean {
 
   // If cooldown has expired, clean it up
   if (now >= endTime) {
-    clearQuizCooldown(quizId);
+    clearQuizCooldown(userId, quizId);
     return false;
   }
 
@@ -47,13 +53,15 @@ export function isQuizOnCooldown(quizId: string): boolean {
 }
 
 /**
- * Get remaining cooldown time in milliseconds
+ * Get remaining cooldown time in milliseconds for specific user
  * Returns 0 if no cooldown is active
+ * @param userId - User ID
+ * @param quizId - Quiz ID
  */
-export function getRemainingCooldownTime(quizId: string): number {
+export function getRemainingCooldownTime(userId: string, quizId: string): number {
   if (typeof window === 'undefined') return 0;
 
-  const cooldownEndTime = localStorage.getItem(getCooldownKey(quizId));
+  const cooldownEndTime = localStorage.getItem(getCooldownKey(userId, quizId));
 
   if (!cooldownEndTime) return 0;
 
@@ -63,7 +71,7 @@ export function getRemainingCooldownTime(quizId: string): number {
 
   // If cooldown has expired, clean it up
   if (remaining <= 0) {
-    clearQuizCooldown(quizId);
+    clearQuizCooldown(userId, quizId);
     return 0;
   }
 
@@ -72,9 +80,11 @@ export function getRemainingCooldownTime(quizId: string): number {
 
 /**
  * Get remaining cooldown time formatted as "Xh Ym" or "Ym Xs"
+ * @param userId - User ID
+ * @param quizId - Quiz ID
  */
-export function getFormattedCooldownTime(quizId: string): string {
-  const remainingMs = getRemainingCooldownTime(quizId);
+export function getFormattedCooldownTime(userId: string, quizId: string): string {
+  const remainingMs = getRemainingCooldownTime(userId, quizId);
 
   if (remainingMs <= 0) return '';
 
@@ -93,12 +103,14 @@ export function getFormattedCooldownTime(quizId: string): string {
 }
 
 /**
- * Get cooldown end time as Date object
+ * Get cooldown end time as Date object for specific user
+ * @param userId - User ID
+ * @param quizId - Quiz ID
  */
-export function getCooldownEndTime(quizId: string): Date | null {
+export function getCooldownEndTime(userId: string, quizId: string): Date | null {
   if (typeof window === 'undefined') return null;
 
-  const cooldownEndTime = localStorage.getItem(getCooldownKey(quizId));
+  const cooldownEndTime = localStorage.getItem(getCooldownKey(userId, quizId));
 
   if (!cooldownEndTime) return null;
 
@@ -106,12 +118,14 @@ export function getCooldownEndTime(quizId: string): Date | null {
 }
 
 /**
- * Clear cooldown for a quiz (manual override or after expiration)
+ * Clear cooldown for a specific user's quiz (manual override or after expiration)
+ * @param userId - User ID
+ * @param quizId - Quiz ID
  */
-export function clearQuizCooldown(quizId: string): void {
+export function clearQuizCooldown(userId: string, quizId: string): void {
   if (typeof window === 'undefined') return;
 
-  localStorage.removeItem(getCooldownKey(quizId));
+  localStorage.removeItem(getCooldownKey(userId, quizId));
 }
 
 /**
