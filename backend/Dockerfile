@@ -7,12 +7,13 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install ALL dependencies (including dev dependencies for build) with increased timeout and retries
-RUN npm config set fetch-timeout 600000 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm config set fetch-retries 10 && \
-    npm ci --prefer-offline --no-audit
+# Install ALL dependencies using Taobao mirror for better connectivity
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set fetch-timeout 300000 && \
+    npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 5 && \
+    npm ci --no-audit
 
 # Copy source code
 COPY . .
@@ -35,12 +36,13 @@ RUN apk add --no-cache curl
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install only production dependencies with increased timeout and retries
-RUN npm config set fetch-timeout 600000 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm config set fetch-retries 10 && \
-    npm ci --only=production --prefer-offline --no-audit
+# Install only production dependencies using Taobao mirror
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set fetch-timeout 300000 && \
+    npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 5 && \
+    npm ci --only=production --no-audit
 
 # Copy Prisma Client from builder
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
