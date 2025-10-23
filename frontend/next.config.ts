@@ -13,6 +13,42 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Configure cache headers for Cloudflare
+  async headers() {
+    return [
+      {
+        // Cache professions pages for 1 hour
+        source: '/:locale/professions/all',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        // Cache individual profession pages for 1 hour
+        source: '/:locale/professions/:id',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        // Cache test pages for 1 hour
+        source: '/:locale/tests/:testId',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+    ];
+  },
+
   // Webpack optimizations for WSL cross-filesystem performance
   webpack: (config, { isServer }) => {
     // Reduce file watching overhead

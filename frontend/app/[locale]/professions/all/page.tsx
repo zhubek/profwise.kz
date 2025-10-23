@@ -1,12 +1,19 @@
 import { getTranslations } from 'next-intl/server';
 import { getCategories } from '@/lib/api/categories';
+import { headers } from 'next/headers';
 import AllProfessionsContent from './AllProfessionsContent';
+
+// Cache this page for 1 hour (3600 seconds)
+export const revalidate = 3600;
 
 export default async function AllProfessionsPage() {
   const t = await getTranslations('professions');
 
   // Fetch categories server-side
   const categories = await getCategories();
+
+  // Set cache headers for Cloudflare
+  const headersList = await headers();
 
   return (
     <main className="min-h-screen bg-background">

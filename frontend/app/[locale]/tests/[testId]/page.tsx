@@ -3,6 +3,9 @@ import { getTranslations } from 'next-intl/server';
 import { getQuizWithQuestions } from '@/lib/api/tests';
 import TestTakingContent from './TestTakingContent';
 
+// Cache this page for 1 hour (3600 seconds)
+export const revalidate = 3600;
+
 interface TestPageProps {
   params: Promise<{
     locale: string;
