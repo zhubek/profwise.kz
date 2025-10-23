@@ -1,321 +1,170 @@
-# Profwise Production Deployment Guide
+# Deployment Guide - Pre-built Docker Images
 
-This guide covers deploying the Profwise platform to production using Docker Compose.
+This guide shows how to deploy Profwise using pre-built Docker images to avoid npm timeout issues on the server.
+
+## Problem
+
+The server has poor network connectivity to npm registries, causing builds to fail with ETIMEDOUT errors during `npm ci`.
+
+## Solution
+
+Build Docker images **locally** (where you have good internet), push them to Docker Hub, and have Coolify pull the pre-built images.
+
+---
 
 ## Prerequisites
 
-- Docker and Docker Compose installed on the production server
-- Domain names configured:
-  - `profwise.kz` → Frontend (port 3000)
-  - `api.profwise.kz` → Backend (port 4000)
-- PostgreSQL database already running (configured in docker-compose.yml)
-- SSL certificates for HTTPS (use Let's Encrypt with Certbot or Cloudflare)
+1. Docker installed on your local machine
+2. Docker Hub account (free): https://hub.docker.com/signup
+3. Git installed locally
 
-## Architecture
+---
 
-```
-┌─────────────┐
-│  profwise.kz │  →  Frontend (Next.js) - Port 3000
-└─────────────┘
+## Step 1: Set Up Docker Hub
 
-┌─────────────┐
-│api.profwise │  →  Backend (NestJS) - Port 4000
-│     .kz     │
-└─────────────┘
+### 1.1 Create Docker Hub Repositories
 
-┌─────────────┐
-│    Redis    │  →  Internal (Docker network only)
-└─────────────┘
+1. Login to https://hub.docker.com
+2. Click "Create Repository"
+3. Create two repositories:
+   - `profwise-backend` (Public or Private)
+   - `profwise-frontend` (Public or Private)
 
-┌─────────────┐
-│  PostgreSQL │  →  External (already running)
-└─────────────┘
-```
-
-## Step 1: Prepare Environment Variables
-
-Copy the example file and configure your secrets:
+### 1.2 Login to Docker Hub Locally
 
 ```bash
-cp .env.example .env
-nano .env
+docker login
+# Enter your Docker Hub username and password
 ```
 
-Required variables:
-```env
-JWT_SECRET=your-strong-random-secret-here
-BREVO_API_KEY=your-brevo-api-key
-EMAIL_FROM=noreply@profwise.kz
-EMAIL_FROM_NAME=Profwise
-ENABLE_EMAIL_VERIFICATION=true
-```
+---
 
-## Step 2: Configure Reverse Proxy (Nginx/Caddy)
+## Step 2: Configure Build Script
 
-### Option A: Using Nginx
+### 2.1 Edit build-and-push.sh
 
-Create `/etc/nginx/sites-available/profwise`:
-
-```nginx
-# Frontend
-server {
-    listen 80;
-    listen [::]:80;
-    server_name profwise.kz www.profwise.kz;
-
-    # Redirect to HTTPS
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
-    server_name profwise.kz www.profwise.kz;
-
-    ssl_certificate /etc/letsencrypt/live/profwise.kz/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/profwise.kz/privkey.pem;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-# Backend API
-server {
-    listen 80;
-    listen [::]:80;
-    server_name api.profwise.kz;
-
-    # Redirect to HTTPS
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
-    server_name api.profwise.kz;
-
-    ssl_certificate /etc/letsencrypt/live/api.profwise.kz/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/api.profwise.kz/privkey.pem;
-
-    location / {
-        proxy_pass http://localhost:4000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Enable and restart Nginx:
-```bash
-sudo ln -s /etc/nginx/sites-available/profwise /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-### Option B: Using Caddy (Simpler, Auto-HTTPS)
-
-Create `Caddyfile`:
-
-```caddy
-profwise.kz, www.profwise.kz {
-    reverse_proxy localhost:3000
-}
-
-api.profwise.kz {
-    reverse_proxy localhost:4000
-}
-```
-
-Start Caddy:
-```bash
-caddy start
-```
-
-## Step 3: Build and Start Services
+Open `build-and-push.sh` and update line 11:
 
 ```bash
-# Build and start all services
-docker-compose up -d --build
-
-# Check logs
-docker-compose logs -f
-
-# Check service status
-docker-compose ps
+DOCKER_USERNAME="your-docker-username"  # Change to YOUR Docker Hub username
 ```
 
-## Step 4: Verify Deployment
+For example, if your Docker Hub username is `johndoe`:
+```bash
+DOCKER_USERNAME="johndoe"
+```
+
+---
+
+## Step 3: Build and Push Images
+
+### 3.1 Run the Build Script
 
 ```bash
-# Check backend health
-curl https://api.profwise.kz/health
-
-# Expected response:
-# {"status":"ok","timestamp":"2025-10-19T..."}
-
-# Check frontend
-curl https://profwise.kz
+./build-and-push.sh
 ```
 
-## Step 5: Monitor Services
+This will:
+1. Build backend Docker image (takes ~5-10 minutes)
+2. Build frontend Docker image (takes ~5-10 minutes)
+3. Push both images to Docker Hub (takes ~2-5 minutes)
 
+### 3.2 Verify Images on Docker Hub
+
+Go to https://hub.docker.com/repositories and verify both images are uploaded.
+
+---
+
+## Step 4: Update docker-compose.yml for Coolify
+
+### 4.1 Edit docker-compose.production.yml
+
+Update lines 40 and 70 with your Docker Hub username:
+
+```yaml
+# Line 40 - Backend image
+backend:
+  image: YOUR_DOCKER_USERNAME/profwise-backend:latest  # e.g., johndoe/profwise-backend:latest
+
+# Line 70 - Frontend image
+frontend:
+  image: YOUR_DOCKER_USERNAME/profwise-frontend:latest  # e.g., johndoe/profwise-frontend:latest
+```
+
+### 4.2 Replace docker-compose.yml in Coolify
+
+**Option A: Via Coolify UI**
+1. Go to your Coolify project
+2. Navigate to "Source" or "Configuration"
+3. Replace `docker-compose.yml` content with `docker-compose.production.yml`
+
+**Option B: Via Git**
+1. Rename files:
+   ```bash
+   mv docker-compose.yml docker-compose.dev.yml
+   mv docker-compose.production.yml docker-compose.yml
+   ```
+2. Update docker-compose.yml with your username
+3. Commit and push:
+   ```bash
+   git add .
+   git commit -m "Use pre-built Docker images from Docker Hub"
+   git push
+   ```
+4. Redeploy in Coolify
+
+---
+
+## Step 5: Deploy in Coolify
+
+1. Go to your Coolify dashboard
+2. Navigate to your Profwise project
+3. Click "Redeploy" or "Deploy"
+4. Coolify will now **pull** the pre-built images from Docker Hub instead of building them
+
+---
+
+## Future Deployments
+
+Whenever you make code changes:
+
+### 1. Commit and push code changes
 ```bash
-# View logs
-docker-compose logs -f backend
-docker-compose logs -f frontend
-docker-compose logs -f redis
-
-# Check resource usage
-docker stats
-
-# Restart specific service
-docker-compose restart backend
-docker-compose restart frontend
+git add .
+git commit -m "Your changes"
+git push
 ```
 
-## Maintenance
-
-### Update Application
-
+### 2. Rebuild and push new images
 ```bash
-# Pull latest changes
-git pull origin main
-
-# Rebuild and restart
-docker-compose up -d --build
-
-# Remove old images
-docker image prune -a -f
+./build-and-push.sh
 ```
 
-### Backup Redis Data
+### 3. Redeploy in Coolify
+Click "Redeploy" in Coolify UI - it will pull the new images from Docker Hub
 
-```bash
-# Redis data is persisted in Docker volume
-docker-compose exec redis redis-cli SAVE
-
-# Backup the volume
-docker run --rm -v profwise_redis-data:/data -v $(pwd):/backup alpine \
-  tar czf /backup/redis-backup-$(date +%Y%m%d).tar.gz -C /data .
-```
-
-### View Application Logs
-
-```bash
-# All services
-docker-compose logs --tail=100 -f
-
-# Specific service
-docker-compose logs --tail=100 -f backend
-```
-
-### Scale Services (if needed)
-
-```bash
-# Scale frontend to 2 instances (requires load balancer)
-docker-compose up -d --scale frontend=2
-```
+---
 
 ## Troubleshooting
 
-### Backend can't connect to database
+### "Cannot connect to Docker daemon"
 ```bash
-# Check database connection
-docker-compose exec backend npx prisma db pull
-
-# Test database connectivity
-docker-compose exec backend node -e "const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); prisma.$connect().then(() => console.log('OK')).catch(console.error)"
+# Start Docker Desktop (Windows/Mac) or Docker service (Linux)
+sudo systemctl start docker  # Linux
 ```
 
-### Frontend can't reach backend
+### "denied: requested access to the resource is denied"
 ```bash
-# Check NEXT_PUBLIC_API_URL is set correctly
-docker-compose exec frontend env | grep NEXT_PUBLIC
+# Make sure you're logged in
+docker login
 
-# Rebuild frontend with correct API URL
-docker-compose up -d --build frontend
+# Verify you used the correct username in build-and-push.sh
 ```
 
-### Redis connection issues
-```bash
-# Check Redis is running
-docker-compose exec redis redis-cli ping
+### "Image not found" in Coolify
+- Double-check image names in docker-compose.production.yml match Docker Hub
+- Verify images are public OR configure Coolify with Docker Hub credentials
 
-# Should respond: PONG
-```
-
-### Service won't start
-```bash
-# Check logs for errors
-docker-compose logs backend
-
-# Restart service
-docker-compose restart backend
-
-# Full rebuild
-docker-compose down
-docker-compose up -d --build
-```
-
-## Security Checklist
-
-- [x] PostgreSQL database has strong credentials
-- [x] JWT_SECRET is a strong random value
-- [x] SSL/TLS certificates are installed
-- [x] CORS is configured for production domains only
-- [x] Firewall allows only ports 80, 443, 22
-- [x] Docker containers run as non-root users (Next.js already configured)
-- [x] Environment variables are in `.env` (not committed to git)
-- [x] Redis is not exposed to the internet (internal Docker network only)
-
-## Performance Optimization
-
-### Enable Nginx Caching (Optional)
-
-Add to Nginx frontend config:
-```nginx
-# Cache static assets
-location /_next/static/ {
-    proxy_pass http://localhost:3000;
-    proxy_cache_valid 200 365d;
-    add_header Cache-Control "public, immutable";
-}
-```
-
-### Monitor with Docker Stats
-
-```bash
-# Real-time monitoring
-docker stats
-
-# Resource limits (if needed, add to docker-compose.yml)
-# services:
-#   backend:
-#     deploy:
-#       resources:
-#         limits:
-#           cpus: '1.0'
-#           memory: 1G
-```
-
-## Support
-
-For issues or questions:
-- Check logs: `docker-compose logs -f`
-- Verify environment variables: `docker-compose config`
-- Review Docker status: `docker-compose ps`
+### Still getting npm errors in Coolify
+- Make sure you're using docker-compose.production.yml (with `image:` instead of `build:`)
+- Coolify should NOT be building - it should only pull pre-built images

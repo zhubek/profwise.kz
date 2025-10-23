@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"  # TEMPORARY: Exposed for data import via DBeaver
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=profwise2024
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API (NestJS) - Using pre-built image from Docker Hub
+  backend:
+    image: YOUR_DOCKER_USERNAME/profwise-backend:latest  # UPDATE THIS!
+    restart: unless-stopped
+    expose:
+      - "4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      # Database connection (set full URL in Coolify env vars)
+      - DATABASE_URL
+      # Redis connection (internal Docker network)
+      - REDIS_URL=redis://redis:6379
+      # Security & Auth
+      - JWT_SECRET
+      - BREVO_API_KEY
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@profwise.kz}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-Profwise}
+      - ENABLE_EMAIL_VERIFICATION=${ENABLE_EMAIL_VERIFICATION:-true}
+      # Frontend URL (Coolify will set this via FQDN)
+      - FRONTEND_URL=${SERVICE_FQDN_FRONTEND}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      # Coolify labels for domain routing
+      - "coolify.managed=true"
+
+  # Frontend (Next.js) - Using pre-built image from Docker Hub
+  frontend:
+    image: YOUR_DOCKER_USERNAME/profwise-frontend:latest  # UPDATE THIS!
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      # Client-side API URL (public)
+      - NEXT_PUBLIC_API_URL=https://api.profwise.kz
+      # Server-side API URL (internal Docker network)
+      - API_URL=http://backend:4000
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      # Coolify labels for domain routing
+      - "coolify.managed=true"
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
