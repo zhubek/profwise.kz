@@ -29,12 +29,40 @@ interface TestSelectorProps {
 export default function TestSelector({ tests, selectedTestId, onTestSelect, licenseInfo, userId, onLicenseActivated }: TestSelectorProps) {
   const t = useTranslations('tests');
   const tCommon = useTranslations('common');
+  const tProfile = useTranslations('profile');
   const selectedTest = tests.find(test => test.id === selectedTestId);
 
   // License activation state
   const [licenseCode, setLicenseCode] = useState('');
   const [isActivatingLicense, setIsActivatingLicense] = useState(false);
   const [licenseMessage, setLicenseMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Map backend error messages to translation keys
+  const getTranslatedErrorMessage = (errorMessage: string, code: string): string => {
+    // Map backend error messages to translation keys
+    if (errorMessage.includes('not found') || errorMessage.includes('не найдена')) {
+      return tProfile('licenses.errors.notFound', { code });
+    }
+    // Check for "already have an active license" - must come before "already activated"
+    if (errorMessage.includes('already have an active license') || errorMessage.includes('уже есть активная лицензия')) {
+      return tProfile('licenses.errors.alreadyHaveSimilar');
+    }
+    // Check for "already activated by another user" before checking just "already activated"
+    if (errorMessage.includes('another user') || errorMessage.includes('другим пользователем')) {
+      return tProfile('licenses.errors.alreadyActivatedByAnotherUser');
+    }
+    if (errorMessage.includes('already activated') || errorMessage.includes('уже активирована')) {
+      return tProfile('licenses.errors.alreadyActivated');
+    }
+    if (errorMessage.includes('expired') || errorMessage.includes('истек')) {
+      return tProfile('licenses.errors.expired');
+    }
+    if (errorMessage.includes('invalid') || errorMessage.includes('неверный')) {
+      return tProfile('licenses.errors.invalidCode');
+    }
+    // Default to generic error message
+    return t('licenseActivationError');
+  };
 
   // Check if selected test has license info
   const hasLicense = selectedTest?.licenseInfo;
@@ -76,9 +104,10 @@ export default function TestSelector({ tests, selectedTestId, onTestSelect, lice
         setLicenseMessage(null);
       }, 2000);
     } catch (error: any) {
+      const translatedError = getTranslatedErrorMessage(error.message || '', licenseCode.trim());
       setLicenseMessage({
         type: 'error',
-        text: error.message || t('licenseActivationError')
+        text: translatedError
       });
     } finally {
       setIsActivatingLicense(false);
