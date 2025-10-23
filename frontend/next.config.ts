@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache professions pages for 1 hour (only HTML, not RSC)
+        // Cache professions pages for 24 hours (only HTML, not RSC)
         source: '/:locale/professions/all',
         missing: [
           {
@@ -44,12 +44,12 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
           },
         ],
       },
       {
-        // Cache individual profession pages for 1 hour (only HTML, not RSC)
+        // Cache individual profession pages for 24 hours (only HTML, not RSC)
         source: '/:locale/professions/:id',
         missing: [
           {
@@ -60,12 +60,76 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
           },
         ],
       },
       {
-        // Cache test pages for 1 hour (only HTML, not RSC)
+        // Cache profession sub-pages for 24 hours (only HTML, not RSC)
+        source: '/:locale/professions/:id/description',
+        missing: [
+          {
+            type: 'query',
+            key: '_rsc',
+          },
+        ],
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        // Cache profession education pages for 24 hours (only HTML, not RSC)
+        source: '/:locale/professions/:id/education',
+        missing: [
+          {
+            type: 'query',
+            key: '_rsc',
+          },
+        ],
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        // Cache profession market pages for 24 hours (only HTML, not RSC)
+        source: '/:locale/professions/:id/market',
+        missing: [
+          {
+            type: 'query',
+            key: '_rsc',
+          },
+        ],
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        // Cache profession archetypes pages for 24 hours (only HTML, not RSC)
+        source: '/:locale/professions/:id/archetypes',
+        missing: [
+          {
+            type: 'query',
+            key: '_rsc',
+          },
+        ],
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        // Cache test pages for 24 hours (only HTML, not RSC)
         source: '/:locale/tests/:testId',
         missing: [
           {
@@ -76,7 +140,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
           },
         ],
       },

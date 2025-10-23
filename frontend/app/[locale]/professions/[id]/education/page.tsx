@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import { getProfessionEducation } from '@/lib/api/professions';
 import EducationContent from './EducationContent';
 
+// Cache this page for 24 hours (86400 seconds)
+export const revalidate = 86400;
+
 interface EducationPageProps {
   params: Promise<{
     locale: string;

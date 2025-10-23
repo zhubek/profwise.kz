@@ -3,8 +3,8 @@ import { getCategories } from '@/lib/api/categories';
 import { headers } from 'next/headers';
 import AllProfessionsContent from './AllProfessionsContent';
 
-// Cache this page for 1 hour (3600 seconds)
-export const revalidate = 3600;
+// Cache this page for 24 hours (86400 seconds)
+export const revalidate = 86400;
 
 export default async function AllProfessionsPage() {
   const t = await getTranslations('professions');

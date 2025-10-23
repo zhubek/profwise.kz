@@ -6,6 +6,9 @@ import { CheckCircle, Briefcase, Wrench } from 'lucide-react';
 import { getLocalizedText } from '@/lib/utils/i18n';
 import { getTranslations } from 'next-intl/server';
 
+// Cache this page for 24 hours (86400 seconds)
+export const revalidate = 86400;
+
 interface DescriptionPageProps {
   params: Promise<{
     locale: string;

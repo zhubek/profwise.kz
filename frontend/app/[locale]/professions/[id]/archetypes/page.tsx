@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import { getProfessionArchetypes } from '@/lib/api/professions';
 import ArchetypesContent from './ArchetypesContent';
 
+// Cache this page for 24 hours (86400 seconds)
+export const revalidate = 86400;
+
 interface ArchetypesPageProps {
   params: Promise<{
     locale: string;
