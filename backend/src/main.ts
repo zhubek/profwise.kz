@@ -5,6 +5,9 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Enable shutdown hooks for graceful cleanup
+  app.enableShutdownHooks();
+
   // Enable CORS
   app.enableCors({
     origin: [
