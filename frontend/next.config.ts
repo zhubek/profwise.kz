@@ -17,8 +17,30 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Cache professions pages for 1 hour
+        // Don't cache RSC (React Server Components) requests - these are for client-side navigation
+        source: '/:path(.*)',
+        has: [
+          {
+            type: 'query',
+            key: '_rsc',
+          },
+        ],
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, no-cache, no-store, max-age=0, must-revalidate',
+          },
+        ],
+      },
+      {
+        // Cache professions pages for 1 hour (only HTML, not RSC)
         source: '/:locale/professions/all',
+        missing: [
+          {
+            type: 'query',
+            key: '_rsc',
+          },
+        ],
         headers: [
           {
             key: 'Cache-Control',
@@ -27,8 +49,14 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache individual profession pages for 1 hour
+        // Cache individual profession pages for 1 hour (only HTML, not RSC)
         source: '/:locale/professions/:id',
+        missing: [
+          {
+            type: 'query',
+            key: '_rsc',
+          },
+        ],
         headers: [
           {
             key: 'Cache-Control',
@@ -37,8 +65,14 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache test pages for 1 hour
+        // Cache test pages for 1 hour (only HTML, not RSC)
         source: '/:locale/tests/:testId',
+        missing: [
+          {
+            type: 'query',
+            key: '_rsc',
+          },
+        ],
         headers: [
           {
             key: 'Cache-Control',
