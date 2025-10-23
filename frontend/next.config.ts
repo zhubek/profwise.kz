@@ -17,7 +17,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Don't cache RSC (React Server Components) requests - these are for client-side navigation
+        // FIRST: Block RSC requests from being cached (highest priority)
+        // RSC requests have ?_rsc query param and should never be cached
         source: '/:path(.*)',
         has: [
           {
@@ -33,8 +34,9 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache professions pages for 24 hours (only HTML, not RSC)
-        source: '/:locale/professions/all',
+        // Cache ALL profession pages for 24 hours (wildcard pattern)
+        // Matches: /en/professions/all, /en/professions/:id, /en/professions/:id/description, etc.
+        source: '/:locale/professions/:path*',
         missing: [
           {
             type: 'query',
@@ -49,88 +51,9 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache individual profession pages for 24 hours (only HTML, not RSC)
-        source: '/:locale/professions/:id',
-        missing: [
-          {
-            type: 'query',
-            key: '_rsc',
-          },
-        ],
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
-          },
-        ],
-      },
-      {
-        // Cache profession sub-pages for 24 hours (only HTML, not RSC)
-        source: '/:locale/professions/:id/description',
-        missing: [
-          {
-            type: 'query',
-            key: '_rsc',
-          },
-        ],
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
-          },
-        ],
-      },
-      {
-        // Cache profession education pages for 24 hours (only HTML, not RSC)
-        source: '/:locale/professions/:id/education',
-        missing: [
-          {
-            type: 'query',
-            key: '_rsc',
-          },
-        ],
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
-          },
-        ],
-      },
-      {
-        // Cache profession market pages for 24 hours (only HTML, not RSC)
-        source: '/:locale/professions/:id/market',
-        missing: [
-          {
-            type: 'query',
-            key: '_rsc',
-          },
-        ],
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
-          },
-        ],
-      },
-      {
-        // Cache profession archetypes pages for 24 hours (only HTML, not RSC)
-        source: '/:locale/professions/:id/archetypes',
-        missing: [
-          {
-            type: 'query',
-            key: '_rsc',
-          },
-        ],
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
-          },
-        ],
-      },
-      {
-        // Cache test pages for 24 hours (only HTML, not RSC)
-        source: '/:locale/tests/:testId',
+        // Cache ALL test pages for 24 hours (wildcard pattern)
+        // Matches: /en/tests, /en/tests/:testId, /en/tests/:testId/results, etc.
+        source: '/:locale/tests/:path*',
         missing: [
           {
             type: 'query',
