@@ -34,7 +34,7 @@ services:
 
   # Backend API (NestJS) - Using pre-built image from Docker Hub
   backend:
-    image: YOUR_DOCKER_USERNAME/profwise-backend:latest  # UPDATE THIS!
+    image: zhumirov/profwise-backend:latest  # UPDATE THIS!
     restart: unless-stopped
     expose:
       - "4000"
@@ -70,7 +70,7 @@ services:
 
   # Frontend (Next.js) - Using pre-built image from Docker Hub
   frontend:
-    image: YOUR_DOCKER_USERNAME/profwise-frontend:latest  # UPDATE THIS!
+    image: zhumirov/profwise-frontend:latest  # UPDATE THIS!
     restart: unless-stopped
     expose:
       - "3000"

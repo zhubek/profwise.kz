@@ -7,7 +7,7 @@
 set -e  # Exit on error
 
 # Configuration - UPDATE THESE!
-DOCKER_USERNAME="your-docker-username"  # Change to your Docker Hub username
+DOCKER_USERNAME="zhumirov"  # Change to your Docker Hub username
 FRONTEND_IMAGE="$DOCKER_USERNAME/profwise-frontend"
 BACKEND_IMAGE="$DOCKER_USERNAME/profwise-backend"
 TAG="latest"  # or use version tags like "v1.0.0"
